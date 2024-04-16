@@ -1,0 +1,38 @@
+# Binaries and intermediate output
+bin/
+obj/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# IDE - Visual Studio
+.vs/
+*.vsconfig
+*.njsproj
+*.publishsettings
+
+# ReSharper / Rider
+.idea/
+_ReSharper*/
+*.DotSettings.user
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]ogs/
+[Tt]est[Rr]esult*/
