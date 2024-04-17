@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HiveServer.Model.DTO
 {
-    public class AccountRequestDTO
+    public class AccountRequest
     {
         [Required]
         [EmailAddress]
@@ -19,9 +19,9 @@ namespace HiveServer.Model.DTO
         public required string Password { get; set; } // 사용자 비밀번호
     }
 
-    public class AccountResponseDTO
+    public class AccountResponse // [TODO] : Success 없애기. 그리고 Message 없애고 에러코드로 바꾸기 
     {
         public bool Success { get; set; }  // 요청 성공 여부
-        public required string Message { get; set; } // 결과 메시지(항상있으니깐)
+        public required string Message { get; set; }
     }
 }

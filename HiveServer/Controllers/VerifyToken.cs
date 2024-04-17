@@ -11,7 +11,7 @@ namespace HiveServer.Controllers;
 public class VerifyTokenController : ControllerBase
 {
     private readonly ILogger<VerifyTokenController> _logger;
-    private readonly IConnectionMultiplexer _redis;
+    private readonly IConnectionMultiplexer _redis; // [TODO] 레디스 관련 처리 Repository 아래에 만들어서 진행하기
 
     public VerifyTokenController(ILogger<VerifyTokenController> logger, IConnectionMultiplexer redis)
     {
@@ -20,7 +20,7 @@ public class VerifyTokenController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Verify([FromBody] VerifyTokeRequestDTO request)
+    public async Task<IActionResult> Verify([FromBody] VerifyTokeRequest request)
     {
         if (!ModelState.IsValid)
         {
@@ -33,7 +33,7 @@ public class VerifyTokenController : ControllerBase
         if (storedToken.IsNullOrEmpty)
         {
             _logger.LogInformation("No token found for user ID: {UserId}", request.UserId);
-            return Ok(new VerifyTokenResponseDTO
+            return Ok(new VerifyTokenResponse
             {
                 Success = false,
                 Message = "Token not found."
@@ -42,7 +42,7 @@ public class VerifyTokenController : ControllerBase
 
         if (storedToken == request.HiveToken)
         {
-            return Ok(new VerifyTokenResponseDTO
+            return Ok(new VerifyTokenResponse
             {
                 Success = true,
                 Message = "Token is valid."
@@ -51,7 +51,7 @@ public class VerifyTokenController : ControllerBase
         else
         {
             _logger.LogWarning("Invalid token for user ID: {UserId}", request.UserId);
-            return Ok(new VerifyTokenResponseDTO
+            return Ok(new VerifyTokenResponse
             {
                 Success = false,
                 Message = "Invalid token."
