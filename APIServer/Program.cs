@@ -37,18 +37,8 @@ builder.Services.AddControllers();
 
 var app = builder.Build(); 
 
-// 미들웨어 설정
 app.UseRouting();
-app.UseAuthorization();
 
 app.MapControllers(); 
 
 app.Run(); 
-
-// // 요청 처리 파이프라인을 구성합니다.
-// app.UseRouting();
-// app.UseAuthorization();
-// app.UseEndpoints(endpoints =>
-// {
-//     endpoints.MapControllers();
-// });
