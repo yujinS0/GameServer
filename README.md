@@ -9,7 +9,8 @@
     * 관련해서 controller의 로직들도 대폭 수정 필요!
 - `controller`
   + <IActionResult> 이렇게 보내는 경우 수정 : Req/Res 타입 바로 넣게
-  + 로직 부분 여기서 처리하지 말기 -> repository에서?
+  + 로직 부분 여기서 처리하지 말기
+    * controller / service / repository 적절히 분리하기!!
 - `repository`
   + 쿼리문 사용한 경우 -> KATA 사용으로 수정하기
   + 쿼리문에서 함수 처리하지 말기 -> server에서 처리하기
