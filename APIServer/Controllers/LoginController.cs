@@ -1,14 +1,10 @@
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using APIServer.DTO;
 using APIServer.Repository;
-using APIServer.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace APIServer.Controllers;
-
 [ApiController]
 [Route("[controller]")]
 public class LoginController : ControllerBase
@@ -27,7 +23,7 @@ public class LoginController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Login([FromBody] TokenValidationRequest request)
+    public async Task<LoginResponse> Login([FromBody] TokenValidationRequest request)
     {
         var client = _httpClientFactory.CreateClient();
         var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
@@ -44,10 +40,10 @@ public class LoginController : ControllerBase
             if (validationResult == null)
             {
                 _logger.LogWarning("Failed to deserialize the token validation response.");
-                return BadRequest("Invalid response format.");
+                return new LoginResponse { Result = ErrorCode.ResponseFormatError };
             }
 
-            if (validationResult.Success)
+            if (validationResult.Result == ErrorCode.None)
             {
                 var gameToken = await _gameRedis.SetUserTokenAsync(request.UserID);
                 var userData = await _gameDb.GetUserGameDataAsync(request.UserID);
@@ -58,24 +54,36 @@ public class LoginController : ControllerBase
                     userData = await _gameDb.CreateUserGameDataAsync(request.UserID);
                 }
 
-                _logger.LogInformation("Successfully authenticated user {UserID} with token {Token}", request.UserID, gameToken);
-                return Ok(new { Token = gameToken, UserData = userData });
+                _logger.LogInformation("Successfully authenticated user {UserID} with token", request.UserID);
+                return new LoginResponse
+                {
+                    Result = ErrorCode.None,
+                    Token = gameToken,
+                    Uid = request.UserID,
+                    UserGameData = userData
+                };
             }
             else
             {
-                _logger.LogWarning("Token validation failed: {Message}", validationResult.Message);
-                return Unauthorized("토큰 유효하지 않음: " + validationResult.Message);
+                _logger.LogWarning("Token validation failed: {ErrorCode}", validationResult.Result);
+                return new LoginResponse
+                {
+                    Result = validationResult.Result,
+                    Token = "",
+                    Uid = 0,
+                    UserGameData = null
+                };
             }
         }
         catch (HttpRequestException e)
         {
             _logger.LogError(e, "HTTP request to token validation service failed.");
-            return StatusCode(500, "서버 에러: " + e.Message);
+            return new LoginResponse { Result = ErrorCode.ServerError };
         }
         catch (JsonException e)
         {
             _logger.LogError(e, "Error parsing JSON from token validation service.");
-            return BadRequest("Invalid JSON format in response.");
+            return new LoginResponse { Result = ErrorCode.JsonParsingError };
         }
     }
 }

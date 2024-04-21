@@ -1,8 +1,5 @@
-using StackExchange.Redis;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using HiveServer.Model.DTO;
-using Microsoft.Extensions.Logging;
 using HiveServer.Services;
 using HiveServer.Repository;
 
@@ -14,61 +11,34 @@ public class LoginController : ControllerBase
 {
     private readonly ILogger<LoginController> _logger;
     private readonly IHiveDb _hiveDb;
-    private readonly IConnectionMultiplexer _redis;
+    private readonly IHiveRedis _hiveRedis;
 
-    public LoginController(ILogger<LoginController> logger, IHiveDb hiveDb, IConnectionMultiplexer redis)
+
+    public LoginController(ILogger<LoginController> logger, IHiveDb hiveDb, IHiveRedis hiveRedis, IConfiguration config)
     {
         _logger = logger;
         _hiveDb = hiveDb;
-        _redis = redis;
+        _hiveRedis = hiveRedis;
     }
 
     [HttpPost]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public async Task<LoginResponse> Login([FromBody] LoginRequest request)
     {
-        if (!ModelState.IsValid) // [TODO] ModelState 볼 필요 없음. 입력받을 때 걸러주니깐! 
+        var (error, userId) = await _hiveDb.VerifyUser(request.Email, request.Password);
+        if (error != ErrorCode.None)  // 에러 코드가 None이 아닐 때 로그인 실패 처리
         {
-            return BadRequest(ModelState); // [TODO] Badrequest 필요 없음.(클라이언트에서 잘못 접근했을 때만 주로 쓰고) 이것도 에러 코드로 수정하기 !! 
+            return new LoginResponse { Result = error }; // 에러 코드를 포함한 응답
         }
-        try
-        {
-            var playerId = await _hiveDb.VerifyUser(request.Email, request.Password);
-            if (playerId == 0)  // playerId가 0이면 로그인 실패
-            {
-                _logger.LogWarning("Login failed for Email: {Email}, invalid credentials", request.Email);
-                return BadRequest(new LoginResponse
-                {
-                    Success = false,
-                    Message = "Invalid credentials",
-                    userId = 0,
-                    HiveToken = ""
-                });
-            }
 
-            var token = Security.CreateAuthToken();
-            var db = _redis.GetDatabase(); // [TODO] DI의 의미가 없다 이렇게 하면, memoryDb를 만들어서 처리해야한다. 오직 함수만 호출하는 형식으로 
-            // 로그인 토큰 저장 1시간으로 설정
-            await db.StringSetAsync($"user:{playerId}", token, TimeSpan.FromHours(1));  // 레디스에 토큰값 만들어서 저장하게 하는 함수 호출하는 방식으로 
+        var token = Security.MakeHashingToken(request.Email, userId);
+        bool tokenSet = await _hiveRedis.SetTokenAsync(userId, token, TimeSpan.FromHours(1));
 
-            return Ok(new LoginResponse
-            {
-                Success = true, // 
-                Message = "User logged in successfully.",
-                userId = playerId,
-                HiveToken = token
-            });
-        }
-        catch (Exception ex)
+        if (!tokenSet)
         {
-            _logger.LogError(ex, "Login attempt failed for Email: {Email}", request.Email);
-            return BadRequest(new LoginResponse
-            {
-                Success = false,
-                Message = "Login attempt failed due to an internal error",
-                userId = 0,
-                HiveToken = ""
-            });
+            return new LoginResponse { Result = ErrorCode.InternalError };
         }
+
+        return new LoginResponse { UserId = userId, HiveToken = token, Result = ErrorCode.None }; // 성공 응답
     }
-    
+
 }

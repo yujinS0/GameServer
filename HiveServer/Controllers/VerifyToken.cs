@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using HiveServer.Model.DTO;
 using StackExchange.Redis;
 using System.Threading.Tasks;
+using HiveServer.Services;
+using HiveServer.Repository;
 
 namespace HiveServer.Controllers;
 
@@ -11,51 +13,30 @@ namespace HiveServer.Controllers;
 public class VerifyTokenController : ControllerBase
 {
     private readonly ILogger<VerifyTokenController> _logger;
-    private readonly IConnectionMultiplexer _redis; // [TODO] 레디스 관련 처리 Repository 아래에 만들어서 진행하기
+    private readonly IHiveRedis _hiveRedis;
 
-    public VerifyTokenController(ILogger<VerifyTokenController> logger, IConnectionMultiplexer redis)
+    public VerifyTokenController(ILogger<VerifyTokenController> logger, IHiveRedis hiveRedis)
     {
         _logger = logger;
-        _redis = redis;
+        _hiveRedis = hiveRedis;
     }
 
     [HttpPost]
-    public async Task<IActionResult> Verify([FromBody] VerifyTokeRequest request)
+public async Task<VerifyTokenResponse> Verify([FromBody] VerifyTokenRequest request)
+{
+    bool isValid = await _hiveRedis.ValidateTokenAsync(request.UserId, request.HiveToken);
+
+    if (!isValid)
     {
-        if (!ModelState.IsValid)
+        return new VerifyTokenResponse
         {
-            return BadRequest(ModelState);
-        }
-
-        var db = _redis.GetDatabase();
-        var storedToken = await db.StringGetAsync($"user:{request.UserId}");
-        
-        if (storedToken.IsNullOrEmpty)
-        {
-            _logger.LogInformation("No token found for user ID: {UserId}", request.UserId);
-            return Ok(new VerifyTokenResponse
-            {
-                Success = false,
-                Message = "Token not found."
-            });
-        }
-
-        if (storedToken == request.HiveToken)
-        {
-            return Ok(new VerifyTokenResponse
-            {
-                Success = true,
-                Message = "Token is valid."
-            });
-        }
-        else
-        {
-            _logger.LogWarning("Invalid token for user ID: {UserId}", request.UserId);
-            return Ok(new VerifyTokenResponse
-            {
-                Success = false,
-                Message = "Invalid token."
-            });
-        }
+            Result = ErrorCode.VerifyTokenFail,
+        };
     }
+
+    return new VerifyTokenResponse
+    {
+        Result = ErrorCode.None,
+    };
+}
 }

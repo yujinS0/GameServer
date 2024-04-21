@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace HiveServer.Model.DTO
@@ -20,10 +19,12 @@ namespace HiveServer.Model.DTO
 
     public class LoginResponse
     {
-        public bool Success { get; set; }  // 요청 성공 여부
-        public required string Message { get; set; }
-        public required long userId { get; set; }
-        public required string HiveToken { get; set; }
+        [Required]
+        public ErrorCode Result { get; set; } = ErrorCode.None;
+
+        [Required]
+        public long UserId { get; set; }
+        public string HiveToken { get; set; }
     }
 
 }
