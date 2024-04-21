@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Threading.Tasks;
-using APIServer.Models;
 using APIServer.Models.GameDB;
 using APIServer.Repository;
 using Microsoft.Extensions.Options;
@@ -26,12 +21,11 @@ public class GameDb : IGameDb
         _connection = new MySqlConnection(_dbConfig.Value.MysqlGameDBConnection);
         _connection.Open();
 
-        // Configure QueryFactory
         var compiler = new MySqlCompiler();
         _queryFactory = new QueryFactory(_connection, compiler);
     }
 
-    public async Task<UserGameData> CreateUserGameDataAsync(string userId)
+    public async Task<UserGameData> CreateUserGameDataAsync(long userId)
     {
         var newUser = new UserGameData
         {
@@ -41,13 +35,11 @@ public class GameDb : IGameDb
             Win = 0,
             Lose = 0
         };
-
         await _queryFactory.Query("UserGameData").InsertAsync(newUser);
-
         return newUser;
     }
 
-    public async Task<UserGameData> GetUserGameDataAsync(string userId)
+    public async Task<UserGameData> GetUserGameDataAsync(long userId)
     {
         var user = await _queryFactory.Query("UserGameData").Where("UserId", "=", userId).FirstOrDefaultAsync<UserGameData>();
 
@@ -58,6 +50,6 @@ public class GameDb : IGameDb
     {
         _connection?.Close();
         _connection?.Dispose();
-        _connection = null;
+        // _connection = null;
     }
 }

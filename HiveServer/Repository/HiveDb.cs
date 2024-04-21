@@ -9,81 +9,83 @@ namespace HiveServer.Repository
     public class HiveDb : IHiveDb
     {
         private readonly IOptions<DbConfig> _dbConfig;
-        private readonly ILogger<HiveDb> _logger; // 로거의 제네릭 타입도 HiveDb로 변경
-        // private readonly string _connectionString;
-        private MySqlConnection _connection; // 데이터베이스 연결을 관리
+        private readonly ILogger<HiveDb> _logger; // 로거의 제네릭 타입도 HiveDb로 변경 -> why?
+        private MySqlConnection _connection;
+        readonly QueryFactory _queryFactory;
 
         public HiveDb(IOptions<DbConfig> dbConfig, ILogger<HiveDb> logger) // 생성자
         {
             _dbConfig = dbConfig;
-            // _connectionString = connectionString;
             _logger = logger;
 
-            // Open()
             _connection = new MySqlConnection(_dbConfig.Value.MysqlHiveDBConnection); // 읽어와서 연결 
-            _connection.Open(); // 연결 열기
+            _connection.Open();
+
+            _queryFactory = new QueryFactory(_connection, new MySqlCompiler()); // QueryFactory 객체 생성
         }
 
         public void Dispose()
         {
-            _connection?.Close(); // 연결이 열려있으면 닫기
-            _connection?.Dispose(); // 연결 자원 해제
-            _connection = null; // 참조 제거
+            _connection?.Close();
+            _connection?.Dispose();
+            // _connection = null; // 
         }
 
-        public async Task<IEnumerable<dynamic>> GetAllAccounts()
-        {
-            var compiler = new MySqlCompiler();
-            var queryFactory = new QueryFactory(_connection, compiler);
-            _logger.LogInformation("Fetching all accounts from the database.");
-            return await queryFactory.Query("account").GetAsync();
-        }
-
-        public async Task<int> RegisterAccount(string email, string password)
+        public async Task<ErrorCode> RegisterAccount(string email, string password)
         {
             try
             {
-                var salt = Security.SaltString(); // 솔트 생성
-                var hashedPassword = Security.MakeHashingPassWord(salt, password); // 비밀번호 해싱
+                var salt = Security.SaltString();
+                var hashedPassword = Security.MakeHashingPassWord(salt, password);
 
-                var compiler = new MySqlCompiler();
-                var queryFactory = new QueryFactory(_connection, compiler);
-                var id = await queryFactory.Query("account").InsertGetIdAsync<int>(new { // KATA를 통해 간단하게 처리한 부분!
+                var id = await _queryFactory.Query("account").InsertGetIdAsync<int>(new {
                     Email = email,
-                    Password = hashedPassword, // 해시된 비밀번호 저장
-                    Salt = salt  // 솔트 저장
+                    Password = hashedPassword,
+                    Salt = salt
                 });
 
-                _logger.LogInformation($"Account successfully registered with ID: {id}, using hashed password and salt.");
-                return id;
+                _logger.LogInformation($"Account successfully registered with ID: {id}.");
+                return ErrorCode.None; // Success
+            }
+            catch (MySqlException ex)
+            {
+                _logger.LogError(ex, "Database error when registering account with Email: {Email}", email);
+                return ErrorCode.DatabaseError;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to register account with Email: {Email}", email);
-                throw;
+                return ErrorCode.InternalError; // Generic error for unexpected issues
             }
         }
 
-        public async Task<long> VerifyUser(string email, string password) //[TODO] 로직 다시보고 수정
+        public async Task<(ErrorCode, long)> VerifyUser(string email, string password)
         {
-            using (var conn = new MySqlConnection(_dbConfig.Value.MysqlHiveDBConnection)) 
+            try
             {
-                await conn.OpenAsync(); // [TODO]: 여기서 또 열 필요 없다. 위에서 열었으니깐 ! 
-                var query = "SELECT userid FROM account WHERE email = @Email AND password = SHA2(CONCAT(salt, @Password), 256)"; 
-                // [TODO]: 여기서 쿼리문 말고 KATA 사용
-                // 그리고 mysql에서 쿼리문으로 함수 호출하는 식(SHA2(CONCAT(salt, @Password), 256))으로 진행하지 말고, 
-                // 최대한 함수 호출하는 로드는 게임 서버에서 처리하도록!!
-                var cmd = new MySqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@Email", email);
-                cmd.Parameters.AddWithValue("@Password", password);
+                var query = _queryFactory.Query("account")
+                                         .Select("userid")
+                                         .WhereRaw("email = ? AND password = SHA2(CONCAT(salt, ?), 256)", email, password);
 
-                var result = await cmd.ExecuteScalarAsync();
-                if (result != null)
+                var userId = await query.FirstOrDefaultAsync<long?>();
+
+                if (userId.HasValue)
                 {
-                    return Convert.ToInt64(result); // 사용자 ID 반환
+                    _logger.LogInformation("User verified successfully with ID: {UserId}", userId.Value);
+                    return (ErrorCode.None, userId.Value);
                 }
+                return (ErrorCode.UserNotFound, 0);
             }
-            return 0; // 일치하는 사용자가 없으면 0 반환
+            catch (MySqlException ex)
+            {
+                _logger.LogError(ex, "Database error when verifying user with Email: {Email}", email);
+                return (ErrorCode.DatabaseError, 0);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to verify user with Email: {Email}", email);
+                return (ErrorCode.InternalError, 0);
+            }
         }
     }
 }

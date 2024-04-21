@@ -4,7 +4,7 @@ namespace APIServer.Repository
 {
     public interface IGameDb : IDisposable
     {
-        Task<UserGameData> CreateUserGameDataAsync(string userId);
-        Task<UserGameData> GetUserGameDataAsync(string userId);
+        Task<UserGameData> CreateUserGameDataAsync(long userId);
+        Task<UserGameData> GetUserGameDataAsync(long userId);
     }
 }
