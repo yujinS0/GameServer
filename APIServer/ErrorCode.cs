@@ -12,6 +12,8 @@ public enum ErrorCode : UInt16
     TokenDoesNotExist = 1004,
     UidDoesNotExist = 1005,
     AuthTokenFailWrongAuthToken = 1006,
+    JsonParsingError = 1007,
+    ResponseFormatError = 1008,
     Hive_Fail_InvalidResponse = 1010,
     InValidAppVersion = 1011,
     InvalidMasterDataVersion = 1012,
@@ -122,14 +124,16 @@ public enum ErrorCode : UInt16
 
     GachaReceiveFailException= 3051,
 
+    ServerError = 4001,
+
 
     //GameDb 4000~ 
-    GetGameDbConnectionFail = 4002,
+    // GetGameDbConnectionFail = 4002,
 
 
     // MasterDb 5000 ~
-    MasterDB_Fail_LoadData = 5001,
-    MasterDB_Fail_InvalidData = 5002,
+    // MasterDB_Fail_LoadData = 5001,
+    // MasterDB_Fail_InvalidData = 5002,
 
     // User
     UserInfoFailException = 6001,
