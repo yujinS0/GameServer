@@ -131,71 +131,60 @@ public partial class PKTNtfGameEnd : PkHeader
     public string Result { get; set; }
 }
 
-// 오목 플레이 준비 완료 요청
-//    [
-//
-//    ]
-//    public class PKTReqReadyOmok : PKTResponse
-//    {
-//    }
+//오목 플레이 준비 완료 요청
+[MemoryPackable]
+public partial class PKTReqReadyOmok : PkHeader
+{
+}
 
-//    [MessagePackObject]
-//    public class PKTResReadyOmok : PKTResponse
-//    {
-//    }
+[MemoryPackable]
+public partial class PKTResReadyOmok : PkHeader
+{
+}
 
-//    [MessagePackObject]
-//    public class PKTNtfReadyOmok : MsgPackPacketHead
-//    {
-//        [Key(1)]
-//        public string UserID;
-//        [Key(2)]
-//        public bool IsReady;
-//    }
+[MemoryPackable]
+public partial class PKTNtfReadyOmok : PkHeader
+{
+    public string UserID;
+    public bool IsReady;
+}
 
 
-//    // 오목 시작 통보(서버에서 클라이언트들에게)
-//    [MessagePackObject]
-//    public class PKTNtfStartOmok : MsgPackPacketHead
-//    {
-//        [Key(1)]
-//        public string FirstUserID; // 선턴 유저 ID
-//    }
+// 오목 시작 통보(서버에서 클라이언트들에게)
+[MemoryPackable]
+public partial class PKTNtfStartOmok : PkHeader
+{
+    public string FirstUserID; // 선턴 유저 ID
+}
 
 
-//    // 돌 두기
-//    [MessagePackObject]
-//    public class PKTReqPutMok : MsgPackPacketHead
-//    {
-//        [Key(1)]
-//        public int PosX;
-//        [Key(2)]
-//        public int PosY;        
-//    }
+// 돌 두기
+[MemoryPackable]
+public partial class PKTReqPutMok : PkHeader
+{
+    public int PosX;
+    public int PosY;
+}
 
-//    [MessagePackObject]
-//    public class PKTResPutMok : PKTResponse
-//    {
-//    }
+[MemoryPackable]
+public partial class PKTResPutMok : PkHeader
+{
+}
 
-//    [MessagePackObject]
-//    public class PKTNtfPutMok : MsgPackPacketHead
-//    {
-//        [Key(1)]
-//        public int PosX;
-//        [Key(2)]
-//        public int PosY;
-//        [Key(3)]
-//        public int Mok;
-//    }
+[MemoryPackable]
+public partial class PKTNtfPutMok : PkHeader
+{
+    public int PosX;
+    public int PosY;
+    public int Mok;
+}
 
-//    // 오목 게임 종료 통보
-//    [MessagePackObject]
-//    public class PKTNtfEndOmok : MsgPackPacketHead
-//    {
-//        [Key(1)]
-//        public string WinUserID;
-//    }
+// 오목 게임 종료 통보
+[MemoryPackable]
+public partial class PKTNtfEndOmok : PkHeader
+{
+    public string WinUserID;
+}
 
 ////////////////////////////////////////////////////////////////
 //namespace CSCommon

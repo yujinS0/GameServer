@@ -196,54 +196,50 @@ namespace OmokClient
             DevLog.Write($"로그인 결과:  {(ERROR_CODE)responsePkt.Result}");
         }
 
+        void PacketProcess_StartOmokNotify(byte[] packetData)
+        {
+            var isMyTurn = false;
+
+            var notifyPkt = MessagePackSerializer.Deserialize<PKTNtfStartOmok>(packetData);
+
+            if (notifyPkt.FirstUserID == textBoxUserID.Text)
+            {
+                isMyTurn = true;
+            }
+
+            StartGame(isMyTurn, textBoxUserID.Text, GetOtherPlayer(textBoxUserID.Text));
+
+            DevLog.Write($"게임 시작. 흑돌 플레이어: {notifyPkt.FirstUserID}");
+        }
 
 
+        void PacketProcess_PutMokResponse(byte[] packetData)
+        {
+            var responsePkt = MessagePackSerializer.Deserialize<PKTResPutMok>(packetData);
+
+            DevLog.Write($"오목 놓기 실패 ");
+
+            //TODO 방금 놓은 오목 정보를 취소 시켜야 한다
+        }
 
 
-        //void PacketProcess_StartOmokNotify(byte[] packetData)
-        //{
-        //    var isMyTurn = false;
+        void PacketProcess_PutMokNotify(byte[] packetData)
+        {
+            var notifyPkt = MessagePackSerializer.Deserialize<PKTNtfPutMok>(packetData);
 
-        //    var notifyPkt = MessagePackSerializer.Deserialize<PKTNtfStartOmok>(packetData);
+            플레이어_돌두기(true, notifyPkt.PosX, notifyPkt.PosY);
 
-        //    if(notifyPkt.FirstUserID == textBoxUserID.Text)
-        //    {
-        //        isMyTurn = true;
-        //    }
-
-        //    StartGame(isMyTurn, textBoxUserID.Text, GetOtherPlayer(textBoxUserID.Text));
-
-        //    DevLog.Write($"게임 시작. 흑돌 플레이어: {notifyPkt.FirstUserID}");
-        //}
+            DevLog.Write($"오목 정보: X: {notifyPkt.PosX},  Y: {notifyPkt.PosY},   알:{notifyPkt.Mok}");
+        }
 
 
-        //void PacketProcess_PutMokResponse(byte[] packetData)
-        //{
-        //    var responsePkt = MessagePackSerializer.Deserialize<PKTResPutMok>(packetData);
+        void PacketProcess_EndOmokNotify(byte[] packetData)
+        {
+            var notifyPkt = MessagePackSerializer.Deserialize<PKTNtfEndOmok>(packetData);
 
-        //    DevLog.Write($"오목 놓기 실패: {(ErrorCode)responsePkt.Result}");
+            EndGame();
 
-        //    //TODO 방금 놓은 오목 정보를 취소 시켜야 한다
-        //}
-
-
-        //void PacketProcess_PutMokNotify(byte[] packetData)
-        //{
-        //    var notifyPkt = MessagePackSerializer.Deserialize<PKTNtfPutMok>(packetData);
-
-        //    플레이어_돌두기(true, notifyPkt.PosX, notifyPkt.PosY);
-
-        //    DevLog.Write($"오목 정보: X: {notifyPkt.PosX},  Y: {notifyPkt.PosY},   알:{notifyPkt.Mok}");
-        //}
-
-
-        //void PacketProcess_EndOmokNotify(byte[] packetData)
-        //{
-        //    var notifyPkt = MessagePackSerializer.Deserialize<PKTNtfEndOmok>(packetData);
-
-        //    EndGame();
-
-        //    DevLog.Write($"오목 GameOver: Win: {notifyPkt.WinUserID}");
-        //}
+            DevLog.Write($"오목 GameOver: Win: {notifyPkt.WinUserID}");
+        }
     }
 }
