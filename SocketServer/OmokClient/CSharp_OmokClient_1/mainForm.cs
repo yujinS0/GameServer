@@ -328,8 +328,8 @@ namespace OmokClient
         private void button2_Click(object sender, EventArgs e)
         {
             var loginReq = new PKTReqLogin();
-            loginReq.UserID = textBoxUserID.Text;
             loginReq.AuthToken = textBoxUserPW.Text;
+            loginReq.UserID = textBoxUserID.Text;
             var packet = MemoryPackSerializer.Serialize(loginReq);
                         
             PostSendPacket(PACKETID.REQ_LOGIN, packet);            
