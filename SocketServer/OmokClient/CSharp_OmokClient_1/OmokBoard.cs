@@ -355,10 +355,10 @@ namespace OmokClient
 
         private void panel1_MouseMove(object sender, MouseEventArgs e)     // 현재 차례의 돌 잔상 구현 (마우스 움직일때)
         {
-            if (OmokLogic.게임종료 || IsMyTurn == false)
-            {
-                return;
-            }
+            //if (OmokLogic.게임종료 || IsMyTurn == false) //
+            //{
+            //    return;
+            //}
 
             int x, y;
 
