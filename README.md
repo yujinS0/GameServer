@@ -1,14 +1,38 @@
 # GameServer
 [송유진] 컴투스 서버 캠퍼스 2기
 <br><br>
-
+## Game API Server
 - [시퀀스 다이어그램](SequenceDiagram.md)
 - [DB 스키마](DBschema.md)
 - [ASP.NET core 공부 문서](https://github.com/yujinS0/ASP.NETcore-Study)
 
+## Game Socket Server
+- `OmokServer` 디렉토리 : 실제 오목 서버
+- `OmokClient` 디렉토리 : 실제 오목 클라이언트
+- 나머지 디렉토리 : 공부 및 실습 연습
+  + `MyChatServer` 디렉토리 : 채팅 서버 로직을 자세한 주석과 함께 설명 (로직 헷갈릴 때 참고하기)
+
 ---
-### 2주차 체크박스
-#### API 기능 구현
+## 진행상황
+### 소켓 프로그래밍
+- [X] 방 입장(최대 2명까지)
+- [X] 방 나가기
+- [X] 방 채팅
+- [X] 게임 시작
+  - 두명이 모두 게임 시작을 요청하면 바로 게임 시작
+- [ ] 돌두기 
+  - 시간 제한을 넘으면 상대방에게 턴이 자동으로 넘겨야 됨
+  - 연속으로 6번 자동으로 턴이 넘어가면 게임 취소
+- [ ] 오목 로직
+- [ ] 게임 종료
+  - 게임이 끝나면 서버는 결과를 알려준다.
+  - 클라이언트는 결과를 표시한다
+
+
+
+
+---
+### API 기능 구현
 - [X] 계정생성 (hive server)
 - [X] 로그인
   + Hive 서버 로그인 (hive server)
