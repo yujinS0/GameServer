@@ -57,7 +57,7 @@ namespace OmokClient
 
             btnDisconnect.Enabled = false;
 
-            SetPacketHandler();
+            SetPacketHandler(); // 패킷 핸들러 설정
 
 
             Omok_Init();
@@ -357,24 +357,24 @@ namespace OmokClient
 
         //private void btnRoomChat_Click(object sender, EventArgs e)
         //{
-        //    if(textBoxRoomSendMsg.Text.IsEmpty())
+        //    if (textBoxRoomSendMsg.Text.IsEmpty())
         //    {
         //        MessageBox.Show("채팅 메시지를 입력하세요");
         //        return;
         //    }
 
-        //    //var requestPkt = new RoomChatReqPacket();
-        //    //requestPkt.SetValue(textBoxRoomSendMsg.Text);
+        //    var requestPkt = new RoomChatReqPacket();
+        //    requestPkt.SetValue(textBoxRoomSendMsg.Text);
 
-        //    //PostSendPacket(PACKET_ID.ROOM_CHAT_REQ, requestPkt.ToBytes());
+        //    PostSendPacket(PACKETID.REQ_ROOM_CHAT, requestPkt.ToBytes());
         //    DevLog.Write($"방 채팅 요청");
         //}
 
-        //private void btnMatching_Click(object sender, EventArgs e)
-        //{
-        //    //PostSendPacket(PACKET_ID.MATCH_USER_REQ, null);
-        //    DevLog.Write($"매칭 요청");
-        //}
+        ////private void btnMatching_Click(object sender, EventArgs e)
+        ////{
+        ////    PostSendPacket(PACKETID.MATCH_USER_REQ, null);
+        ////    DevLog.Write($"매칭 요청");
+        ////}
 
         private void btnRoomChat_Click(object sender, EventArgs e)
         {

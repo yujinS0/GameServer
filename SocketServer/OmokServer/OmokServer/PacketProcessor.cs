@@ -27,7 +27,7 @@ class PacketProcessor
     PKHRoom _roomPacketHandler = new PKHRoom();
             
 
-    public void CreateAndStart(List<Room> roomList, ServerOption serverOpt)
+    public void CreateAndStart(List<Room> roomList, ServerOption serverOpt) // 서버 옵션을 받아서 초기화
     {
         var maxUserCount = serverOpt.RoomMaxCount * serverOpt.RoomMaxUserCount;
         _userMgr.Init(maxUserCount);
@@ -36,7 +36,7 @@ class PacketProcessor
         var minRoomNum = _roomList[0].Number;
         var maxRoomNum = _roomList[0].Number + _roomList.Count() - 1;
         
-        RegistPacketHandler();
+        RegistPacketHandler(); // 패킷 핸들러 등록
 
         _isThreadRunning = true;
         _processThread = new System.Threading.Thread(this.Process);
@@ -57,16 +57,16 @@ class PacketProcessor
           
     public void InsertPacket(MemoryPackBinaryRequestInfo data)
     {
-        _msgBuffer.Post(data);
+        _msgBuffer.Post(data); // 버퍼 블럭에 넣기
     }
 
     
-    void RegistPacketHandler()
+    void RegistPacketHandler() // 패킷 핸들러 등록
     {
         PKHandler.NetSendFunc = NetSendFunc;
         PKHandler.DistributeInnerPacket = InsertPacket;
         _commonPacketHandler.Init(_userMgr);
-        _commonPacketHandler.RegistPacketHandler(_packetHandlerMap);                
+        _commonPacketHandler.RegistPacketHandler(_packetHandlerMap);     
         
         _roomPacketHandler.Init(_userMgr);
         _roomPacketHandler.SetRooomList(_roomList);

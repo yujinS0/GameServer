@@ -73,8 +73,6 @@ public class PKHRoom : PKHandler
         return (true, room, roomUser);
     }
 
-
-
     public void RequestRoomEnter(MemoryPackBinaryRequestInfo packetData)
     {
         var sessionID = packetData.SessionID;

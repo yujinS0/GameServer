@@ -43,13 +43,13 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
         NewRequestReceived += new RequestHandler<NetworkSession, MemoryPackBinaryRequestInfo>(OnPacketReceived);
     }
 
-    //public Task StartAsync(CancellationToken cancellationToken)
-    //{
-    //    _appLifetime.ApplicationStarted.Register(AppOnStarted);
-    //    _appLifetime.ApplicationStopped.Register(AppOnStopped);
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        _appLifetime.ApplicationStarted.Register(AppOnStarted);
+        _appLifetime.ApplicationStopped.Register(AppOnStopped);
 
-    //    return Task.CompletedTask;
-    //}
+        return Task.CompletedTask;
+    }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {

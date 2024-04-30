@@ -10,6 +10,7 @@ using SuperSocket.SocketEngine.Protocol;
 
 namespace OmokServer;
 
+// 이 코드에서 
 public class MemoryPackBinaryRequestInfo : BinaryRequestInfo
 {
     public string SessionID;
@@ -49,8 +50,8 @@ public class ReceiveFilter : FixedHeaderReceiveFilter<MemoryPackBinaryRequestInf
     {
         if (!BitConverter.IsLittleEndian)
 		{
-            Array.Reverse(header.Array, 0, MemoryPackBinaryRequestInfo.HEADERE_SIZE);
-		}
+            Array.Reverse(header.Array, 0, MemoryPackBinaryRequestInfo.HEADERE_SIZE); // 위와 동일한 이유로 리버스 (근데 이게 반복이 아닌가? 생각하기)
+        }
 			
         // body 데이터가 있는 경우
 		if (length > 0)

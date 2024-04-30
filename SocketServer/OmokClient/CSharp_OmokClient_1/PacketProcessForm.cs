@@ -11,9 +11,9 @@ namespace OmokClient
 {
     public partial class mainForm
     {
-        Dictionary<PACKETID, Action<byte[]>> PacketFuncDic = new Dictionary<PACKETID, Action<byte[]>>();
+        Dictionary<PACKETID, Action<byte[]>> PacketFuncDic = new Dictionary<PACKETID, Action<byte[]>>(); // 패킷 처리 함수 딕셔너리
 
-        void SetPacketHandler()
+        void SetPacketHandler() // 패킷 핸들러 설정 
         {
             //PacketFuncDic.Add(PACKET_ID.PACKET_ID_ERROR_NTF, PacketProcess_ErrorNotify);
             PacketFuncDic.Add(PACKETID.RES_LOGIN, PacketProcess_Loginin);
@@ -24,9 +24,9 @@ namespace OmokClient
             PacketFuncDic.Add(PACKETID.RES_ROOM_LEAVE, PacketProcess_RoomLeaveResponse);
             PacketFuncDic.Add(PACKETID.NTF_ROOM_LEAVE_USER, PacketProcess_RoomLeaveUserNotify);
             PacketFuncDic.Add(PACKETID.NTF_ROOM_CHAT, PacketProcess_RoomChatNotify);
+            //PacketFuncDic.Add(PACKETID.REQ_ROOM_CHAT, PacketProcess_RoomChatResponse);
 
-            //PacketFuncDic.Add(PACKETID.ResRoomChat, PacketProcess_RoomChatResponse);
-            //PacketFuncDic.Add(PACKETID.NtfRoomChat, PacketProcess_RoomChatNotify);
+
             //PacketFuncDic.Add(PACKETID.ResReadyOmok, PacketProcess_ReadyOmokResponse);
             //PacketFuncDic.Add(PACKETID.NtfReadyOmok, PacketProcess_ReadyOmokNotify);
             //PacketFuncDic.Add(PACKETID.NtfStartOmok, PacketProcess_StartOmokNotify);
@@ -35,16 +35,16 @@ namespace OmokClient
             //PacketFuncDic.Add(PACKETID.NTFEndOmok, PacketProcess_EndOmokNotify);          
         }
 
-        void PacketProcess(byte[] packet)
+        void PacketProcess(byte[] packet) // 패킷 처리
         {
-            var header = new MemoryPackPacketHeadInfo();
-            header.Read(packet);
+            var header = new MemoryPackPacketHeadInfo(); // 패킷 헤더 정보
+            header.Read(packet); // 패킷 헤더 읽기
 
-            var packetID = (PACKETID)header.Id;
+            var packetID = (PACKETID)header.Id; // 패킷 ID
 
-            if (PacketFuncDic.ContainsKey(packetID))
+            if (PacketFuncDic.ContainsKey(packetID)) // 패킷 ID가 딕셔너리에 있으면
             {
-                PacketFuncDic[packetID](packet);
+                PacketFuncDic[packetID](packet); // 해당 패킷 처리 함수 호출
             }
             else
             {
@@ -111,9 +111,9 @@ namespace OmokClient
         }
 
 
-        void PacketProcess_Loginin(byte[] packetData)
+        void PacketProcess_Loginin(byte[] packetData) // 로그인 결과 처리
         {
-            var responsePkt = MemoryPackSerializer.Deserialize<PKTResLogin>(packetData);
+            var responsePkt = MemoryPackSerializer.Deserialize<PKTResLogin>(packetData); // 패킷 데이터를 PKTResLogin 클래스로 역직렬화
             DevLog.Write($"로그인 결과: {(ERROR_CODE)responsePkt.Result}");
         }
 
@@ -162,6 +162,7 @@ namespace OmokClient
         }
 
 
+
         void PacketProcess_RoomChatResponse(byte[] packetData)
         {
             var responsePkt = MemoryPackSerializer.Deserialize<PKTResRoomChat>(packetData);
@@ -174,7 +175,7 @@ namespace OmokClient
         {
             var notifyPkt = MemoryPackSerializer.Deserialize<PKTNtfRoomChat>(packetData);
 
-            //AddRoomChatMessageList(notifyPkt.UserID, notifyPkt.ChatMessage);
+            AddRoomChatMessageList(notifyPkt.UserID, notifyPkt.ChatMessage);
         }
 
         void AddRoomChatMessageList(string userID, string message)

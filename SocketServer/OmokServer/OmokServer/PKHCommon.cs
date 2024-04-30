@@ -9,12 +9,11 @@ namespace OmokServer;
 public class PKHCommon : PKHandler
 {
     public void RegistPacketHandler(Dictionary<int, Action<MemoryPackBinaryRequestInfo>> packetHandlerMap)
-    {            
+    {
         packetHandlerMap.Add((int)PACKETID.NTF_IN_CONNECT_CLIENT, NotifyInConnectClient);
         packetHandlerMap.Add((int)PACKETID.NTF_IN_DISCONNECT_CLIENT, NotifyInDisConnectClient);
 
         packetHandlerMap.Add((int)PACKETID.REQ_LOGIN, RequestLogin);
-                                            
     }
 
     public void NotifyInConnectClient(MemoryPackBinaryRequestInfo requestData)
