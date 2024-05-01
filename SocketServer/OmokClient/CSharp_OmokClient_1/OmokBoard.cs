@@ -28,12 +28,12 @@ namespace OmokClient
         private SolidBrush 검은색 = new SolidBrush(Color.Black);
         private SolidBrush 흰색 = new SolidBrush(Color.White);
 
-        private SoundPlayer 시작효과음;
-        private SoundPlayer 종료효과음;
-        private SoundPlayer 승리효과음;
-        private SoundPlayer 바둑돌소리;
-        private SoundPlayer 무르기요청;
-        private SoundPlayer 오류효과음;
+        //private SoundPlayer 시작효과음;
+        //private SoundPlayer 종료효과음;
+        //private SoundPlayer 승리효과음;
+        //private SoundPlayer 바둑돌소리;
+        //private SoundPlayer 무르기요청;
+        //private SoundPlayer 오류효과음;
         #endregion
                 
         private int 전x좌표 = -1, 전y좌표 = -1;
@@ -57,11 +57,11 @@ namespace OmokClient
             DoubleBuffered = true;
 
             var curDir = System.Windows.Forms.Application.StartupPath;
-            시작효과음 = new SoundPlayer($"{curDir}\\sound\\대국시작.wav");
-            승리효과음 = new SoundPlayer($"{curDir}\\sound\\대국승리.wav");
-            바둑돌소리 = new SoundPlayer($"{curDir}\\sound\\바둑돌소리.wav");
-            무르기요청 = new SoundPlayer($"{curDir}\\sound\\무르기.wav");
-            오류효과음 = new SoundPlayer($"{curDir}\\sound\\오류.wav");
+            //시작효과음 = new SoundPlayer($"{curDir}\\sound\\대국시작.wav");
+            //승리효과음 = new SoundPlayer($"{curDir}\\sound\\대국승리.wav");
+            //바둑돌소리 = new SoundPlayer($"{curDir}\\sound\\바둑돌소리.wav");
+            //무르기요청 = new SoundPlayer($"{curDir}\\sound\\무르기.wav");
+            //오류효과음 = new SoundPlayer($"{curDir}\\sound\\오류.wav");
 
             //ai = new AI(바둑판);
             //컴퓨터돌 = 돌종류.백돌;
@@ -86,7 +86,7 @@ namespace OmokClient
             IsMyTurn = isMyTurn;
 
             전x좌표 = 전y좌표 = -1;
-            시작효과음.Play();
+            //시작효과음.Play();
 
             OmokLogic.StartGame();
             
@@ -227,11 +227,11 @@ namespace OmokClient
             Rectangle r = new Rectangle(시작위치 + 눈금크기 * x - 돌크기 / 2,
                 시작위치 + 눈금크기 * y - 돌크기 / 2, 돌크기, 돌크기);
 
-            if (OmokLogic.바둑판알(x, y) == (int)CSCommon.OmokRule.돌종류.흑돌)                              // 검은 돌
+            if (OmokLogic.바둑판알(x, y) == (int)CSCommon.OmokRule.돌종류.흑돌)  // 검은 돌
             {
                 g.FillEllipse(검은색, r);
             }
-            else if (OmokLogic.바둑판알(x, y) == (int)CSCommon.OmokRule.돌종류.백돌)                         // 흰 돌
+            else if (OmokLogic.바둑판알(x, y) == (int)CSCommon.OmokRule.돌종류.백돌)  // 흰 돌
             {
                 g.FillEllipse(흰색, r);
             }
@@ -266,7 +266,7 @@ namespace OmokClient
             g.FillEllipse(빨간색, r);      
         }
 
-        void 현재턴_플레이어_정보()        // 화면 하단에 다음에 둘 돌의 색을 표시
+        void 현재턴_플레이어_정보() // 화면 하단에 다음에 둘 돌의 색을 표시
         {
             Graphics g = panel1.CreateGraphics();
             string str;
@@ -281,7 +281,7 @@ namespace OmokClient
                 g.DrawString($"PlayerName: {흑돌플레이어Name }", 글꼴, 검은색, (시작위치 + 120 + 돌크기), 600);
             }
 
-            else                 // 다음 돌 표시(흰 돌)
+            else  // 다음 돌 표시(흰 돌)
             {
                 str = "현재 턴 돌";
                 g.FillEllipse(흰색, 시작위치 + 100, 599, 돌크기, 돌크기);
@@ -298,8 +298,6 @@ namespace OmokClient
             {
                 return;
             }
-
-
             int x, y;
 
             // 왼쪽클릭만 허용
@@ -339,10 +337,10 @@ namespace OmokClient
             OmokLogic.오목확인(x, y);
                         
             
-            if (isNotify == false)
+            if (isNotify == false) // 상대방에게 돌을 놓았다고 알리는 패킷을 보냄
             {
                 IsMyTurn = false;
-                //SendPacketOmokPut(x, y);
+                SendPacketOmokPut(x, y);
             }
             else
             {
@@ -353,12 +351,12 @@ namespace OmokClient
             panel1.Invalidate(r);
         }
 
-        private void panel1_MouseMove(object sender, MouseEventArgs e)     // 현재 차례의 돌 잔상 구현 (마우스 움직일때)
+        private void panel1_MouseMove(object sender, MouseEventArgs e) // 현재 차례의 돌 잔상 구현 (마우스 움직일때)
         {
-            //if (OmokLogic.게임종료 || IsMyTurn == false) //
-            //{
-            //    return;
-            //}
+            if (OmokLogic.게임종료 || IsMyTurn == false) 
+            {
+                return;
+            }
 
             int x, y;
 
@@ -375,11 +373,16 @@ namespace OmokClient
             {
                 return;
             }
-            else if (OmokLogic.바둑판알(x, y) == (int)CSCommon.OmokRule.돌종류.없음 && 
-                        !OmokLogic.게임종료 && 
+            else if (OmokLogic.바둑판알(x, y) == (int)CSCommon.OmokRule.돌종류.없음 &&
+                        !OmokLogic.게임종료 &&
                         (전x좌표 != x || 전y좌표 != y)
-                        )  
+                        )
             {
+                //else if (OmokLogic.바둑판알(x, y) == (int)CSCommon.OmokRule.돌종류.없음 && 
+                //            !OmokLogic.게임종료 && 
+                //            (전x좌표 != x || 전y좌표 != y)
+                //            )  
+                //{
                 // 바둑판 해당 좌표에 아무것도 없고, 좌표가 변경되면
                 Graphics g = panel1.CreateGraphics();
 
@@ -402,8 +405,6 @@ namespace OmokClient
             }
         }
         #endregion
-
-
 
         void 컴퓨터두기()
         {

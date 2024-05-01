@@ -71,12 +71,15 @@ public class User
    
     public int RoomNumber { get; private set; } = -1;
     string UserID;
+
+    bool IsReady = false;
             
     public void Set(UInt64 sequence, string sessionID, string userID)
     {
         SequenceNumber = sequence;
         SessionID = sessionID;
         UserID = userID;
+        IsReady = false;
     }                   
     
     public bool IsConfirm(string netSessionID)
@@ -102,5 +105,19 @@ public class User
     public bool IsStateLogin() { return SequenceNumber != 0; }
 
     public bool IsStateRoom() { return RoomNumber != -1; }
+
+    //public void SetReady()
+    //{
+    //    IsReady = !IsReady;
+    //}
+    //public void SetReady(bool isReady)
+    //{
+    //    IsReady = isReady;
+    //}
+
+    //public bool GetIsReady()
+    //{
+    //    return IsReady;
+    //}
 }
 

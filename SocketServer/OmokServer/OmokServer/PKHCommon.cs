@@ -54,8 +54,9 @@ public class PKHCommon : PKHandler
             }
                             
             var reqData = MemoryPackSerializer.Deserialize< PKTReqLogin>(packetData.Data);
+            // 로그인 처리
             var errorCode = _userMgr.AddUser(reqData.UserID, sessionID);
-            if (errorCode != ERROR_CODE.NONE)
+            if (errorCode != ERROR_CODE.NONE) // 로그인 실패
             {
                 ResponseLoginToClient(errorCode, packetData.SessionID);
 
@@ -103,9 +104,5 @@ public class PKHCommon : PKHandler
         MemoryPackPacketHeadInfo.Write(sendData, PACKETID.NTF_MUST_CLOSE);
 
         NetSendFunc(sessionID, sendData);
-    }
-
-
-    
-                  
+    }          
 }

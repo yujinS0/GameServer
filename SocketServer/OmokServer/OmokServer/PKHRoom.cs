@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.Marshalling;
 
 
 namespace OmokServer;
@@ -24,14 +25,16 @@ public class PKHRoom : PKHandler
         packetHandlerMap.Add((int)PACKETID.NTF_IN_ROOM_LEAVE, NotifyLeaveInternal);
         packetHandlerMap.Add((int)PACKETID.REQ_ROOM_CHAT, RequestChat);
 
+        //
+        packetHandlerMap.Add((int)PACKETID.ReqReadyOmok, ReqReadyOmok);
+
+
         // 오목 게임 관련
-        packetHandlerMap.Add((int)PACKETID.REQ_GAME_START, RequestGameStart);
-        packetHandlerMap.Add((int)PACKETID.NTF_GAME_START, NotifyGameStart);
+        packetHandlerMap.Add((int)PACKETID.ReqPutMok, RequestPlaceStone);
+        //packetHandlerMap.Add((int)PACKETID.ResPutMok, ResponsePlaceStone);
+        //packetHandlerMap.Add((int)PACKETID.NTFPutMok, NotifyPlaceStone);
 
-        packetHandlerMap.Add((int)PACKETID.REQ_PLACE_STONE, RequestPlaceStone);
-        packetHandlerMap.Add((int)PACKETID.NTF_PLACE_STONE, NotifyPlaceStone);
-
-        packetHandlerMap.Add((int)PACKETID.NTF_GAME_END, NotifyGameEnd);
+        packetHandlerMap.Add((int)PACKETID.NTFEndOmok, NotifyGameEnd);
     }
 
 
@@ -73,50 +76,50 @@ public class PKHRoom : PKHandler
         return (true, room, roomUser);
     }
 
-    public void RequestRoomEnter(MemoryPackBinaryRequestInfo packetData)
+    public void RequestRoomEnter(MemoryPackBinaryRequestInfo packetData) 
     {
         var sessionID = packetData.SessionID;
         MainServer.MainLogger.Debug("RequestRoomEnter");
 
         try
         {
-            var user = _userMgr.GetUser(sessionID);
+            var user = _userMgr.GetUser(sessionID); // 유저 정보 가져오기
 
-            if (user == null || user.IsConfirm(sessionID) == false)
+            if (user == null || user.IsConfirm(sessionID) == false) // 유저 정보가 없거나 세션 아이디가 일치하지 않으면
             {
                 ResponseEnterRoomToClient(ERROR_CODE.ROOM_ENTER_INVALID_USER, sessionID);
                 return;
             }
 
-            if (user.IsStateRoom())
+            if (user.IsStateRoom()) // 이미 방에 들어가 있는 상태이면
             {
-                ResponseEnterRoomToClient(ERROR_CODE.ROOM_ENTER_INVALID_STATE, sessionID);
+                ResponseEnterRoomToClient(ERROR_CODE.ROOM_ENTER_INVALID_STATE, sessionID); 
                 return;
             }
 
-            var reqData = MemoryPackSerializer.Deserialize<PKTReqRoomEnter>(packetData.Data);
+            var reqData = MemoryPackSerializer.Deserialize<PKTReqRoomEnter>(packetData.Data); 
             
-            var room = GetRoom(reqData.RoomNumber);
+            var room = GetRoom(reqData.RoomNumber); // 방 정보 가져오기
 
-            if (room == null)
+            if (room == null) 
             {
                 ResponseEnterRoomToClient(ERROR_CODE.ROOM_ENTER_INVALID_ROOM_NUMBER, sessionID);
                 return;
             }
 
-            if (room.AddUser(user.ID(), sessionID) == false)
+            if (room.AddUser(user.ID(), sessionID) == false) 
             {
                 ResponseEnterRoomToClient(ERROR_CODE.ROOM_ENTER_FAIL_ADD_USER, sessionID);
                 return;
             }
 
 
-            user.EnteredRoom(reqData.RoomNumber);
+            user.EnteredRoom(reqData.RoomNumber); // 유저가 방에 들어갔다고 표시
 
-            room.NotifyPacketUserList(sessionID);
-            room.NofifyPacketNewUser(sessionID, user.ID());
+            room.NotifyPacketUserList(sessionID); // 방에 있는 유저 리스트 전송
+            room.NofifyPacketNewUser(sessionID, user.ID()); // 새로운 유저에게 방에 있는 유저 리스트 전송
 
-            ResponseEnterRoomToClient(ERROR_CODE.NONE, sessionID);
+            ResponseEnterRoomToClient(ERROR_CODE.NONE, sessionID); // 방 입장 성공
 
             MainServer.MainLogger.Debug("RequestEnterInternal - Success");
         }
@@ -249,29 +252,117 @@ public class PKHRoom : PKHandler
             MainServer.MainLogger.Error(ex.ToString());
         }
     }
-
-    // 오목 게임 로직
-    public void RequestGameStart(MemoryPackBinaryRequestInfo packetData)
+    // ReqReadyOmok 함수 
+    public void ReqReadyOmok(MemoryPackBinaryRequestInfo packetData)
     {
         var sessionID = packetData.SessionID;
-        MainServer.MainLogger.Debug("RequestGameStart");
+        MainServer.MainLogger.Debug("ReqReadyOmok");
+
+        try
+        {
+            var user = _userMgr.GetUser(sessionID); // 유저 정보 가져오기
+            if (user == null || user.IsConfirm(sessionID) == false) // 유저 정보가 없거나 세션 아이디가 일치하지 않으면
+            {
+                ResponseEnterRoomToClient(ERROR_CODE.ROOM_ENTER_INVALID_USER, sessionID);
+                return;
+            }
+            var room = GetRoom(user.RoomNumber);
+            if (room == null)
+            {
+                MainServer.MainLogger.Error("Room not found for the user");
+                return;
+            }
+
+            var roomUser = room.GetUserByNetSessionId(sessionID);
+            roomUser.SetReady();
+
+            NotifyReadyOmok(ERROR_CODE.NONE, sessionID); 
+
+            MainServer.MainLogger.Debug("ReqReadyOmok - Success");
+
+            // Check if all users are ready
+            if (room.AreAllUsersReady())
+            {
+                room.StartGame();
+            }
+        }
+        catch (Exception ex)
+        {
+            MainServer.MainLogger.Error(ex.ToString());
+        }
     }
 
-    public void NotifyGameStart(MemoryPackBinaryRequestInfo packetData)
+    void NotifyReadyOmok(ERROR_CODE errorCode, string sessionID)
     {
-        var sessionID = packetData.SessionID;
-        MainServer.MainLogger.Debug("NotifyGameStart");
+        var user = _userMgr.GetUser(sessionID);
+        //var room = GetRoom(user.RoomNumber);
+        var roomUser = (GetRoom(user.RoomNumber)).GetUserByNetSessionId(sessionID);
+
+        var notifyPacket = new PKTNtfReadyOmok()
+        {
+            UserID = user.ID(),
+            IsReady = roomUser.GetIsReady()
+        };
+
+        var sendPacket = MemoryPackSerializer.Serialize(notifyPacket);
+        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NtfReadyOmok);
+
+        NetSendFunc(sessionID, sendPacket);
     }
 
+    // RequestPlaceStone 함수: 클라이언트로부터 오목 돌 두기 요청을 받아 처리
     public void RequestPlaceStone(MemoryPackBinaryRequestInfo packetData)
     {
         var sessionID = packetData.SessionID;
         MainServer.MainLogger.Debug("RequestPlaceStone");
+
+        try
+        {
+            var roomObject = CheckRoomAndRoomUser(sessionID);
+            if (!roomObject.Item1) // 유효하지 않은 요청 처리
+            {
+                MainServer.MainLogger.Error("Invalid room or user.");
+                return;
+            }
+            int StoneColor = roomObject.Item3.StoneColor;
+
+            var reqData = MemoryPackSerializer.Deserialize<PKTReqPutMok>(packetData.Data);
+          
+
+            // 게임 로직 처리: 돌 두기
+            bool result = roomObject.Item2.game.PlaceStone(reqData.PosX, reqData.PosY, StoneColor);
+            if (!result)
+            {
+                MainServer.MainLogger.Error("Failed to place stone.");
+                return;
+            }
+
+            // NotifyPlaceStone
+            var notifyPacket = new PKTNtfPutMok()
+            {
+                PosX = reqData.PosX,
+                PosY = reqData.PosY,
+                Mok = StoneColor
+            };
+
+            var sendPacket = MemoryPackSerializer.Serialize(notifyPacket);
+            MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NTFPutMok);
+            roomObject.Item2.Broadcast(sessionID, sendPacket); // 해당 방의 모든 유저에게 통보
+
+            MainServer.MainLogger.Debug("Stone placed successfully.");
+        }
+        catch (Exception ex)
+        {
+            MainServer.MainLogger.Error(ex.ToString());
+        }
     }
 
-    public void NotifyPlaceStone(MemoryPackBinaryRequestInfo packetData)
+
+
+    void NotifyPlaceStone(ERROR_CODE errorCode, string sessionID)
     {
-        var sessionID = packetData.SessionID;
+        //var sessionID = packetData.SessionID;
+
         MainServer.MainLogger.Debug("NotifyPlaceStone");
     }
 
