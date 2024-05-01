@@ -227,11 +227,11 @@ namespace OmokClient
             Rectangle r = new Rectangle(시작위치 + 눈금크기 * x - 돌크기 / 2,
                 시작위치 + 눈금크기 * y - 돌크기 / 2, 돌크기, 돌크기);
 
-            if (OmokLogic.바둑판알(x, y) == (int)CSCommon.OmokRule.돌종류.흑돌)                              // 검은 돌
+            if (OmokLogic.바둑판알(x, y) == (int)CSCommon.OmokRule.돌종류.흑돌)  // 검은 돌
             {
                 g.FillEllipse(검은색, r);
             }
-            else if (OmokLogic.바둑판알(x, y) == (int)CSCommon.OmokRule.돌종류.백돌)                         // 흰 돌
+            else if (OmokLogic.바둑판알(x, y) == (int)CSCommon.OmokRule.돌종류.백돌)  // 흰 돌
             {
                 g.FillEllipse(흰색, r);
             }
@@ -266,7 +266,7 @@ namespace OmokClient
             g.FillEllipse(빨간색, r);      
         }
 
-        void 현재턴_플레이어_정보()        // 화면 하단에 다음에 둘 돌의 색을 표시
+        void 현재턴_플레이어_정보() // 화면 하단에 다음에 둘 돌의 색을 표시
         {
             Graphics g = panel1.CreateGraphics();
             string str;
@@ -281,7 +281,7 @@ namespace OmokClient
                 g.DrawString($"PlayerName: {흑돌플레이어Name }", 글꼴, 검은색, (시작위치 + 120 + 돌크기), 600);
             }
 
-            else                 // 다음 돌 표시(흰 돌)
+            else  // 다음 돌 표시(흰 돌)
             {
                 str = "현재 턴 돌";
                 g.FillEllipse(흰색, 시작위치 + 100, 599, 돌크기, 돌크기);
@@ -298,8 +298,6 @@ namespace OmokClient
             {
                 return;
             }
-
-
             int x, y;
 
             // 왼쪽클릭만 허용
@@ -339,7 +337,7 @@ namespace OmokClient
             OmokLogic.오목확인(x, y);
                         
             
-            if (isNotify == false)
+            if (isNotify == false) // 상대방에게 돌을 놓았다고 알리는 패킷을 보냄
             {
                 IsMyTurn = false;
                 SendPacketOmokPut(x, y);
@@ -353,12 +351,12 @@ namespace OmokClient
             panel1.Invalidate(r);
         }
 
-        private void panel1_MouseMove(object sender, MouseEventArgs e)     // 현재 차례의 돌 잔상 구현 (마우스 움직일때)
+        private void panel1_MouseMove(object sender, MouseEventArgs e) // 현재 차례의 돌 잔상 구현 (마우스 움직일때)
         {
-            //if (OmokLogic.게임종료 || IsMyTurn == false) // 나중에 다시 풀어야함 
-            //{
-            //    return;
-            //}
+            if (OmokLogic.게임종료 || IsMyTurn == false) 
+            {
+                return;
+            }
 
             int x, y;
 
@@ -407,8 +405,6 @@ namespace OmokClient
             }
         }
         #endregion
-
-
 
         void 컴퓨터두기()
         {

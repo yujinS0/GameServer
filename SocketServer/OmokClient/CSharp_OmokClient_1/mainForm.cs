@@ -296,7 +296,7 @@ namespace OmokClient
                 if((string)user == userID)
                 {
                     removeItem = user;
-                    return; // ? break ?
+                    break;
                 }
             }
 
@@ -426,6 +426,9 @@ namespace OmokClient
 
         void SendPacketOmokPut(int x, int y)
         {
+            // 현재 돌의 종류를 확인
+            int stoneType = OmokLogic.Is흑돌차례() ? (int)CSCommon.OmokRule.돌종류.흑돌 : (int)CSCommon.OmokRule.돌종류.백돌;
+
             var requestPkt = new PKTReqPutMok
             {
                 PosX = x,
@@ -435,7 +438,7 @@ namespace OmokClient
             var packet = MemoryPackSerializer.Serialize(requestPkt);
             PostSendPacket(PACKETID.ReqPutMok, packet);
 
-            DevLog.Write($"put stone 요청 : x  [ {x} ], y: [ {y} ] ");
+            DevLog.Write($"put stone 요청 : x  [ {x} ], y: [ {y} ], 돌: [{stoneType}]");
         }
 
         private void btn_GameStartClick(object sender, EventArgs e)

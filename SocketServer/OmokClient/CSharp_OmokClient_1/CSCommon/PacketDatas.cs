@@ -94,42 +94,6 @@ public partial class PKTNtfRoomChat : PkHeader
     public string ChatMessage { get; set; }
 }
 
-//// 오목 게임 로직 관련
-//[MemoryPackable]
-//public partial class PKTReqGameStart : PkHeader
-//{
-//    public int RoomId { get; set; }
-//    public string UserID { get; set; }
-//}
-
-//[MemoryPackable]
-//public partial class PKTNtfGameStart : PkHeader
-//{
-//    public int RoomId { get; set; }
-//}
-
-//[MemoryPackable]
-//public partial class PKTReqPlaceStone : PkHeader
-//{
-//    public int X { get; set; }
-//    public int Y { get; set; }
-//    public int Player { get; set; }
-//}
-
-//[MemoryPackable]
-//public partial class PKTNtfPlaceStone : PkHeader
-//{
-//    public int X { get; set; }
-//    public int Y { get; set; }
-//    public int Player { get; set; }
-//}
-
-//[MemoryPackable]
-//public partial class PKTNtfGameEnd : PkHeader
-//{
-//    public string Result { get; set; }
-//}
-
 //오목 플레이 준비 완료 요청
 [MemoryPackable]
 public partial class PKTReqReadyOmok : PkHeader

@@ -14,7 +14,7 @@ namespace CSCommon
         int[,] 바둑판 = new int[바둑판크기, 바둑판크기];
         public bool 흑돌차례 { get; private set; } = true;
 
-        public bool 게임종료 { get; private set; } = false; // 원래 true? 근데 차피 StartGame에서 처리중  
+        public bool 게임종료 { get; private set; } = true; // 원래 true? 근데 차피 StartGame에서 처리중  
         
         //bool AI모드 = true;
         //돌종류 컴퓨터돌;
@@ -45,6 +45,7 @@ namespace CSCommon
         public void EndGame()
         {
             게임종료 = true;
+            Array.Clear(바둑판, 0, 바둑판크기 * 바둑판크기); // 바둑판 초기화
         }
 
         public int 바둑판알(int x, int y)
