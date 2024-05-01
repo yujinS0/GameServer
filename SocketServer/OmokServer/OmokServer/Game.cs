@@ -25,13 +25,14 @@ public class Game
 
     private void InitializeBoard()
     {
-        for (int i = 0; i < BoardSize; i++)
-        {
-            for (int j = 0; j < BoardSize; j++)
-            {
-                board[i, j] = (int)StoneType.None;
-            }
-        }
+        //for (int i = 0; i < BoardSize; i++)
+        //{
+        //    for (int j = 0; j < BoardSize; j++)
+        //    {
+        //        board[i, j] = (int)StoneType.None;
+        //    }
+        //}
+        Array.Clear(board, 0, BoardSize * BoardSize);
     }
 
     public void StartGame()
@@ -66,7 +67,6 @@ public class Game
         var sendPacket = MemoryPackSerializer.Serialize(startPacket);
         MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NtfStartOmok);
 
-        // Send this packet to all players
         foreach (var player in players)
         {
             NetSendFunc(player.NetSessionID, sendPacket);
@@ -79,7 +79,7 @@ public class Game
         if (!isGameStarted || x < 0 || y < 0 || x >= BoardSize || y >= BoardSize || board[x, y] != (int)StoneType.None)
         {
             MainServer.MainLogger.Error("Invalid move or game not started.");
-            return false; // Game not started, position already taken, or invalid coordinates
+            return false;
         }
 
         board[x, y] = stoneType;

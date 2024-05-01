@@ -2,6 +2,7 @@
 using MemoryPack;
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace OmokClient
 {
@@ -258,6 +259,8 @@ namespace OmokClient
             EndGame();
 
             DevLog.Write($"오목 GameOver: Win: {notifyPkt.WinUserID}");
+
+            MessageBox.Show($"{notifyPkt.WinUserID}가 승리했습니다!", "게임 종료", MessageBoxButtons.OK, MessageBoxIcon.Information); // 승리 팝업 표시
         }
     }
 }
