@@ -1,7 +1,9 @@
 ﻿using MemoryPack;
 using MessagePack;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 
@@ -11,17 +13,15 @@ public class Room
 {
     public const int InvalidRoomNumber = -1;
 
-
     public int Index { get; private set; }
     public int Number { get; private set; }
-
     int _maxUserCount = 0;
 
     List<RoomUser> _userList = new List<RoomUser>();
 
     public static Func<string, byte[], bool> NetSendFunc;
 
-    private Game game;
+    public Game game;
 
     public void Init(int index, int number, int maxUserCount)
     {
@@ -141,12 +141,12 @@ public class Room
 
 }
 
-
 public class RoomUser
 {
     public string UserID { get; private set; }
     public string NetSessionID { get; private set; }
     public bool IsReady { get; private set; }
+    public int StoneColor { get; internal set; }
 
     public void Set(string userID, string netSessionID)
     {

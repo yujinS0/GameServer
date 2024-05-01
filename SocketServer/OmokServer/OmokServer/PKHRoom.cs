@@ -30,11 +30,9 @@ public class PKHRoom : PKHandler
 
 
         // 오목 게임 관련
-        packetHandlerMap.Add((int)PACKETID.NtfStartOmok, NotifyGameStart);
-
         packetHandlerMap.Add((int)PACKETID.ReqPutMok, RequestPlaceStone);
         //packetHandlerMap.Add((int)PACKETID.ResPutMok, ResponsePlaceStone);
-        packetHandlerMap.Add((int)PACKETID.NTFPutMok, NotifyPlaceStone);
+        //packetHandlerMap.Add((int)PACKETID.NTFPutMok, NotifyPlaceStone);
 
         packetHandlerMap.Add((int)PACKETID.NTFEndOmok, NotifyGameEnd);
     }
@@ -287,8 +285,6 @@ public class PKHRoom : PKHandler
             {
                 room.StartGame();
             }
-
-
         }
         catch (Exception ex)
         {
@@ -314,48 +310,59 @@ public class PKHRoom : PKHandler
         NetSendFunc(sessionID, sendPacket);
     }
 
-
-
-    // 게임 시작 통보 패킷
-    //public void NotifyGameStart(ERROR_CODE errorCode, string sessionID)
-    //{
-    //    var user = _userMgr.GetUser(sessionID);
-
-    //    var notifyPacket = new PKTNtfStartOmok()
-    //    {
-    //        FirstUserID = user.ID()
-    //    };
-
-    //    var sendPacket = MemoryPackSerializer.Serialize(notifyPacket);
-    //    MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NtfStartOmok);
-
-    //    NetSendFunc(sessionID, sendPacket);
-    //}
-
-
-
-    // 오목 게임 로직
-    public void RequestGameStart(MemoryPackBinaryRequestInfo packetData)
-    {
-        var sessionID = packetData.SessionID;
-        MainServer.MainLogger.Debug("RequestGameStart");
-    }
-
-    public void NotifyGameStart(MemoryPackBinaryRequestInfo packetData)
-    {
-        var sessionID = packetData.SessionID;
-        MainServer.MainLogger.Debug("NotifyGameStart");
-    }
-
+    // RequestPlaceStone 함수: 클라이언트로부터 오목 돌 두기 요청을 받아 처리
     public void RequestPlaceStone(MemoryPackBinaryRequestInfo packetData)
     {
         var sessionID = packetData.SessionID;
         MainServer.MainLogger.Debug("RequestPlaceStone");
+
+        try
+        {
+            var roomObject = CheckRoomAndRoomUser(sessionID);
+            if (!roomObject.Item1) // 유효하지 않은 요청 처리
+            {
+                MainServer.MainLogger.Error("Invalid room or user.");
+                return;
+            }
+            int StoneColor = roomObject.Item3.StoneColor;
+
+            var reqData = MemoryPackSerializer.Deserialize<PKTReqPutMok>(packetData.Data);
+          
+
+            // 게임 로직 처리: 돌 두기
+            bool result = roomObject.Item2.game.PlaceStone(reqData.PosX, reqData.PosY, StoneColor);
+            if (!result)
+            {
+                MainServer.MainLogger.Error("Failed to place stone.");
+                return;
+            }
+
+            // NotifyPlaceStone
+            var notifyPacket = new PKTNtfPutMok()
+            {
+                PosX = reqData.PosX,
+                PosY = reqData.PosY,
+                Mok = StoneColor
+            };
+
+            var sendPacket = MemoryPackSerializer.Serialize(notifyPacket);
+            MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NTFPutMok);
+            roomObject.Item2.Broadcast(sessionID, sendPacket); // 해당 방의 모든 유저에게 통보
+
+            MainServer.MainLogger.Debug("Stone placed successfully.");
+        }
+        catch (Exception ex)
+        {
+            MainServer.MainLogger.Error(ex.ToString());
+        }
     }
 
-    public void NotifyPlaceStone(MemoryPackBinaryRequestInfo packetData)
+
+
+    void NotifyPlaceStone(ERROR_CODE errorCode, string sessionID)
     {
-        var sessionID = packetData.SessionID;
+        //var sessionID = packetData.SessionID;
+
         MainServer.MainLogger.Debug("NotifyPlaceStone");
     }
 

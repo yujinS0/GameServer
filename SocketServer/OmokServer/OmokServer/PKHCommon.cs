@@ -104,9 +104,5 @@ public class PKHCommon : PKHandler
         MemoryPackPacketHeadInfo.Write(sendData, PACKETID.NTF_MUST_CLOSE);
 
         NetSendFunc(sessionID, sendData);
-    }
-
-
-    
-                  
+    }          
 }

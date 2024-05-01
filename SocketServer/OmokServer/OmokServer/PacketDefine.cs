@@ -1,5 +1,4 @@
-﻿
-namespace OmokServer;
+﻿namespace OmokServer;
 
 // 0 ~ 9999
 public enum ERROR_CODE : short
