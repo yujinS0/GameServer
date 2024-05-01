@@ -1,6 +1,5 @@
 ﻿using CSCommon;
 using MemoryPack;
-using MessagePack;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -250,13 +249,13 @@ namespace OmokClient
             //    }
             //}
 
-            listBoxRoomChatMsg.Items.Clear();
+            listBoxRoomChatMsg.Items.Clear(); // ?
             listBoxRoomUserList.Items.Clear();
 
             EndGame();
 
             labelStatus.Text = "서버 접속이 끊어짐";
-        }
+        } 
 
         void PostSendPacket(PACKETID packetID, byte[] packetData)
         {
@@ -265,6 +264,13 @@ namespace OmokClient
                 DevLog.Write("서버 연결이 되어 있지 않습니다", LOG_LEVEL.ERROR);
                 return;
             }
+
+            // packetData가 null인 경우 비어 있는 바이트 배열로 처리
+            // new byte[MemoryPackPacketHeadInfo.HeadSize]
+            //if (packetData == null)
+            //{
+            //    packetData = new byte[0];
+            //}
 
             var header = new MemoryPackPacketHeadInfo();
             header.TotalSize = (UInt16)packetData.Length;
@@ -281,7 +287,7 @@ namespace OmokClient
             listBoxRoomUserList.Items.Add(userID);
         }
 
-        void RemoveRoomUserList(string userID)
+        void RemoveRoomUserList(string userID) 
         {
             object removeItem = null;
 
@@ -290,7 +296,7 @@ namespace OmokClient
                 if((string)user == userID)
                 {
                     removeItem = user;
-                    return;
+                    return; // ? break ?
                 }
             }
 
@@ -339,12 +345,12 @@ namespace OmokClient
 
         private void btn_RoomEnter_Click(object sender, EventArgs e)
         {
-            var requestPkt = new PKTReqRoomEnter();
-            requestPkt.RoomNumber = textBoxRoomNumber.Text.ToInt32();
+            var requestPkt = new PKTReqRoomEnter(); // 방 입장 요청
+            requestPkt.RoomNumber = textBoxRoomNumber.Text.ToInt32(); // 방 번호
 
-            var sendPacketData = MemoryPackSerializer.Serialize(requestPkt);
+            var sendPacketData = MemoryPackSerializer.Serialize(requestPkt); // 직렬화
 
-            PostSendPacket(PACKETID.REQ_ROOM_ENTER, sendPacketData);
+            PostSendPacket(PACKETID.REQ_ROOM_ENTER, sendPacketData); // 패킷 전송
             DevLog.Write($"방 입장 요청:  {textBoxRoomNumber.Text} 번");
         }
 
@@ -352,7 +358,7 @@ namespace OmokClient
         {
             //PostSendPacket(PACKET_ID.ROOM_LEAVE_REQ,  null);
             PostSendPacket(PACKETID.REQ_ROOM_LEAVE, new byte[MemoryPackPacketHeadInfo.HeadSize]);
-            DevLog.Write($"방 입장 요청:  {textBoxRoomNumber.Text} 번");
+            DevLog.Write($"방 퇴장 요청:  {textBoxRoomNumber.Text} 번");
         }
 
         //private void btnRoomChat_Click(object sender, EventArgs e)
@@ -420,22 +426,23 @@ namespace OmokClient
 
         void SendPacketOmokPut(int x, int y)
         {
-            //var requestPkt = new PKTReqPutMok
-            //{
-            //    PosX = x,
-            //    PosY = y
-            //};
+            var requestPkt = new PKTReqPutMok
+            {
+                PosX = x,
+                PosY = y
+            };
 
-            //var packet = MessagePackSerializer.Serialize(requestPkt);
-            //PostSendPacket(PACKETID.ReqPutMok, packet);
+            var packet = MemoryPackSerializer.Serialize(requestPkt);
+            PostSendPacket(PACKETID.ReqPutMok, packet);
 
             DevLog.Write($"put stone 요청 : x  [ {x} ], y: [ {y} ] ");
         }
 
         private void btn_GameStartClick(object sender, EventArgs e)
         {
-            //PostSendPacket(PACKET_ID.GAME_START_REQ, null);
-            StartGame(true, "My", "Other");
+            DevLog.Write("게임 시작 버튼 없음 - 둘다 Ready 하면 알아서 시작함");
+            //PostSendPacket(PACKETID.REQ_GAME_START, new byte[MemoryPackPacketHeadInfo.HeadSize]);
+            //StartGame(true, "My", "Other");
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -475,10 +482,10 @@ namespace OmokClient
             public string Token;
         }
 
-        // 게임 시작 요청
+        // 게임 준비 요청
         private void button3_Click(object sender, EventArgs e)
         {
-            //PostSendPacket(PACKETID.ReqReadyOmok, null); // 게임 시작 X
+            PostSendPacket(PACKETID.ReqReadyOmok, new byte[MemoryPackPacketHeadInfo.HeadSize]);
 
             DevLog.Write($"게임 준비 완료 요청");
         }

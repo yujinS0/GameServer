@@ -1,11 +1,7 @@
 ﻿using CSCommon;
 using MemoryPack;
-using MessagePack;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OmokClient
 {
@@ -27,12 +23,12 @@ namespace OmokClient
             //PacketFuncDic.Add(PACKETID.REQ_ROOM_CHAT, PacketProcess_RoomChatResponse);
 
 
-            //PacketFuncDic.Add(PACKETID.ResReadyOmok, PacketProcess_ReadyOmokResponse);
-            //PacketFuncDic.Add(PACKETID.NtfReadyOmok, PacketProcess_ReadyOmokNotify);
-            //PacketFuncDic.Add(PACKETID.NtfStartOmok, PacketProcess_StartOmokNotify);
-            //PacketFuncDic.Add(PACKETID.ResPutMok, PacketProcess_PutMokResponse);
-            //PacketFuncDic.Add(PACKETID.NTFPutMok, PacketProcess_PutMokNotify);
-            //PacketFuncDic.Add(PACKETID.NTFEndOmok, PacketProcess_EndOmokNotify);          
+            PacketFuncDic.Add(PACKETID.ResReadyOmok, PacketProcess_ReadyOmokResponse);
+            PacketFuncDic.Add(PACKETID.NtfReadyOmok, PacketProcess_ReadyOmokNotify);
+            PacketFuncDic.Add(PACKETID.NtfStartOmok, PacketProcess_StartOmokNotify);
+            PacketFuncDic.Add(PACKETID.ResPutMok, PacketProcess_PutMokResponse);
+            PacketFuncDic.Add(PACKETID.NTFPutMok, PacketProcess_PutMokNotify);
+            PacketFuncDic.Add(PACKETID.NTFEndOmok, PacketProcess_EndOmokNotify);
         }
 
         void PacketProcess(byte[] packet) // 패킷 처리
@@ -189,6 +185,28 @@ namespace OmokClient
             listBoxRoomChatMsg.SelectedIndex = listBoxRoomChatMsg.Items.Count - 1;
         }
 
+        void PacketProcess_ReadyOmokResponse(byte[] packetData)
+        {
+            var responsePkt = MemoryPackSerializer.Deserialize<PKTResReadyOmok>(packetData);
+            
+            DevLog.Write($"게임 준비 완료 요청");
+        }
+
+        void PacketProcess_ReadyOmokNotify(byte[] packetData)
+        {
+            var notifyPkt = MemoryPackSerializer.Deserialize<PKTNtfReadyOmok>(packetData);
+
+            if (notifyPkt.IsReady)
+            {
+                DevLog.Write($"[{notifyPkt.UserID}]님은 게임 준비 완료");
+            }
+            else
+            {
+                DevLog.Write($"[{notifyPkt.UserID}]님이 게임 준비 완료 취소");
+            }
+
+        }
+
         void PacketProcess_LoginResponse(byte[] packetData)
         {
             var responsePkt = MemoryPackSerializer.Deserialize<PKTResLogin>(packetData);
@@ -200,7 +218,7 @@ namespace OmokClient
         {
             var isMyTurn = false;
 
-            var notifyPkt = MessagePackSerializer.Deserialize<PKTNtfStartOmok>(packetData);
+            var notifyPkt = MemoryPackSerializer.Deserialize<PKTNtfStartOmok>(packetData);
 
             if (notifyPkt.FirstUserID == textBoxUserID.Text)
             {
@@ -215,7 +233,7 @@ namespace OmokClient
 
         void PacketProcess_PutMokResponse(byte[] packetData)
         {
-            var responsePkt = MessagePackSerializer.Deserialize<PKTResPutMok>(packetData);
+            var responsePkt = MemoryPackSerializer.Deserialize<PKTResPutMok>(packetData);
 
             DevLog.Write($"오목 놓기 실패 ");
 
@@ -225,7 +243,7 @@ namespace OmokClient
 
         void PacketProcess_PutMokNotify(byte[] packetData)
         {
-            var notifyPkt = MessagePackSerializer.Deserialize<PKTNtfPutMok>(packetData);
+            var notifyPkt = MemoryPackSerializer.Deserialize<PKTNtfPutMok>(packetData);
 
             플레이어_돌두기(true, notifyPkt.PosX, notifyPkt.PosY);
 
@@ -235,7 +253,7 @@ namespace OmokClient
 
         void PacketProcess_EndOmokNotify(byte[] packetData)
         {
-            var notifyPkt = MessagePackSerializer.Deserialize<PKTNtfEndOmok>(packetData);
+            var notifyPkt = MemoryPackSerializer.Deserialize<PKTNtfEndOmok>(packetData);
 
             EndGame();
 

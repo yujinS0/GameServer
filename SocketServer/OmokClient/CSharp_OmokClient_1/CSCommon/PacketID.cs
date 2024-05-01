@@ -38,15 +38,6 @@ namespace CSCommon
         CS_END = 1100,
 
         // 오목 게임 로직 관련
-        REQ_GAME_START = 2001,
-        NTF_GAME_START = 2002,
-
-        REQ_PLACE_STONE = 2010,
-        NTF_PLACE_STONE = 2011,
-
-        NTF_GAME_END = 2020,
-
-
         ReqReadyOmok = 1031,
         ResReadyOmok = 1032,
         NtfReadyOmok = 1033,

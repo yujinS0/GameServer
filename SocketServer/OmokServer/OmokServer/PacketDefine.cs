@@ -64,13 +64,20 @@ public enum PACKETID : int
     CS_END          = 1100,
 
     // 오목 게임 로직 관련
-    REQ_GAME_START = 2001,
-    NTF_GAME_START = 2002,
-    
-    REQ_PLACE_STONE = 2010,
-    NTF_PLACE_STONE = 2011,
+    ReqReadyOmok = 1031,
+    ResReadyOmok = 1032,
+    NtfReadyOmok = 1033,
 
-    NTF_GAME_END = 2020,
+    NtfStartOmok = 1034,
+
+    ReqPutMok = 1035,
+    ResPutMok = 1036,
+    NTFPutMok = 1037,
+
+    NTFEndOmok = 1038,
+
+
+    END = 1100,
 
 
     // 시스템, 서버 - 서버

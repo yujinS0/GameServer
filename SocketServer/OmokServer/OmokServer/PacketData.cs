@@ -153,38 +153,57 @@ public partial class PKTNtfRoomChat : PkHeader
     public string ChatMessage { get; set; }
 }
 
-// 오목 게임 로직 관련
+//오목 플레이 준비 완료 요청
 [MemoryPackable]
-public partial class PKTReqGameStart : PkHeader
+public partial class PKTReqReadyOmok : PkHeader
 {
-    public int RoomId { get; set; }
-    public string UserID { get; set; }
 }
 
 [MemoryPackable]
-public partial class PKTNtfGameStart : PkHeader
+public partial class PKTResReadyOmok : PkHeader
 {
-    public int RoomId { get; set; }
 }
 
 [MemoryPackable]
-public partial class PKTReqPlaceStone : PkHeader
+public partial class PKTNtfReadyOmok : PkHeader
 {
-    public int X { get; set; }
-    public int Y { get; set; }
-    public int Player { get; set; }
+    public string UserID;
+    public bool IsReady;
+}
+
+
+// 오목 시작 통보(서버에서 클라이언트들에게)
+[MemoryPackable]
+public partial class PKTNtfStartOmok : PkHeader
+{
+    public string FirstUserID; // 선턴 유저 ID
+}
+
+
+// 돌 두기
+[MemoryPackable]
+public partial class PKTReqPutMok : PkHeader
+{
+    public int PosX;
+    public int PosY;
 }
 
 [MemoryPackable]
-public partial class PKTNtfPlaceStone : PkHeader
+public partial class PKTResPutMok : PkHeader
 {
-    public int X { get; set; }
-    public int Y { get; set; }
-    public int Player { get; set; }
 }
 
 [MemoryPackable]
-public partial class PKTNtfGameEnd : PkHeader
+public partial class PKTNtfPutMok : PkHeader
 {
-    public string Result { get; set; }
+    public int PosX;
+    public int PosY;
+    public int Mok;
+}
+
+// 오목 게임 종료 통보
+[MemoryPackable]
+public partial class PKTNtfEndOmok : PkHeader
+{
+    public string WinUserID;
 }

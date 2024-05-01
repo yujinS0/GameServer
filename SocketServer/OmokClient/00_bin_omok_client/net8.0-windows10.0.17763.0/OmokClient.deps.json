@@ -10,7 +10,6 @@
         "dependencies": {
           "CloudStructures": "3.2.0",
           "MemoryPack": "1.21.1",
-          "MessagePack": "2.5.140",
           "Microsoft.CSharp": "4.7.0",
           "Microsoft.Windows.Compatibility": "8.0.0",
           "System.Memory": "4.5.5",
@@ -59,27 +58,6 @@
         }
       },
       "MemoryPack.Generator/1.21.1": {},
-      "MessagePack/2.5.140": {
-        "dependencies": {
-          "MessagePack.Annotations": "2.5.140",
-          "Microsoft.NET.StringTools": "17.6.3",
-          "System.Runtime.CompilerServices.Unsafe": "6.0.0"
-        },
-        "runtime": {
-          "lib/net6.0/MessagePack.dll": {
-            "assemblyVersion": "2.5.0.0",
-            "fileVersion": "2.5.140.61180"
-          }
-        }
-      },
-      "MessagePack.Annotations/2.5.140": {
-        "runtime": {
-          "lib/netstandard2.0/MessagePack.Annotations.dll": {
-            "assemblyVersion": "2.5.0.0",
-            "fileVersion": "2.5.140.61180"
-          }
-        }
-      },
       "Microsoft.Bcl.AsyncInterfaces/5.0.0": {
         "runtime": {
           "lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll": {
@@ -94,14 +72,6 @@
           "lib/net5.0/Microsoft.Extensions.ObjectPool.dll": {
             "assemblyVersion": "5.0.0.0",
             "fileVersion": "5.0.1021.41022"
-          }
-        }
-      },
-      "Microsoft.NET.StringTools/17.6.3": {
-        "runtime": {
-          "lib/net7.0/Microsoft.NET.StringTools.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "17.6.3.22601"
           }
         }
       },
@@ -601,7 +571,6 @@
           }
         }
       },
-      "System.Runtime.CompilerServices.Unsafe/6.0.0": {},
       "System.Security.AccessControl/4.7.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "3.1.0",
@@ -836,20 +805,6 @@
       "path": "memorypack.generator/1.21.1",
       "hashPath": "memorypack.generator.1.21.1.nupkg.sha512"
     },
-    "MessagePack/2.5.140": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-nkIsgy8BkIfv40bSz9XZb4q//scI1PF3AYeB5X66nSlIhBIqbdpLz8Qk3gHvnjV3RZglQLO/ityK3eNfLii2NA==",
-      "path": "messagepack/2.5.140",
-      "hashPath": "messagepack.2.5.140.nupkg.sha512"
-    },
-    "MessagePack.Annotations/2.5.140": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-JE3vwluOrsJ4t3hnfXzIxJUh6lhx6M/KR8Sark/HOUw1DJ5UKu5JsAnnuaQngg6poFkRx1lzHSLTkxHNJO7+uQ==",
-      "path": "messagepack.annotations/2.5.140",
-      "hashPath": "messagepack.annotations.2.5.140.nupkg.sha512"
-    },
     "Microsoft.Bcl.AsyncInterfaces/5.0.0": {
       "type": "package",
       "serviceable": true,
@@ -870,13 +825,6 @@
       "sha512": "sha512-pp9tbGqIhdEXL6Q1yJl+zevAJSq4BsxqhS1GXzBvEsEz9DDNu9GLNzgUy2xyFc4YjB4m4Ff2YEWTnvQvVYdkvQ==",
       "path": "microsoft.extensions.objectpool/5.0.10",
       "hashPath": "microsoft.extensions.objectpool.5.0.10.nupkg.sha512"
-    },
-    "Microsoft.NET.StringTools/17.6.3": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-N0ZIanl1QCgvUumEL1laasU0a7sOE5ZwLZVTn0pAePnfhq8P7SvTjF8Axq+CnavuQkmdQpGNXQ1efZtu5kDFbA==",
-      "path": "microsoft.net.stringtools/17.6.3",
-      "hashPath": "microsoft.net.stringtools.17.6.3.nupkg.sha512"
     },
     "Microsoft.NETCore.Platforms/3.1.0": {
       "type": "package",
@@ -1164,13 +1112,6 @@
       "sha512": "sha512-4TmlmvGp4kzZomm7J2HJn6IIx0UUrQyhBDyb5O1XiunZlQImXW+B8b7W/sTPcXhSf9rp5NR5aDtQllwbB5elOQ==",
       "path": "system.runtime.caching/8.0.0",
       "hashPath": "system.runtime.caching.8.0.0.nupkg.sha512"
-    },
-    "System.Runtime.CompilerServices.Unsafe/6.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-/iUeP3tq1S0XdNNoMz5C9twLSrM/TH+qElHkXWaPvuNOt+99G75NrV0OS2EqHx5wMN7popYjpc8oTjC1y16DLg==",
-      "path": "system.runtime.compilerservices.unsafe/6.0.0",
-      "hashPath": "system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
     },
     "System.Security.AccessControl/4.7.0": {
       "type": "package",
