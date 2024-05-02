@@ -1,19 +1,21 @@
 ﻿using MemoryPack;
 using System;
 using System.Collections.Generic;
-
-
+using System.Timers;
 
 namespace OmokServer;
 
 public class PKHCommon : PKHandler
 {
+    private System.Timers.Timer heartbeatTimer;
     public void RegistPacketHandler(Dictionary<int, Action<MemoryPackBinaryRequestInfo>> packetHandlerMap)
     {
-        packetHandlerMap.Add((int)PACKETID.NTF_IN_CONNECT_CLIENT, NotifyInConnectClient);
-        packetHandlerMap.Add((int)PACKETID.NTF_IN_DISCONNECT_CLIENT, NotifyInDisConnectClient);
+        packetHandlerMap.Add((int)PACKETID.NtfInConnectClient, NotifyInConnectClient);
+        packetHandlerMap.Add((int)PACKETID.NtfInDisconnectClinet, NotifyInDisConnectClient);
 
-        packetHandlerMap.Add((int)PACKETID.REQ_LOGIN, RequestLogin);
+        packetHandlerMap.Add((int)PACKETID.ReqLogin, RequestLogin);
+
+        packetHandlerMap.Add((int)PACKETID.ReqHeartBeat, RequestHeartBeat);
     }
 
     public void NotifyInConnectClient(MemoryPackBinaryRequestInfo requestData)
@@ -88,7 +90,7 @@ public class PKHCommon : PKHandler
         };
 
         var sendData = MemoryPackSerializer.Serialize(resLogin);
-        MemoryPackPacketHeadInfo.Write(sendData, PACKETID.RES_LOGIN);
+        MemoryPackPacketHeadInfo.Write(sendData, PACKETID.ResLogin);
 
         NetSendFunc(sessionID, sendData);
     }
@@ -101,8 +103,20 @@ public class PKHCommon : PKHandler
         };
 
         var sendData = MemoryPackSerializer.Serialize(resLogin);
-        MemoryPackPacketHeadInfo.Write(sendData, PACKETID.NTF_MUST_CLOSE);
+        MemoryPackPacketHeadInfo.Write(sendData, PACKETID.NtfMustClose);
 
         NetSendFunc(sessionID, sendData);
-    }          
+    }
+
+    public void RequestHeartBeat(MemoryPackBinaryRequestInfo packetData)
+    {
+        var sessionID = packetData.SessionID;
+        var user = _userMgr.GetUser(sessionID);
+        if (user == null)
+        {
+            return;
+        }
+
+        
+    }
 }

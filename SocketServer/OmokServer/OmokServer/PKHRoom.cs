@@ -20,10 +20,10 @@ public class PKHRoom : PKHandler
 
     public void RegistPacketHandler(Dictionary<int, Action<MemoryPackBinaryRequestInfo>> packetHandlerMap)
     {
-        packetHandlerMap.Add((int)PACKETID.REQ_ROOM_ENTER, RequestRoomEnter);
-        packetHandlerMap.Add((int)PACKETID.REQ_ROOM_LEAVE, RequestLeave);
-        packetHandlerMap.Add((int)PACKETID.NTF_IN_ROOM_LEAVE, NotifyLeaveInternal);
-        packetHandlerMap.Add((int)PACKETID.REQ_ROOM_CHAT, RequestChat);
+        packetHandlerMap.Add((int)PACKETID.ReqRoomEnter, RequestRoomEnter);
+        packetHandlerMap.Add((int)PACKETID.ReqRoomLeave, RequestLeave);
+        packetHandlerMap.Add((int)PACKETID.NtfInRoomLeave, NotifyLeaveInternal);
+        packetHandlerMap.Add((int)PACKETID.ReqRoomChat, RequestChat);
 
         //
         packetHandlerMap.Add((int)PACKETID.ReqReadyOmok, ReqReadyOmok);
@@ -137,7 +137,7 @@ public class PKHRoom : PKHandler
         };
 
         var sendPacket = MemoryPackSerializer.Serialize(resRoomEnter);
-        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.RES_ROOM_ENTER);
+        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.ResRoomEnter);
         
         NetSendFunc(sessionID, sendPacket);
     }
@@ -203,7 +203,7 @@ public class PKHRoom : PKHandler
         };
 
         var sendPacket = MemoryPackSerializer.Serialize(resRoomLeave);
-        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.RES_ROOM_LEAVE);
+        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.ResRoomLeave);
    
         NetSendFunc(sessionID, sendPacket);
     }
@@ -241,7 +241,7 @@ public class PKHRoom : PKHandler
             };
 
             var sendPacket = MemoryPackSerializer.Serialize(notifyPacket);
-            MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NTF_ROOM_CHAT);
+            MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NtfRoomChat);
             
             roomObject.Item2.Broadcast("", sendPacket);
 
