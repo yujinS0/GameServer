@@ -13,14 +13,14 @@ namespace OmokClient
         void SetPacketHandler() // 패킷 핸들러 설정 
         {
             //PacketFuncDic.Add(PACKET_ID.PACKET_ID_ERROR_NTF, PacketProcess_ErrorNotify);
-            PacketFuncDic.Add(PACKETID.RES_LOGIN, PacketProcess_Loginin);
+            PacketFuncDic.Add(PACKETID.ResLogin, PacketProcess_Loginin);
 
-            PacketFuncDic.Add(PACKETID.RES_ROOM_ENTER, PacketProcess_RoomEnterResponse);
-            PacketFuncDic.Add(PACKETID.NTF_ROOM_USER_LIST, PacketProcess_RoomUserListNotify);
-            PacketFuncDic.Add(PACKETID.NTF_ROOM_NEW_USER, PacketProcess_RoomNewUserNotify);
-            PacketFuncDic.Add(PACKETID.RES_ROOM_LEAVE, PacketProcess_RoomLeaveResponse);
-            PacketFuncDic.Add(PACKETID.NTF_ROOM_LEAVE_USER, PacketProcess_RoomLeaveUserNotify);
-            PacketFuncDic.Add(PACKETID.NTF_ROOM_CHAT, PacketProcess_RoomChatNotify);
+            PacketFuncDic.Add(PACKETID.ResRoomEnter, PacketProcess_RoomEnterResponse);
+            PacketFuncDic.Add(PACKETID.NtfRoomUserList, PacketProcess_RoomUserListNotify);
+            PacketFuncDic.Add(PACKETID.NtfRoomNewUser, PacketProcess_RoomNewUserNotify);
+            PacketFuncDic.Add(PACKETID.ResRoomLeave, PacketProcess_RoomLeaveResponse);
+            PacketFuncDic.Add(PACKETID.NtfRoomLeaveUser, PacketProcess_RoomLeaveUserNotify);
+            PacketFuncDic.Add(PACKETID.NtfRoomChat, PacketProcess_RoomChatNotify);
             //PacketFuncDic.Add(PACKETID.REQ_ROOM_CHAT, PacketProcess_RoomChatResponse);
 
 

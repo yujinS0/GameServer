@@ -338,7 +338,7 @@ namespace OmokClient
             loginReq.UserID = textBoxUserID.Text;
             var packet = MemoryPackSerializer.Serialize(loginReq);
                         
-            PostSendPacket(PACKETID.REQ_LOGIN, packet);            
+            PostSendPacket(PACKETID.ReqLogin, packet);            
             DevLog.Write($"로그인 요청:  {textBoxUserID.Text}, {textBoxUserPW.Text}");
             DevLog.Write($"로그인 요청: {ToReadableByteArray(packet)}");
         }
@@ -350,14 +350,14 @@ namespace OmokClient
 
             var sendPacketData = MemoryPackSerializer.Serialize(requestPkt); // 직렬화
 
-            PostSendPacket(PACKETID.REQ_ROOM_ENTER, sendPacketData); // 패킷 전송
+            PostSendPacket(PACKETID.ReqRoomEnter, sendPacketData); // 패킷 전송
             DevLog.Write($"방 입장 요청:  {textBoxRoomNumber.Text} 번");
         }
 
         private void btn_RoomLeave_Click(object sender, EventArgs e)
         {
             //PostSendPacket(PACKET_ID.ROOM_LEAVE_REQ,  null);
-            PostSendPacket(PACKETID.REQ_ROOM_LEAVE, new byte[MemoryPackPacketHeadInfo.HeadSize]);
+            PostSendPacket(PACKETID.ReqRoomLeave, new byte[MemoryPackPacketHeadInfo.HeadSize]);
             DevLog.Write($"방 퇴장 요청:  {textBoxRoomNumber.Text} 번");
         }
 
@@ -395,7 +395,7 @@ namespace OmokClient
 
             var sendPacketData = MemoryPackSerializer.Serialize(requestPkt);
 
-            PostSendPacket(PACKETID.REQ_ROOM_CHAT, sendPacketData);
+            PostSendPacket(PACKETID.ReqRoomChat, sendPacketData);
             DevLog.Write($"방 채팅 요청");
         }
 
