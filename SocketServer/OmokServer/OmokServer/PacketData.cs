@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 
-
 namespace OmokServer;
 
 public struct MemoryPackPacketHeadInfo

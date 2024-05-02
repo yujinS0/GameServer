@@ -15,7 +15,7 @@ public class InnerPakcetMaker
         };
 
         var sendData = MemoryPackSerializer.Serialize(packet);
-        MemoryPackPacketHeadInfo.Write(sendData, PACKETID.NTF_IN_ROOM_LEAVE);
+        MemoryPackPacketHeadInfo.Write(sendData, PACKETID.NtfInRoomLeave);
         
         var memoryPakcPacket = new MemoryPackBinaryRequestInfo(null);
         memoryPakcPacket.Data = sendData;
@@ -30,11 +30,11 @@ public class InnerPakcetMaker
         
         if (isConnect)
         {
-            MemoryPackPacketHeadInfo.WritePacketId(memoryPakcPacket.Data, (UInt16)PACKETID.NTF_IN_CONNECT_CLIENT);
+            MemoryPackPacketHeadInfo.WritePacketId(memoryPakcPacket.Data, (UInt16)PACKETID.NtfInConnectClient);
         }
         else
         {
-            MemoryPackPacketHeadInfo.WritePacketId(memoryPakcPacket.Data, (UInt16)PACKETID.NTF_IN_DISCONNECT_CLIENT);
+            MemoryPackPacketHeadInfo.WritePacketId(memoryPakcPacket.Data, (UInt16)PACKETID.NtfInDisconnectClinet);
         }
 
         memoryPakcPacket.SessionID = sessionID;

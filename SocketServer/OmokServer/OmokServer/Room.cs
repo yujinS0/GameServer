@@ -80,7 +80,7 @@ public class Room
 
         // use MemoryPack
         var sendPacket = MemoryPackSerializer.Serialize(packet); // 직렬화
-        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NTF_ROOM_USER_LIST);
+        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NtfRoomUserList);
         
         NetSendFunc(userNetSessionID, sendPacket);
     }
@@ -91,7 +91,7 @@ public class Room
         packet.UserID = newUserID;
         
         var sendPacket = MemoryPackSerializer.Serialize(packet); // 직렬화
-        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NTF_ROOM_NEW_USER);
+        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NtfRoomNewUser);
         
         Broadcast(newUserNetSessionID, sendPacket);
     }
@@ -107,7 +107,7 @@ public class Room
         packet.UserID = userID;
         
         var sendPacket = MemoryPackSerializer.Serialize(packet);
-        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NTF_ROOM_LEAVE_USER);
+        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NtfRoomLeaveUser);
       
         Broadcast("", sendPacket);
     }
