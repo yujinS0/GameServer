@@ -351,6 +351,11 @@ namespace OmokClient
             panel1.Invalidate(r);
         }
 
+        void 턴넘기기()
+        {
+
+        }
+
         private void panel1_MouseMove(object sender, MouseEventArgs e) // 현재 차례의 돌 잔상 구현 (마우스 움직일때)
         {
             if (OmokLogic.게임종료 || IsMyTurn == false) 

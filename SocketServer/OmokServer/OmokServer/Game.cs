@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MemoryPack;
 using System.Collections.Generic;
+using System.Timers;
 
 namespace OmokServer;
 public class Game
@@ -15,12 +16,18 @@ public class Game
     private bool isGameStarted = false;
     public static Func<string, byte[], bool> NetSendFunc;
 
+    private System.Timers.Timer turnTimer;
+    private int turnSkipCount = 0;
+    private const int MaxSkipCount = 6;
+    private const double TurnDuration = 30000;  // 30초
+
 
     public Game(List<RoomUser> players, Func<string, byte[], bool> netSendFunction)
     {
         this.players = players ?? throw new ArgumentNullException(nameof(players));
         NetSendFunc = netSendFunction ?? throw new ArgumentNullException(nameof(netSendFunction));
         InitializeBoard();
+        //InitializeTimer();
     }
 
     private void InitializeBoard()
@@ -41,6 +48,15 @@ public class Game
         NotifyGameStart();
         MainServer.MainLogger.Debug("Game has started.");
     }
+
+    //private void InitializeTimer()
+    //{
+    //    turnTimer = new System.Timers.Timer(TurnDuration);
+    //    turnTimer.AutoReset = false;  // Trigger the event only once after the interval
+    //    turnTimer.Elapsed += HandleTurnTimeout;
+    //}
+
+
 
     private void NotifyGameStart()
     {
