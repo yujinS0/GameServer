@@ -7,9 +7,9 @@
 ├── APIServer : API Game Server (게임 관련 처리)
 ├── HiveServer : Hive Server (Hive 로그인 관련 처리)
 └── SocketServer
-    ├── OmokClient
+    ├── OmokClient 
     ├── OmokServer
-    └── net8.0
+    └── net8.0 : SuperSocketLite 라이브러리
 ``` 
 
 <br><br>
