@@ -3,6 +3,29 @@
 - main 브랜치 (완성된 코드)
 - develop 브랜치 (개발 중)
 
+# 파일 구조
+```bash
+├── APIServer
+│   ├── Controllers
+│   ├── Model
+│   ├── Properties
+|   └── Repository
+├── HiveServer
+│   ├── Controllers
+│   ├── Model
+│   ├── Properties
+|   └── Repository
+└── SocketServer
+    ├── OmokClient
+    ├── OmokServer
+    ├── Tutorial
+    │   ├── EchoClient
+    │   ├── Echoserver : 기본 에코 서버 설명
+    │   ├── MyChatServer : 일반적인 게임 소켓 서버 예제 (코드 주석과 함께 자세히 설명)
+    │   └── PvPserver
+    └── net8.0
+``` 
+
 # GameServer
 [송유진] 컴투스 서버 캠퍼스 2기
 <br><br>
