@@ -4,8 +4,8 @@
 
 ## 파일 구조
 ```bash
-├── APIServer
-├── HiveServer
+├── APIServer : API Game Server (게임 관련 처리)
+├── HiveServer : Hive Server (Hive 로그인 관련 처리)
 └── SocketServer
     ├── OmokClient
     ├── OmokServer
