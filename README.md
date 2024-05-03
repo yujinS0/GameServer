@@ -1,6 +1,18 @@
 # GameServer
 [송유진] 컴투스 서버 캠퍼스 2기
 <br><br>
+
+## 파일 구조
+```bash
+├── APIServer
+├── HiveServer
+└── SocketServer
+    ├── OmokClient
+    ├── OmokServer
+    └── net8.0
+``` 
+
+<br><br>
 ## Game API Server
 - [시퀀스 다이어그램](SequenceDiagram.md)
 - [DB 스키마](DBschema.md)
