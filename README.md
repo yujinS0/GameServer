@@ -1,6 +1,18 @@
 # GameServer
 [송유진] 컴투스 서버 캠퍼스 2기
 <br><br>
+
+## 파일 구조
+```bash
+├── APIServer : API Game Server (게임 관련 처리)
+├── HiveServer : Hive Server (Hive 로그인 관련 처리)
+└── SocketServer
+    ├── OmokClient 
+    ├── OmokServer
+    └── net8.0 : SuperSocketLite 라이브러리
+``` 
+
+<br><br>
 ## Game API Server
 - [시퀀스 다이어그램](SequenceDiagram.md)
 - [DB 스키마](DBschema.md)
@@ -9,8 +21,6 @@
 ## Game Socket Server
 - `OmokServer` 디렉토리 : 실제 오목 서버
 - `OmokClient` 디렉토리 : 실제 오목 클라이언트
-- 나머지 디렉토리 : 공부 및 실습 연습
-  + `MyChatServer` 디렉토리 : 채팅 서버 로직을 자세한 주석과 함께 설명 (로직 헷갈릴 때 참고하기)
 
 ---
 ## 진행상황
@@ -20,13 +30,19 @@
 - [X] 방 채팅
 - [X] 게임 시작
   - 두명이 모두 게임 시작을 요청하면 바로 게임 시작
-- [ ] 돌두기 
+- [X] 돌두기
+- [ ] 타이머
   - 시간 제한을 넘으면 상대방에게 턴이 자동으로 넘겨야 됨
   - 연속으로 6번 자동으로 턴이 넘어가면 게임 취소
-- [ ] 오목 로직
-- [ ] 게임 종료
+- [X] 오목 로직
+- [X] 게임 종료
   - 게임이 끝나면 서버는 결과를 알려준다.
   - 클라이언트는 결과를 표시한다
+- [ ] Heart-Beat 구현
+- [ ] 로그인에 DB 연동
+  - Redis에 있는 유저 정보로 로그인 체크
+  - 게임 결과 DB 저장
+
 
 
 
