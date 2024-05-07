@@ -221,5 +221,16 @@ public partial class PKTNtfHeartBeat : PkHeader
 [MemoryPackable]
 public partial class PKTNtfChangeTurn : PkHeader
 {
-    //public string CurrentPlayerID;
+}
+
+[MemoryPackable]
+
+public partial class PKTNtfInCheckRoom : PkHeader
+{
+}
+
+[MemoryPackable]
+
+public partial class PKTNtfInCheckTurn : PkHeader
+{
 }
