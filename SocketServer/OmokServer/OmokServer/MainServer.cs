@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -214,4 +209,7 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
 
 public class NetworkSession : AppSession<NetworkSession, MemoryPackBinaryRequestInfo>
 {
+    // 여기에 HeartBeat 관련 변수를 추가
+    DateTime ConnectTime = DateTime.UtcNow;
+    //ConnectTime.ToString("mm:ss"); // 분과 초만
 }
