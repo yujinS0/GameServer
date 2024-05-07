@@ -95,7 +95,7 @@ namespace OmokClient
                 DevLog.Write($"서버에 접속 중", LOG_LEVEL.INFO);
 
                 // 서버 연결 성공 후 타이머 시작
-                heartBeatTimer.Start();
+                // heartBeatTimer.Start();
             }
             else
             {
@@ -339,7 +339,7 @@ namespace OmokClient
             }
         }
 
-        private void HeartBeatTimer_Tick(object sender, EventArgs e) // 
+        private void HeartBeatTimer_Tick(object sender, EventArgs e) // HeartBeat
         {
             var HeartBeatReq = new PKTReqHeartBeat();
 

@@ -7,7 +7,6 @@ namespace OmokServer;
 
 public class PKHCommon : PKHandler
 {
-    private System.Timers.Timer heartbeatTimer;
     public void RegistPacketHandler(Dictionary<int, Action<MemoryPackBinaryRequestInfo>> packetHandlerMap)
     {
         packetHandlerMap.Add((int)PACKETID.NtfInConnectClient, NotifyInConnectClient);
@@ -40,7 +39,6 @@ public class PKHCommon : PKHandler
             _userMgr.RemoveUser(sessionID);
         }
     }
-
 
     public void RequestLogin(MemoryPackBinaryRequestInfo packetData)
     {
