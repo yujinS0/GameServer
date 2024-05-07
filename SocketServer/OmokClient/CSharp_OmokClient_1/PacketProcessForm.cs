@@ -113,6 +113,9 @@ namespace OmokClient
         {
             var responsePkt = MemoryPackSerializer.Deserialize<PKTResLogin>(packetData); // 패킷 데이터를 PKTResLogin 클래스로 역직렬화
             DevLog.Write($"로그인 결과: {(ERROR_CODE)responsePkt.Result}");
+
+            // 로그인 성공 후 타이머 시작
+            heartBeatTimer.Start();
         }
 
         void PacketProcess_RoomEnterResponse(byte[] packetData)
@@ -239,6 +242,7 @@ namespace OmokClient
             DevLog.Write("턴이 변경되었습니다. 현재 턴: " + (IsMyTurn ? "나" : "상대"));
             //panel1.Invalidate(); // UI 업데이트
             ChangeTurn();
+            // 
         }
         void PacketProcess_PutMokResponse(byte[] packetData)
         {
@@ -268,7 +272,19 @@ namespace OmokClient
 
             DevLog.Write($"오목 GameOver: Win: {notifyPkt.WinUserID}");
 
-            MessageBox.Show($"{notifyPkt.WinUserID}가 승리했습니다!", "게임 종료", MessageBoxButtons.OK, MessageBoxIcon.Information); // 승리 팝업 표시
+            if (notifyPkt.WinUserID == null) 
+            {
+                MessageBox.Show("무승부.", "게임 종료", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else if(notifyPkt.WinUserID == textBoxUserID.Text)
+            {
+                MessageBox.Show("승리하였습니다.", "게임 종료", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("패배하였습니다.", "게임 종료", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            //MessageBox.Show($"{notifyPkt.WinUserID}가 승리했습니다!", "게임 종료", MessageBoxButtons.OK, MessageBoxIcon.Information); // 승리 팝업 표시
         }
     }
 }
