@@ -6,9 +6,6 @@ using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Config;
-using System.Threading;
-using NLog;
-using OmokServer;
 
 namespace OmokServer;
 public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>, IHostedService
@@ -113,6 +110,8 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
 
             CreateComponent(serverOpt);
 
+            CreateTimer(serverOpt);
+
             MainLogger.Info("서버 생성 성공");
         }
         catch (Exception ex)
@@ -120,6 +119,34 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
             MainLogger.Error($"[ERROR] 서버 생성 실패: {ex.ToString()}");
         }
     }
+
+    public void CreateTimer(ServerOption serverOpt)
+    {
+        System.Timers.Timer _timer = new System.Timers.Timer(); ;
+
+        int _checkRoomInterval = 20000; //serverOpt.RoomIntervalMilliseconds;
+
+        _timer.Interval = _checkRoomInterval;
+        _timer.Elapsed += NotifyEvent;
+        _timer.Start();
+        MainServer.MainLogger.Debug("_timer 타이머 시작!");
+
+    }
+
+    private void NotifyEvent(object sender, System.Timers.ElapsedEventArgs e)
+    {
+        var memoryPakcPacket = new MemoryPackBinaryRequestInfo(null)
+        {
+            Data = new byte[MemoryPackPacketHeadInfo.HeadSize]
+        };
+
+        // 패킷 ID 설정
+        MemoryPackPacketHeadInfo.WritePacketId(memoryPakcPacket.Data, (UInt16)PACKETID.NtfInTimer); // 타이머 이너 패킷
+
+        Distribute(memoryPakcPacket);
+        MainServer.MainLogger.Debug("NotifyEvent NtfInCheckRoom 이너 패킷 보냄 = 룸 상태 검사");
+    }
+
 
     public bool IsRunning(ServerState eCurState)
     {
@@ -145,7 +172,7 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
 
         _packetProcessor = new PacketProcessor();
         _packetProcessor.NetSendFunc = this.SendData;
-        _packetProcessor.CreateAndStart(_roomMgr.GetRoomsList(), serverOpt);
+        _packetProcessor.CreateAndStart(_roomMgr, serverOpt);
 
         MainLogger.Info("CreateComponent - Success");
         return ERROR_CODE.NONE;
@@ -166,7 +193,7 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
         }
         catch (Exception ex)
         {
-            // TimeoutException 예외가 발생할 수 있다
+            // TimeoutException 예외
             MainLogger.Error($"{ex.ToString()},  {ex.StackTrace}");
 
             session.SendEndWhenSendingTimeOut();
@@ -209,7 +236,4 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
 
 public class NetworkSession : AppSession<NetworkSession, MemoryPackBinaryRequestInfo>
 {
-    // 여기에 HeartBeat 관련 변수를 추가
-    DateTime ConnectTime = DateTime.UtcNow;
-    //ConnectTime.ToString("mm:ss"); // 분과 초만
 }
