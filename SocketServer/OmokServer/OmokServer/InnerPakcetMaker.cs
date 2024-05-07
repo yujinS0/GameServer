@@ -42,7 +42,17 @@ public class InnerPakcetMaker
     }
 
 }
-   
+[MemoryPackable]
+public partial class PKTInternalNtfCheckHeartBeat : PkHeader
+{
+    public int HeartBeatState { get; set; }
+}
+public enum HeartBeatState
+{
+    Connect = 0,
+    DisConnect = 1
+}
+
 
 [MemoryPackable]
 public partial class PKTInternalNtfRoomLeave : PkHeader

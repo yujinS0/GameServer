@@ -427,6 +427,9 @@ namespace OmokClient
             OmokLogic.오목확인(x, y);
         }
 
-               
+        void ChangeTurn()
+        {
+            OmokLogic.턴바꾸기();
+        }   
     }
 }

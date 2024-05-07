@@ -30,6 +30,7 @@ namespace OmokClient
             PacketFuncDic.Add(PACKETID.ResPutMok, PacketProcess_PutMokResponse);
             PacketFuncDic.Add(PACKETID.NTFPutMok, PacketProcess_PutMokNotify);
             PacketFuncDic.Add(PACKETID.NTFEndOmok, PacketProcess_EndOmokNotify);
+            PacketFuncDic.Add(PACKETID.NtfChangeTurn, PacketProcess_ChangeTurn); // 턴 변경 처리 함수 추가
         }
 
         void PacketProcess(byte[] packet) // 패킷 처리
@@ -231,7 +232,14 @@ namespace OmokClient
             DevLog.Write($"게임 시작. 흑돌 플레이어: {notifyPkt.FirstUserID}");
         }
 
-
+        void PacketProcess_ChangeTurn(byte[] packetData)
+        {
+            var turnInfo = MemoryPackSerializer.Deserialize<PKTNtfChangeTurn>(packetData); // 패킷 데이터를 PKTNtfChangeTurn 클래스로 역직렬화
+            IsMyTurn = !IsMyTurn; // 턴 전환
+            DevLog.Write("턴이 변경되었습니다. 현재 턴: " + (IsMyTurn ? "나" : "상대"));
+            //panel1.Invalidate(); // UI 업데이트
+            ChangeTurn();
+        }
         void PacketProcess_PutMokResponse(byte[] packetData)
         {
             var responsePkt = MemoryPackSerializer.Deserialize<PKTResPutMok>(packetData);

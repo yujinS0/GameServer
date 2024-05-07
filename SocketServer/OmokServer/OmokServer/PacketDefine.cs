@@ -72,7 +72,7 @@ public enum PACKETID : int
     NTFEndOmok = 1038,
 
     ReqNextTurn = 1040,
-    NtfNextTurn = 1041,
+    NtfChangeTurn = 1041,
 
     End = 1100,
 
@@ -88,7 +88,7 @@ public enum PACKETID : int
     NtfInRoomLeave = 8036,
 
     ReqHeartBeat = 8041,
-    ResHeartBeat = 8042,
+    NtfHeartBeat = 8042,
 
     // DB 8101 ~ 9000
     ReqDbLogin = 8101,

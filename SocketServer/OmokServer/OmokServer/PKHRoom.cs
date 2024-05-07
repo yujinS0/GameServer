@@ -208,7 +208,7 @@ public class PKHRoom : PKHandler
         NetSendFunc(sessionID, sendPacket);
     }
 
-    public void NotifyLeaveInternal(MemoryPackBinaryRequestInfo packetData)
+    public void NotifyLeaveInternal(MemoryPackBinaryRequestInfo packetData) // 방을 나가지 않은 상태에서 접속 끊었을 때
     {
         var sessionID = packetData.SessionID;
         MainServer.MainLogger.Debug($"NotifyLeaveInternal. SessionID: {sessionID}");
@@ -350,6 +350,9 @@ public class PKHRoom : PKHandler
             roomObject.Item2.Broadcast(sessionID, sendPacket); // 해당 방의 모든 유저에게 통보
 
             MainServer.MainLogger.Debug("Stone placed successfully.");
+
+            roomObject.Item2.game.StopTurnTimer(); // 턴 타이머 중지
+            roomObject.Item2.game.StartTurnTimer(); // 턴 타이머 재시작
         }
         catch (Exception ex)
         {

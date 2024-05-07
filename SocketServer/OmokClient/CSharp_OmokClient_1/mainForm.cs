@@ -32,11 +32,15 @@ namespace OmokClient
 
         System.Windows.Forms.Timer dispatcherUITimer = new();
 
-
+        private System.Windows.Forms.Timer heartBeatTimer;
 
         public mainForm()
         {
             InitializeComponent();
+
+            heartBeatTimer = new System.Windows.Forms.Timer();
+            heartBeatTimer.Interval = 1000000; // 1초마다
+            heartBeatTimer.Tick += HeartBeatTimer_Tick;
         }
 
         private void mainForm_Load(object sender, EventArgs e)
@@ -71,7 +75,7 @@ namespace OmokClient
             Network.Close();
         }
 
-        private void btnConnect_Click(object sender, EventArgs e)
+        private void btnConnect_Click(object sender, EventArgs e) // 타이머 추가
         {
             string address = textBoxIP.Text;
 
@@ -89,6 +93,9 @@ namespace OmokClient
                 btnDisconnect.Enabled = true;
 
                 DevLog.Write($"서버에 접속 중", LOG_LEVEL.INFO);
+
+                // 서버 연결 성공 후 타이머 시작
+                heartBeatTimer.Start();
             }
             else
             {
@@ -102,6 +109,9 @@ namespace OmokClient
         {
             SetDisconnectd();
             Network.Close();
+
+            // 연결 해제 시 타이머 중지
+            heartBeatTimer.Stop();
         }
 
         
@@ -327,6 +337,16 @@ namespace OmokClient
             {
                 return (string)listBoxRoomUserList.Items[1];
             }
+        }
+
+        private void HeartBeatTimer_Tick(object sender, EventArgs e) // 
+        {
+            var HeartBeatReq = new PKTReqHeartBeat();
+
+            var packetData = MemoryPackSerializer.Serialize(HeartBeatReq);
+            PostSendPacket(PACKETID.ReqHeartBeat, packetData);
+
+            DevLog.Write("HeartBeat 요청");
         }
 
 

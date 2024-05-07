@@ -61,6 +61,11 @@ public class UserManager
     {
         return _maxUserCount <= _userMap.Count();
      }
+
+    public Dictionary<string, User> GetUserMap()
+    {
+        return _userMap;
+    }
             
 }
 
@@ -71,6 +76,7 @@ public class User
    
     public int RoomNumber { get; private set; } = -1;
     string UserID;
+    public DateTime ConnectTime;
 
     bool IsReady = false;
             
@@ -80,6 +86,7 @@ public class User
         SessionID = sessionID;
         UserID = userID;
         IsReady = false;
+        ConnectTime = DateTime.Now;
     }                   
     
     public bool IsConfirm(string netSessionID)
