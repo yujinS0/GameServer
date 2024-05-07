@@ -148,3 +148,19 @@ public partial class PKTNtfEndOmok : PkHeader
 {
     public string WinUserID;
 }
+
+[MemoryPackable]
+public partial class PKTReqHeartBeat : PkHeader
+{
+}
+
+[MemoryPackable]
+public partial class PKTNtfHeartBeat : PkHeader
+{
+    public int HeartBeatState;
+}
+[MemoryPackable]
+public partial class PKTNtfChangeTurn : PkHeader
+{
+    //public string CurrentPlayerID;
+}

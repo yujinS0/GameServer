@@ -141,6 +141,11 @@ namespace CSCommon
             }
         }
 
+        public void 턴바꾸기()
+        {
+            흑돌차례 = !흑돌차례;
+        }
+
 
         public void 오목확인(int x, int y)
         {

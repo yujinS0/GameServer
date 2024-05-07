@@ -350,6 +350,9 @@ public class PKHRoom : PKHandler
             roomObject.Item2.Broadcast(sessionID, sendPacket); // 해당 방의 모든 유저에게 통보
 
             MainServer.MainLogger.Debug("Stone placed successfully.");
+
+            roomObject.Item2.game.StopTurnTimer(); // 턴 타이머 중지
+            roomObject.Item2.game.StartTurnTimer(); // 턴 타이머 재시작
         }
         catch (Exception ex)
         {
