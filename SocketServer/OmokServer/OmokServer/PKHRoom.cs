@@ -208,7 +208,7 @@ public class PKHRoom : PKHandler
         NetSendFunc(sessionID, sendPacket);
     }
 
-    public void NotifyLeaveInternal(MemoryPackBinaryRequestInfo packetData)
+    public void NotifyLeaveInternal(MemoryPackBinaryRequestInfo packetData) // 방을 나가지 않은 상태에서 접속 끊었을 때
     {
         var sessionID = packetData.SessionID;
         MainServer.MainLogger.Debug($"NotifyLeaveInternal. SessionID: {sessionID}");

@@ -40,8 +40,8 @@ class HeartBeatProcessor // HeartBeat 스레드 생성 및 관리
 
     private void CheckHeartBeat()
     {
-        // 여기에 HeartBeat 체크 로직 구현
+        // HeartBeat 체크 로직 구현
         Console.WriteLine("Checking heartbeats...");
-        // 예를 들어, 각 클라이언트의 마지막 응답 시간을 체크하고, 일정 시간 이상 응답이 없으면 연결 종료 처리 등
+        
     }
 }
