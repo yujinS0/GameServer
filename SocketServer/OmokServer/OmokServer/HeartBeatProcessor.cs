@@ -10,7 +10,11 @@ class HeartBeatProcessor // HeartBeat 스레드 생성 및 관리
 {
     private Thread _heartBeatThread;
     private bool _isRunning = false;
-    private int _checkInterval = 10000; // 체크 간격 10초
+    private int _checkInterval = 1000; // 체크 간격 10초
+
+    private UserManager userManager = new UserManager();
+
+    //private static readonly Dictionary<string, User> userMap = userManager.GetUserMap();
 
     public HeartBeatProcessor()
     {

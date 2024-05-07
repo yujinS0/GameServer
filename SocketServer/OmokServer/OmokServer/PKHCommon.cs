@@ -117,6 +117,6 @@ public class PKHCommon : PKHandler
             return;
         }
 
-        
+        user.ConnectTime = DateTime.Now;
     }
 }
