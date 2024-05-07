@@ -39,7 +39,7 @@ namespace OmokClient
             InitializeComponent();
 
             heartBeatTimer = new System.Windows.Forms.Timer();
-            heartBeatTimer.Interval = 1000000; // 1초마다
+            heartBeatTimer.Interval = 10000; // 10초마다
             heartBeatTimer.Tick += HeartBeatTimer_Tick;
         }
 

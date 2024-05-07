@@ -34,9 +34,12 @@ public enum PACKETID : int
     // 클라이언트
     //CS_BEGIN        = 1001,
 
-    ReqLogin       = 1002,
-    ResLogin       = 1003,
-    NtfMustClose       = 1005,
+    ReqLogin = 1002,
+    ResLogin = 1003,
+    ReqLogout = 1004,
+    ResLogout = 1005,
+
+    NtfMustClose = 1010,
 
     ReqRoomEnter = 1015,
     ResRoomEnter = 1016,
@@ -87,7 +90,6 @@ public enum PACKETID : int
 
     NtfInConnectClient = 8011,
     NtfInDisconnectClinet = 8012,
-
 
 
     //ReqSsServerInfo = 8021,
