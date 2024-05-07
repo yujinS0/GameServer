@@ -44,7 +44,7 @@ public class PKHRoom : PKHandler
         _roomMgr.CheckRoom();
 
         // 유저 매니저 처리
-
+        _userMgr.CheckUser();
     }
 
     Room GetRoom(int roomNumber)

@@ -84,6 +84,18 @@ public partial class PKTResLogin : PkHeader
     public short Result { get; set; }
 }
 
+[MemoryPackable]
+public partial class PKTReqLogout : PkHeader
+{
+    public string UserID { get; set; }
+}
+
+[MemoryPackable]
+public partial class PKTResLogout : PkHeader
+{
+    public short Result { get; set; }
+}
+
 
 
 [MemoryPackable]

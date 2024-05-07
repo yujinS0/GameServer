@@ -114,7 +114,7 @@ public class PKHCommon : PKHandler
         {
             return;
         }
-
-        user.ConnectTime = DateTime.Now;
+        user.LoginTime = DateTime.Now;
+        //MainServer.MainLogger.Debug($"RequestHeartBeat LoginTime:{user.LoginTime}");
     }
 }
