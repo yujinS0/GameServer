@@ -74,6 +74,12 @@ public enum PACKETID : int
     ReqNextTurn = 1040,
     NtfChangeTurn = 1041,
 
+    NtfInTimer = 1045,
+
+
+    NtfInCheckRoom = 1045,
+    NtfInCheckTurn = 1046,
+
     End = 1100,
 
     // 시스템, 서버 - 서버
@@ -81,6 +87,8 @@ public enum PACKETID : int
 
     NtfInConnectClient = 8011,
     NtfInDisconnectClinet = 8012,
+
+
 
     //ReqSsServerInfo = 8021,
     //ResSsServerInfo = 8023,

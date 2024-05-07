@@ -14,24 +14,17 @@ public class Game
     private const int BoardSize = 19;
     private int[,] board = new int[BoardSize, BoardSize];
     private List<RoomUser> players;
-    private bool isGameStarted = false;
+    public bool IsGameStarted { get; private set; } = false;
     public static Func<string, byte[], bool> NetSendFunc;
 
-    private System.Timers.Timer turnTimer;
     private int turnSkipCount = 0;
     private const int MaxSkipCount = 6;
-    private const double TurnDuration = 10000;  // 10초
-
-    private System.Timers.Timer gameDurationTimer;
-    private const double GameDurationLimit = 1800000;  // 30분
-
 
     public Game(List<RoomUser> players, Func<string, byte[], bool> netSendFunction)
     {
         this.players = players ?? throw new ArgumentNullException(nameof(players));
         NetSendFunc = netSendFunction ?? throw new ArgumentNullException(nameof(netSendFunction));
         InitializeBoard();
-        InitializeTimer();
     }
 
     private void InitializeBoard()
@@ -41,65 +34,24 @@ public class Game
 
     public void StartGame()
     {
-        isGameStarted = true;
+        IsGameStarted = true;
         NotifyGameStart();
         MainServer.MainLogger.Debug("Game has started.");
-        StartTurnTimer();
+        turnSkipCount = 0;
     }
 
-    private void InitializeTimer()
+    public void SetTurnSkipCount1()
     {
-        turnTimer = new System.Timers.Timer(TurnDuration);
-        turnTimer.AutoReset = false;  
-        turnTimer.Elapsed += HandleTurnTimeout;
-        //turnTimer.Enabled = true;  // 게임 시작 시 타이머 활성화
-    }
-    public void StartTurnTimer()
-    {
-        turnTimer.Start();
-        MainServer.MainLogger.Debug("타이머 시작!");
-    }
-
-    public void StopTurnTimer()
-    {
-        turnTimer.Stop();
-        MainServer.MainLogger.Debug("타이머 중지!");
-    }
-
-    private void HandleTurnTimeout(Object source, ElapsedEventArgs e)
-    {
-        MainServer.MainLogger.Debug("30초 경과");
-
-        // 턴 스킵 횟수 증가
         turnSkipCount++;
+        MainServer.MainLogger.Debug($"턴 스킵 + 1 , 현재 turnSkipCount : {turnSkipCount}");
+    }
+
+    public void IsGameTurnSkip6times()
+    {
         if (turnSkipCount >= MaxSkipCount)
         {
             EndGameDueToTurnSkips();  // 연속 턴 스킵으로 게임 종료
-            return;
         }
-
-        ChangeTurn();  // 턴 변경
-    }
-
-    private void ChangeTurn()
-    {
-        // 현재 플레이어 변경
-        //currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
-        BroadcastTurnChange();
-        turnTimer.Stop();
-    }
-
-    private void BroadcastTurnChange()
-    {
-        var turnChangePacket = new PKTNtfChangeTurn { };
-
-        var sendPacket = MemoryPackSerializer.Serialize(turnChangePacket);
-        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NtfChangeTurn);
-        MainServer.MainLogger.Debug("turnChangePacket 보냄");
-        BroadcastToAll(sendPacket);
-
-        StopTurnTimer();
-        StartTurnTimer();
     }
 
     private void EndGameDueToTurnSkips()
@@ -113,37 +65,9 @@ public class Game
             BroadcastToAll(sendPacket);
             MainServer.MainLogger.Debug($"Game ended. Winner: None = 턴넘김 6회로 무승부");
         }
-        isGameStarted = false;
-        turnTimer.Enabled = false;  // 타이머 종료
+        IsGameStarted = false;
         InitializeBoard(); // Reset the board
     }
-
-    private void HandleGameDurationTimeout(Object source, ElapsedEventArgs e)
-    {
-        EndGameDueToTimeout();
-    }
-
-    private void EndGameDueToTimeout()
-    {
-        foreach (var player in players)
-        {
-            var endGamePacket = new PKTNtfEndOmok
-            {
-                WinUserID = "None",  // 무승부 처리
-            };
-            var sendPacket = MemoryPackSerializer.Serialize(endGamePacket);
-            MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NTFEndOmok);
-            // 모든 플레이어에게 게임 종료 통보
-            BroadcastToAll(sendPacket);
-            MainServer.MainLogger.Debug($"Game ended. Winner: None = 30분 이상 게임 진행으로 무승부");
-        }
-
-        isGameStarted = false;
-        turnTimer.Enabled = false;
-        gameDurationTimer.Enabled = false;  // 게임 시간 타이머 종료
-        InitializeBoard(); // Reset the board
-    }
-
 
     private void NotifyGameStart()
     {
@@ -179,7 +103,7 @@ public class Game
 
     public bool PlaceStone(int x, int y, int stoneType)
     {
-        if (!isGameStarted || x < 0 || y < 0 || x >= BoardSize || y >= BoardSize || board[x, y] != (int)StoneType.None)
+        if (!IsGameStarted || x < 0 || y < 0 || x >= BoardSize || y >= BoardSize || board[x, y] != (int)StoneType.None)
         {
             MainServer.MainLogger.Error("Invalid move or game not started.");
             return false;
@@ -257,11 +181,10 @@ public class Game
     private void EndGame(RoomUser winner)
     {
         Console.WriteLine($"Player {winner.UserID} wins the game!");
-        isGameStarted = false;
+        IsGameStarted = false;
         InitializeBoard(); // Reset the board
     }
 }
-
 public enum StoneType
 {
     None = 0,

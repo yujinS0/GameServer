@@ -1,6 +1,4 @@
 ﻿using MemoryPack;
-using System;
-
 
 namespace OmokServer;
 
@@ -40,8 +38,8 @@ public class InnerPakcetMaker
         memoryPakcPacket.SessionID = sessionID;
         return memoryPakcPacket;
     }
-
 }
+
 [MemoryPackable]
 public partial class PKTInternalNtfCheckHeartBeat : PkHeader
 {

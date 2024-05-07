@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices.Marshalling;
 
 
 namespace OmokServer;
@@ -20,8 +21,11 @@ public class Room
     List<RoomUser> _userList = new List<RoomUser>();
 
     public static Func<string, byte[], bool> NetSendFunc;
+    public static Action<MemoryPackBinaryRequestInfo> DistributeInnerPacket;
 
     public Game game;
+    public DateTime TurnTime { get; set; }
+    public DateTime StartTime { get; set; }
 
     public void Init(int index, int number, int maxUserCount)
     {
@@ -70,7 +74,7 @@ public class Room
         return _userList.Count();
     }
 
-    public void NotifyPacketUserList(string userNetSessionID) //
+    public void NotifyPacketUserList(string userNetSessionID)
     {
         var packet = new PKTNtfRoomUserList();
         foreach (var user in _userList)
@@ -139,6 +143,50 @@ public class Room
         }
     }
 
+    internal void TurnCheck(DateTime cutTime) // 턴체크
+    {
+        //MainServer.MainLogger.Debug("==TurnCheck(DateTime cutTime) 턴체크 진입");
+
+        if (game == null || !game.IsGameStarted) return;
+
+        if ((cutTime - TurnTime).TotalSeconds > 2.5)
+        {
+            MainServer.MainLogger.Debug("==시간 초과로 턴 변경");
+            // 턴 변경 패킷을 보낼 로직
+            foreach (var user in _userList)
+            {
+                var sessionID = user.NetSessionID;
+                var packet = new PKTNtfChangeTurn {};
+                var sendData = MemoryPackSerializer.Serialize(packet);
+                MemoryPackPacketHeadInfo.Write(sendData, PACKETID.NtfChangeTurn);
+                NetSendFunc(sessionID, sendData);
+            }
+            game.SetTurnSkipCount1();
+            game.IsGameTurnSkip6times();
+            // 둔 시각 저장
+            TurnTime = DateTime.Now;
+            MainServer.MainLogger.Debug($"턴 넘긴 시각 저장 , TurnTime : {TurnTime}");
+        }
+    }
+
+    internal void RoomCheck(DateTime cutTime) // 룸체크
+    {
+        //MainServer.MainLogger.Debug("==RoomCheck(DateTime cutTime) 룸체크 진입");
+
+        if (!(_userList.Any())) { return; } // 유저가 없으면 체크 X
+        if ((cutTime - StartTime).TotalMinutes > 30) // 30분
+        {
+            MainServer.MainLogger.Debug("==시간 초과로 접속 종료");
+
+            foreach (var user in _userList)
+            {
+                var sessionID = user.NetSessionID;
+                // 접속 종료 이너 패킷 보내기 
+                var internalPacket = InnerPakcetMaker.MakeNTFInnerRoomLeavePacket(sessionID, this.Number, user.UserID);
+                DistributeInnerPacket(internalPacket);
+            }
+        }
+    }
 }
 
 public class RoomUser

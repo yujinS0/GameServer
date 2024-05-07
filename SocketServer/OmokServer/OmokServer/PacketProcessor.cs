@@ -20,22 +20,25 @@ class PacketProcessor
 
     UserManager _userMgr = new UserManager();
 
-    List<Room> _roomList = new List<Room>();
+    RoomManager _roomMgr;
 
     Dictionary<int, Action<MemoryPackBinaryRequestInfo>> _packetHandlerMap = new Dictionary<int, Action<MemoryPackBinaryRequestInfo>>();
     PKHCommon _commonPacketHandler = new PKHCommon();
     PKHRoom _roomPacketHandler = new PKHRoom();
             
-
-    public void CreateAndStart(List<Room> roomList, ServerOption serverOpt) // 서버 옵션을 받아서 초기화
+    public void CreateAndStart(RoomManager roomManager, ServerOption serverOpt) // 서버 옵션을 받아서 초기화
     {
+        _roomMgr = roomManager;
         var maxUserCount = serverOpt.RoomMaxCount * serverOpt.RoomMaxUserCount;
         _userMgr.Init(maxUserCount);
 
-        _roomList = roomList;
-        var minRoomNum = _roomList[0].Number;
-        var maxRoomNum = _roomList[0].Number + _roomList.Count() - 1;
-        
+        var roomList = _roomMgr.GetRoomsList();
+        if (roomList.Count > 0)
+        {
+            var minRoomNum = roomList[0].Number;
+            var maxRoomNum = roomList[roomList.Count - 1].Number;
+        }
+
         RegistPacketHandler(); // 패킷 핸들러 등록
 
         _isThreadRunning = true;
@@ -65,19 +68,20 @@ class PacketProcessor
     {
         PKHandler.NetSendFunc = NetSendFunc;
         PKHandler.DistributeInnerPacket = InsertPacket;
-        _commonPacketHandler.Init(_userMgr);
+        _commonPacketHandler.Init(_userMgr, _roomMgr);
         _commonPacketHandler.RegistPacketHandler(_packetHandlerMap);     
         
-        _roomPacketHandler.Init(_userMgr);
-        _roomPacketHandler.SetRooomList(_roomList);
+        _roomPacketHandler.Init(_userMgr, _roomMgr);
+        _roomPacketHandler.SetRooomList(_roomMgr.GetRoomsList());
         _roomPacketHandler.RegistPacketHandler(_packetHandlerMap);
+
+        Room.DistributeInnerPacket = InsertPacket; // 룸에서 이너패킷 사용을 위해
     }
 
-    void Process()
+    void Process() // TODO : DB 추가
     {
         while (_isThreadRunning)
         {
-            //System.Threading.Thread.Sleep(64); //테스트 용
             try
             {
                 var packet = _msgBuffer.Receive();
@@ -89,10 +93,6 @@ class PacketProcessor
                 {
                     _packetHandlerMap[header.Id](packet);
                 }
-                /*else
-                {
-                    System.Diagnostics.Debug.WriteLine("세션 번호 {0}, PacketID {1}, 받은 데이터 크기: {2}", packet.SessionID, packet.PacketID, packet.BodyData.Length);
-                }*/
             }
             catch (Exception ex)
             {

@@ -25,9 +25,7 @@ public class PKHRoom : PKHandler
         packetHandlerMap.Add((int)PACKETID.NtfInRoomLeave, NotifyLeaveInternal);
         packetHandlerMap.Add((int)PACKETID.ReqRoomChat, RequestChat);
 
-        //
         packetHandlerMap.Add((int)PACKETID.ReqReadyOmok, ReqReadyOmok);
-
 
         // 오목 게임 관련
         packetHandlerMap.Add((int)PACKETID.ReqPutMok, RequestPlaceStone);
@@ -35,8 +33,19 @@ public class PKHRoom : PKHandler
         //packetHandlerMap.Add((int)PACKETID.NTFPutMok, NotifyPlaceStone);
 
         packetHandlerMap.Add((int)PACKETID.NTFEndOmok, NotifyGameEnd);
+        packetHandlerMap.Add((int)PACKETID.NtfInTimer, CheckTimer);
     }
 
+    private void CheckTimer(MemoryPackBinaryRequestInfo info) // 타이머
+    {
+        MainServer.MainLogger.Debug("==NtfInTimer 패킷 처리 함수 : CheckTimer 진입");
+
+        // 룸매니저 처리
+        _roomMgr.CheckRoom();
+
+        // 유저 매니저 처리
+
+    }
 
     Room GetRoom(int roomNumber)
     {
@@ -121,6 +130,9 @@ public class PKHRoom : PKHandler
 
             ResponseEnterRoomToClient(ERROR_CODE.NONE, sessionID); // 방 입장 성공
 
+            // 방에 입장했을 때 시각 저장
+            room.StartTime = DateTime.Now;
+            MainServer.MainLogger.Debug($"방에 입장한 시각 , StartTime : {room.StartTime}");
             MainServer.MainLogger.Debug("RequestEnterInternal - Success");
         }
         catch (Exception ex)
@@ -252,7 +264,7 @@ public class PKHRoom : PKHandler
             MainServer.MainLogger.Error(ex.ToString());
         }
     }
-    // ReqReadyOmok 함수 
+
     public void ReqReadyOmok(MemoryPackBinaryRequestInfo packetData)
     {
         var sessionID = packetData.SessionID;
@@ -351,16 +363,15 @@ public class PKHRoom : PKHandler
 
             MainServer.MainLogger.Debug("Stone placed successfully.");
 
-            roomObject.Item2.game.StopTurnTimer(); // 턴 타이머 중지
-            roomObject.Item2.game.StartTurnTimer(); // 턴 타이머 재시작
+            // 돌 둔 시각 저장
+            roomObject.Item2.TurnTime = DateTime.Now;
+            MainServer.MainLogger.Debug($"돌 둔 시각 저장 , TurnTime : {roomObject.Item2.TurnTime}");
         }
         catch (Exception ex)
         {
             MainServer.MainLogger.Error(ex.ToString());
         }
     }
-
-
 
     void NotifyPlaceStone(ERROR_CODE errorCode, string sessionID)
     {
