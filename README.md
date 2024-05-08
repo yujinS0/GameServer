@@ -9,7 +9,7 @@
 └── SocketServer
     ├── OmokClient 
     ├── OmokServer
-    └── net8.0 : SuperSocketLite 라이브러리
+    └── SuperSocketLite : SuperSocketLite 라이브러리
 ``` 
 
 <br><br>
