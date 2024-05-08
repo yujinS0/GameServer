@@ -6,9 +6,9 @@ namespace OmokClient
 {
     public class ClientSimpleTcp
     {
-        public Socket Sock = null;   
+        public Socket Sock = null;
         public string LatestErrorMsg;
-        
+
 
         //소켓연결        
         public bool Connect(string ip, int port)
@@ -35,7 +35,7 @@ namespace OmokClient
             }
         }
 
-        public Tuple<int,byte[]> Receive()
+        public Tuple<int, byte[]> Receive()
         {
 
             try
@@ -48,7 +48,7 @@ namespace OmokClient
                     return null;
                 }
 
-                return Tuple.Create(nRecv,ReadBuffer);
+                return Tuple.Create(nRecv, ReadBuffer);
             }
             catch (SocketException se)
             {

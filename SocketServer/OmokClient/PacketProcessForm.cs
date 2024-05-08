@@ -3,6 +3,7 @@ using MemoryPack;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace OmokClient
 {
@@ -193,7 +194,7 @@ namespace OmokClient
         void PacketProcess_ReadyOmokResponse(byte[] packetData)
         {
             var responsePkt = MemoryPackSerializer.Deserialize<PKTResReadyOmok>(packetData);
-            
+
             DevLog.Write($"게임 준비 완료 요청");
         }
 
@@ -257,7 +258,6 @@ namespace OmokClient
         void PacketProcess_PutMokNotify(byte[] packetData)
         {
             var notifyPkt = MemoryPackSerializer.Deserialize<PKTNtfPutMok>(packetData);
-
             플레이어_돌두기(true, notifyPkt.PosX, notifyPkt.PosY);
 
             DevLog.Write($"오목 정보: X: {notifyPkt.PosX},  Y: {notifyPkt.PosY},   알:{notifyPkt.Mok}");
@@ -267,16 +267,15 @@ namespace OmokClient
         void PacketProcess_EndOmokNotify(byte[] packetData)
         {
             var notifyPkt = MemoryPackSerializer.Deserialize<PKTNtfEndOmok>(packetData);
-
             EndGame();
 
             DevLog.Write($"오목 GameOver: Win: {notifyPkt.WinUserID}");
 
-            if (notifyPkt.WinUserID == null) 
+            if (notifyPkt.WinUserID == null)
             {
                 MessageBox.Show("무승부.", "게임 종료", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            else if(notifyPkt.WinUserID == textBoxUserID.Text)
+            else if (notifyPkt.WinUserID == textBoxUserID.Text)
             {
                 MessageBox.Show("승리하였습니다.", "게임 종료", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
