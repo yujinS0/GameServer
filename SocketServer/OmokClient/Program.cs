@@ -1,4 +1,4 @@
-ï»¿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
@@ -11,7 +11,7 @@ namespace OmokClient
     static class Program
     {
         /// <summary>
-        /// í•´ë‹¹ ì‘ìš© í”„ë¡œê·¸ë¨ì˜ ì£¼ ì§„ì…ì ì…ë‹ˆë‹¤.
+        /// ÇØ´ç ÀÀ¿ë ÇÁ·Î±×·¥ÀÇ ÁÖ ÁøÀÔÁ¡ÀÔ´Ï´Ù.
         /// </summary>
         [STAThread]
         static void Main()

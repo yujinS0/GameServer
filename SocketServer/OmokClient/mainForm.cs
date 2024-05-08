@@ -1,4 +1,4 @@
-ï»¿using CSCommon;
+using CSCommon;
 using MemoryPack;
 using System;
 using System.Collections.Concurrent;
@@ -8,6 +8,8 @@ using System.Linq;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 #pragma warning disable CA1416
 
@@ -39,7 +41,7 @@ namespace OmokClient
             InitializeComponent();
 
             heartBeatTimer = new System.Windows.Forms.Timer();
-            heartBeatTimer.Interval = 10000; // 10ì´ˆë§ˆë‹¤
+            heartBeatTimer.Interval = 1000; // 1ÃÊ¸¶´Ù
             heartBeatTimer.Tick += HeartBeatTimer_Tick;
         }
 
@@ -60,11 +62,11 @@ namespace OmokClient
 
             btnDisconnect.Enabled = false;
 
-            SetPacketHandler(); // íŒ¨í‚· í•¸ë“¤ëŸ¬ ì„¤ì •
+            SetPacketHandler(); // ÆĞÅ¶ ÇÚµé·¯ ¼³Á¤
 
 
             Omok_Init();
-            DevLog.Write("í”„ë¡œê·¸ë¨ ì‹œì‘ !!!", LOG_LEVEL.INFO);
+            DevLog.Write("ÇÁ·Î±×·¥ ½ÃÀÛ !!!", LOG_LEVEL.INFO);
         }
 
         private void mainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -75,7 +77,7 @@ namespace OmokClient
             Network.Close();
         }
 
-        private void btnConnect_Click(object sender, EventArgs e) // íƒ€ì´ë¨¸ ì¶”ê°€
+        private void btnConnect_Click(object sender, EventArgs e) // Å¸ÀÌ¸Ó Ãß°¡
         {
             string address = textBoxIP.Text;
 
@@ -88,18 +90,18 @@ namespace OmokClient
 
             if (Network.Connect(address, port))
             {
-                labelStatus.Text = string.Format("{0}. ì„œë²„ì— ì ‘ì† ì¤‘", DateTime.Now);
+                labelStatus.Text = string.Format("{0}. ¼­¹ö¿¡ Á¢¼Ó Áß", DateTime.Now);
                 btnConnect.Enabled = false;
                 btnDisconnect.Enabled = true;
 
-                DevLog.Write($"ì„œë²„ì— ì ‘ì† ì¤‘", LOG_LEVEL.INFO);
+                DevLog.Write($"¼­¹ö¿¡ Á¢¼Ó Áß", LOG_LEVEL.INFO);
 
-                // ì„œë²„ ì—°ê²° ì„±ê³µ í›„ íƒ€ì´ë¨¸ ì‹œì‘
+                // ¼­¹ö ¿¬°á ¼º°ø ÈÄ Å¸ÀÌ¸Ó ½ÃÀÛ
                 // heartBeatTimer.Start();
             }
             else
             {
-                labelStatus.Text = string.Format("{0}. ì„œë²„ì— ì ‘ì† ì‹¤íŒ¨", DateTime.Now);
+                labelStatus.Text = string.Format("{0}. ¼­¹ö¿¡ Á¢¼Ó ½ÇÆĞ", DateTime.Now);
             }
 
             PacketBuffer.Clear();
@@ -110,11 +112,11 @@ namespace OmokClient
             SetDisconnectd();
             Network.Close();
 
-            // ì—°ê²° í•´ì œ ì‹œ íƒ€ì´ë¨¸ ì¤‘ì§€
+            // ¿¬°á ÇØÁ¦ ½Ã Å¸ÀÌ¸Ó ÁßÁö
             heartBeatTimer.Stop();
         }
 
-        
+
 
         void NetworkReadProcess()
         {
@@ -139,16 +141,16 @@ namespace OmokClient
                         {
                             break;
                         }
-                        
+
                         RecvPacketQueue.Enqueue(data);
                     }
-                    //DevLog.Write($"ë°›ì€ ë°ì´í„°: {recvData.Item2}", LOG_LEVEL.INFO);
+                    //DevLog.Write($"¹ŞÀº µ¥ÀÌÅÍ: {recvData.Item2}", LOG_LEVEL.INFO);
                 }
                 else
                 {
                     Network.Close();
                     SetDisconnectd();
-                    DevLog.Write("ì„œë²„ì™€ ì ‘ì† ì¢…ë£Œ !!!", LOG_LEVEL.INFO);
+                    DevLog.Write("¼­¹ö¿Í Á¢¼Ó Á¾·á !!!", LOG_LEVEL.INFO);
                 }
             }
         }
@@ -209,7 +211,7 @@ namespace OmokClient
 
         private void ProcessLog()
         {
-            // ë„ˆë¬´ ì´ ì‘ì—…ë§Œ í•  ìˆ˜ ì—†ìœ¼ë¯€ë¡œ ì¼ì • ì‘ì—… ì´ìƒì„ í•˜ë©´ ì¼ë‹¨ íŒ¨ìŠ¤í•œë‹¤.
+            // ³Ê¹« ÀÌ ÀÛ¾÷¸¸ ÇÒ ¼ö ¾øÀ¸¹Ç·Î ÀÏÁ¤ ÀÛ¾÷ ÀÌ»óÀ» ÇÏ¸é ÀÏ´Ü ÆĞ½ºÇÑ´Ù.
             int logWorkCount = 0;
 
             while (IsBackGroundProcessRunning)
@@ -247,7 +249,7 @@ namespace OmokClient
         {
             if (btnConnect.Enabled == false)
             {
-                btnConnect.Enabled = true;
+                btnConnect.Enabled = true; // TODO ¼­¹ö °­Á¦ Á¾·á ½Ã ?
                 btnDisconnect.Enabled = false;
             }
 
@@ -264,18 +266,18 @@ namespace OmokClient
 
             EndGame();
 
-            labelStatus.Text = "ì„œë²„ ì ‘ì†ì´ ëŠì–´ì§";
-        } 
+            labelStatus.Text = "¼­¹ö Á¢¼ÓÀÌ ²÷¾îÁü";
+        }
 
         void PostSendPacket(PACKETID packetID, byte[] packetData)
         {
             if (Network.IsConnected() == false)
             {
-                DevLog.Write("ì„œë²„ ì—°ê²°ì´ ë˜ì–´ ìˆì§€ ì•ŠìŠµë‹ˆë‹¤", LOG_LEVEL.ERROR);
+                DevLog.Write("¼­¹ö ¿¬°áÀÌ µÇ¾î ÀÖÁö ¾Ê½À´Ï´Ù", LOG_LEVEL.ERROR);
                 return;
             }
 
-            // packetDataê°€ nullì¸ ê²½ìš° ë¹„ì–´ ìˆëŠ” ë°”ì´íŠ¸ ë°°ì—´ë¡œ ì²˜ë¦¬
+            // packetData°¡ nullÀÎ °æ¿ì ºñ¾î ÀÖ´Â ¹ÙÀÌÆ® ¹è¿­·Î Ã³¸®
             // new byte[MemoryPackPacketHeadInfo.HeadSize]
             //if (packetData == null)
             //{
@@ -291,19 +293,19 @@ namespace OmokClient
             SendPacketQueue.Enqueue(packetData);
         }
 
-        
+
         void AddRoomUserList(string userID)
         {
             listBoxRoomUserList.Items.Add(userID);
         }
 
-        void RemoveRoomUserList(string userID) 
+        void RemoveRoomUserList(string userID)
         {
             object removeItem = null;
 
-            foreach( var user in listBoxRoomUserList.Items)
+            foreach (var user in listBoxRoomUserList.Items)
             {
-                if((string)user == userID)
+                if ((string)user == userID)
                 {
                     removeItem = user;
                     break;
@@ -323,7 +325,7 @@ namespace OmokClient
 
         string GetOtherPlayer(string myName)
         {
-            if(listBoxRoomUserList.Items.Count != 2)
+            if (listBoxRoomUserList.Items.Count != 2)
             {
                 return null;
             }
@@ -333,7 +335,7 @@ namespace OmokClient
             {
                 return firstName;
             }
-            else 
+            else
             {
                 return (string)listBoxRoomUserList.Items[1];
             }
@@ -346,46 +348,46 @@ namespace OmokClient
             var packetData = MemoryPackSerializer.Serialize(HeartBeatReq);
             PostSendPacket(PACKETID.ReqHeartBeat, packetData);
 
-            DevLog.Write("HeartBeat ìš”ì²­");
+            DevLog.Write("HeartBeat ¿äÃ»");
         }
 
 
-        // ë¡œê·¸ì¸ ìš”ì²­
+        // ·Î±×ÀÎ ¿äÃ»
         private void button2_Click(object sender, EventArgs e)
         {
             var loginReq = new PKTReqLogin();
             loginReq.AuthToken = textBoxUserPW.Text;
             loginReq.UserID = textBoxUserID.Text;
             var packet = MemoryPackSerializer.Serialize(loginReq);
-                        
-            PostSendPacket(PACKETID.ReqLogin, packet);            
-            DevLog.Write($"ë¡œê·¸ì¸ ìš”ì²­:  {textBoxUserID.Text}, {textBoxUserPW.Text}");
-            DevLog.Write($"ë¡œê·¸ì¸ ìš”ì²­: {ToReadableByteArray(packet)}");
+
+            PostSendPacket(PACKETID.ReqLogin, packet);
+            DevLog.Write($"·Î±×ÀÎ ¿äÃ»:  {textBoxUserID.Text}, {textBoxUserPW.Text}");
+            DevLog.Write($"·Î±×ÀÎ ¿äÃ»: {ToReadableByteArray(packet)}");
         }
 
         private void btn_RoomEnter_Click(object sender, EventArgs e)
         {
-            var requestPkt = new PKTReqRoomEnter(); // ë°© ì…ì¥ ìš”ì²­
-            requestPkt.RoomNumber = textBoxRoomNumber.Text.ToInt32(); // ë°© ë²ˆí˜¸
+            var requestPkt = new PKTReqRoomEnter(); // ¹æ ÀÔÀå ¿äÃ»
+            requestPkt.RoomNumber = textBoxRoomNumber.Text.ToInt32(); // ¹æ ¹øÈ£
 
-            var sendPacketData = MemoryPackSerializer.Serialize(requestPkt); // ì§ë ¬í™”
+            var sendPacketData = MemoryPackSerializer.Serialize(requestPkt); // Á÷·ÄÈ­
 
-            PostSendPacket(PACKETID.ReqRoomEnter, sendPacketData); // íŒ¨í‚· ì „ì†¡
-            DevLog.Write($"ë°© ì…ì¥ ìš”ì²­:  {textBoxRoomNumber.Text} ë²ˆ");
+            PostSendPacket(PACKETID.ReqRoomEnter, sendPacketData); // ÆĞÅ¶ Àü¼Û
+            DevLog.Write($"¹æ ÀÔÀå ¿äÃ»:  {textBoxRoomNumber.Text} ¹ø");
         }
 
         private void btn_RoomLeave_Click(object sender, EventArgs e)
         {
             //PostSendPacket(PACKET_ID.ROOM_LEAVE_REQ,  null);
             PostSendPacket(PACKETID.ReqRoomLeave, new byte[MemoryPackPacketHeadInfo.HeadSize]);
-            DevLog.Write($"ë°© í‡´ì¥ ìš”ì²­:  {textBoxRoomNumber.Text} ë²ˆ");
+            DevLog.Write($"¹æ ÅğÀå ¿äÃ»:  {textBoxRoomNumber.Text} ¹ø");
         }
 
         //private void btnRoomChat_Click(object sender, EventArgs e)
         //{
         //    if (textBoxRoomSendMsg.Text.IsEmpty())
         //    {
-        //        MessageBox.Show("ì±„íŒ… ë©”ì‹œì§€ë¥¼ ì…ë ¥í•˜ì„¸ìš”");
+        //        MessageBox.Show("Ã¤ÆÃ ¸Ş½ÃÁö¸¦ ÀÔ·ÂÇÏ¼¼¿ä");
         //        return;
         //    }
 
@@ -393,20 +395,20 @@ namespace OmokClient
         //    requestPkt.SetValue(textBoxRoomSendMsg.Text);
 
         //    PostSendPacket(PACKETID.REQ_ROOM_CHAT, requestPkt.ToBytes());
-        //    DevLog.Write($"ë°© ì±„íŒ… ìš”ì²­");
+        //    DevLog.Write($"¹æ Ã¤ÆÃ ¿äÃ»");
         //}
 
         ////private void btnMatching_Click(object sender, EventArgs e)
         ////{
         ////    PostSendPacket(PACKETID.MATCH_USER_REQ, null);
-        ////    DevLog.Write($"ë§¤ì¹­ ìš”ì²­");
+        ////    DevLog.Write($"¸ÅÄª ¿äÃ»");
         ////}
 
         private void btnRoomChat_Click(object sender, EventArgs e)
         {
             if (textBoxRoomSendMsg.Text.IsEmpty())
             {
-                MessageBox.Show("ì±„íŒ… ë©”ì‹œì§€ë¥¼ ì…ë ¥í•˜ì„¸ìš”");
+                MessageBox.Show("Ã¤ÆÃ ¸Ş½ÃÁö¸¦ ÀÔ·ÂÇÏ¼¼¿ä");
                 return;
             }
 
@@ -416,20 +418,20 @@ namespace OmokClient
             var sendPacketData = MemoryPackSerializer.Serialize(requestPkt);
 
             PostSendPacket(PACKETID.ReqRoomChat, sendPacketData);
-            DevLog.Write($"ë°© ì±„íŒ… ìš”ì²­");
+            DevLog.Write($"¹æ Ã¤ÆÃ ¿äÃ»");
         }
 
         //private void btnRoomRelay_Click(object sender, EventArgs e)
         //{
         //    if (textBoxRelay.Text.IsEmpty())
         //    {
-        //        MessageBox.Show("ë¦´ë ˆì´ í•  ë°ì´í„°ê°€ ì—†ìŠµë‹ˆë‹¤");
+        //        MessageBox.Show("¸±·¹ÀÌ ÇÒ µ¥ÀÌÅÍ°¡ ¾ø½À´Ï´Ù");
         //        return;
         //    }
 
         //    /*var bodyData = Encoding.UTF8.GetBytes(textBoxRelay.Text);
         //    PostSendPacket(PACKET_ID.PACKET_ID_ROOM_RELAY_REQ, bodyData);
-        //    DevLog.Write($"ë°© ë¦´ë ˆì´ ìš”ì²­");*/
+        //    DevLog.Write($"¹æ ¸±·¹ÀÌ ¿äÃ»");*/
         //}
 
 
@@ -446,8 +448,8 @@ namespace OmokClient
 
         void SendPacketOmokPut(int x, int y)
         {
-            // í˜„ì¬ ëŒì˜ ì¢…ë¥˜ë¥¼ í™•ì¸
-            int stoneType = OmokLogic.Isí‘ëŒì°¨ë¡€() ? (int)CSCommon.OmokRule.ëŒì¢…ë¥˜.í‘ëŒ : (int)CSCommon.OmokRule.ëŒì¢…ë¥˜.ë°±ëŒ;
+            // ÇöÀç µ¹ÀÇ Á¾·ù¸¦ È®ÀÎ
+            int stoneType = OmokLogic.IsÈæµ¹Â÷·Ê() ? (int)CSCommon.OmokRule.µ¹Á¾·ù.Èæµ¹ : (int)CSCommon.OmokRule.µ¹Á¾·ù.¹éµ¹;
 
             var requestPkt = new PKTReqPutMok
             {
@@ -458,12 +460,12 @@ namespace OmokClient
             var packet = MemoryPackSerializer.Serialize(requestPkt);
             PostSendPacket(PACKETID.ReqPutMok, packet);
 
-            DevLog.Write($"put stone ìš”ì²­ : x  [ {x} ], y: [ {y} ], ëŒ: [{stoneType}]");
+            DevLog.Write($"put stone ¿äÃ» : x  [ {x} ], y: [ {y} ], µ¹: [{stoneType}]");
         }
 
         private void btn_GameStartClick(object sender, EventArgs e)
         {
-            DevLog.Write("ê²Œì„ ì‹œì‘ ë²„íŠ¼ ì—†ìŒ - ë‘˜ë‹¤ Ready í•˜ë©´ ì•Œì•„ì„œ ì‹œì‘í•¨");
+            DevLog.Write("°ÔÀÓ ½ÃÀÛ ¹öÆ° ¾øÀ½ - µÑ´Ù Ready ÇÏ¸é ¾Ë¾Æ¼­ ½ÃÀÛÇÔ");
             //PostSendPacket(PACKETID.REQ_GAME_START, new byte[MemoryPackPacketHeadInfo.HeadSize]);
             //StartGame(true, "My", "Other");
         }
@@ -505,12 +507,12 @@ namespace OmokClient
             public string Token;
         }
 
-        // ê²Œì„ ì¤€ë¹„ ìš”ì²­
+        // °ÔÀÓ ÁØºñ ¿äÃ»
         private void button3_Click(object sender, EventArgs e)
         {
             PostSendPacket(PACKETID.ReqReadyOmok, new byte[MemoryPackPacketHeadInfo.HeadSize]);
 
-            DevLog.Write($"ê²Œì„ ì¤€ë¹„ ì™„ë£Œ ìš”ì²­");
+            DevLog.Write($"°ÔÀÓ ÁØºñ ¿Ï·á ¿äÃ»");
         }
     }
 }

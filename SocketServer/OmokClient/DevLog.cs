@@ -15,7 +15,7 @@ namespace OmokClient
 
         static Int64 출력가능_로그레벨 = (Int64)LOG_LEVEL.TRACE;
 
-        
+
 
         static public void Init(LOG_LEVEL logLevel)
         {
@@ -53,7 +53,7 @@ namespace OmokClient
 
             return false;
         }
-        
+
     }
 
 

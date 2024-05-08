@@ -8,7 +8,7 @@
     ".NETCoreApp,Version=v8.0": {
       "OmokClient/1.0.0": {
         "dependencies": {
-          "CloudStructures": "3.2.0",
+          "CloudStructures": "3.3.0",
           "MemoryPack": "1.21.1",
           "Microsoft.CSharp": "4.7.0",
           "Microsoft.Windows.Compatibility": "8.0.0",
@@ -32,14 +32,14 @@
           }
         }
       },
-      "CloudStructures/3.2.0": {
+      "CloudStructures/3.3.0": {
         "dependencies": {
-          "StackExchange.Redis": "2.2.79"
+          "StackExchange.Redis": "2.7.33"
         },
         "runtime": {
-          "lib/net6.0/CloudStructures.dll": {
-            "assemblyVersion": "3.2.0.0",
-            "fileVersion": "3.2.0.0"
+          "lib/net8.0/CloudStructures.dll": {
+            "assemblyVersion": "3.3.0.0",
+            "fileVersion": "3.3.0.0"
           }
         }
       },
@@ -67,6 +67,14 @@
         }
       },
       "Microsoft.CSharp/4.7.0": {},
+      "Microsoft.Extensions.Logging.Abstractions/6.0.0": {
+        "runtime": {
+          "lib/net6.0/Microsoft.Extensions.Logging.Abstractions.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
+          }
+        }
+      },
       "Microsoft.Extensions.ObjectPool/5.0.10": {
         "runtime": {
           "lib/net5.0/Microsoft.Extensions.ObjectPool.dll": {
@@ -123,14 +131,14 @@
           "System.Web.Services.Description": "4.10.0"
         }
       },
-      "Pipelines.Sockets.Unofficial/2.2.0": {
+      "Pipelines.Sockets.Unofficial/2.2.8": {
         "dependencies": {
-          "System.IO.Pipelines": "5.0.0"
+          "System.IO.Pipelines": "5.0.1"
         },
         "runtime": {
           "lib/net5.0/Pipelines.Sockets.Unofficial.dll": {
             "assemblyVersion": "1.0.0.0",
-            "fileVersion": "2.2.0.45337"
+            "fileVersion": "2.2.8.1080"
           }
         }
       },
@@ -222,15 +230,15 @@
           }
         }
       },
-      "StackExchange.Redis/2.2.79": {
+      "StackExchange.Redis/2.7.33": {
         "dependencies": {
-          "Pipelines.Sockets.Unofficial": "2.2.0",
-          "System.Diagnostics.PerformanceCounter": "8.0.0"
+          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
+          "Pipelines.Sockets.Unofficial": "2.2.8"
         },
         "runtime": {
-          "lib/net5.0/StackExchange.Redis.dll": {
+          "lib/net6.0/StackExchange.Redis.dll": {
             "assemblyVersion": "2.0.0.0",
-            "fileVersion": "2.2.79.4591"
+            "fileVersion": "2.7.33.41805"
           }
         }
       },
@@ -432,11 +440,11 @@
       },
       "System.Formats.Asn1/8.0.0": {},
       "System.IO.Packaging/8.0.0": {},
-      "System.IO.Pipelines/5.0.0": {
+      "System.IO.Pipelines/5.0.1": {
         "runtime": {
           "lib/netcoreapp3.0/System.IO.Pipelines.dll": {
-            "assemblyVersion": "5.0.0.0",
-            "fileVersion": "5.0.20.51904"
+            "assemblyVersion": "5.0.0.1",
+            "fileVersion": "5.0.120.57516"
           }
         }
       },
@@ -777,12 +785,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "CloudStructures/3.2.0": {
+    "CloudStructures/3.3.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-91sZr/ybyu45DB2Nv7T3Pz63xc55tcTOhrFPu5aSFxfAoZPWWKpzP9pB+o8ztE1A6S8+FYBbpT5DVhF30FAlvw==",
-      "path": "cloudstructures/3.2.0",
-      "hashPath": "cloudstructures.3.2.0.nupkg.sha512"
+      "sha512": "sha512-tGBmvlZKn9zRLwURgvZgvVxw8muYGiOJExIkFTZAUVmsvTMOpgIAAzY4ZaTan2uKm1JAYjw3OVS10QtsvVEuAQ==",
+      "path": "cloudstructures/3.3.0",
+      "hashPath": "cloudstructures.3.3.0.nupkg.sha512"
     },
     "MemoryPack/1.21.1": {
       "type": "package",
@@ -818,6 +826,13 @@
       "sha512": "sha512-pTj+D3uJWyN3My70i2Hqo+OXixq3Os2D1nJ2x92FFo6sk8fYS1m1WLNTs0Dc1uPaViH0YvEEwvzddQ7y4rhXmA==",
       "path": "microsoft.csharp/4.7.0",
       "hashPath": "microsoft.csharp.4.7.0.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Logging.Abstractions/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-/HggWBbTwy8TgebGSX5DBZ24ndhzi93sHUBDvP1IxbZD7FDokYzdAr6+vbWGjw2XAfR2EJ1sfKUotpjHnFWPxA==",
+      "path": "microsoft.extensions.logging.abstractions/6.0.0",
+      "hashPath": "microsoft.extensions.logging.abstractions.6.0.0.nupkg.sha512"
     },
     "Microsoft.Extensions.ObjectPool/5.0.10": {
       "type": "package",
@@ -861,12 +876,12 @@
       "path": "microsoft.windows.compatibility/8.0.0",
       "hashPath": "microsoft.windows.compatibility.8.0.0.nupkg.sha512"
     },
-    "Pipelines.Sockets.Unofficial/2.2.0": {
+    "Pipelines.Sockets.Unofficial/2.2.8": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-7hzHplEIVOGBl5zOQZGX/DiJDHjq+RVRVrYgDiqXb6RriqWAdacXxp+XO9WSrATCEXyNOUOQg9aqQArsjase/A==",
-      "path": "pipelines.sockets.unofficial/2.2.0",
-      "hashPath": "pipelines.sockets.unofficial.2.2.0.nupkg.sha512"
+      "sha512": "sha512-zG2FApP5zxSx6OcdJQLbZDk2AVlN2BNQD6MorwIfV6gVj0RRxWPEp2LXAxqDGZqeNV1Zp0BNPcNaey/GXmTdvQ==",
+      "path": "pipelines.sockets.unofficial/2.2.8",
+      "hashPath": "pipelines.sockets.unofficial.2.2.8.nupkg.sha512"
     },
     "runtime.linux-arm.runtime.native.System.IO.Ports/8.0.0": {
       "type": "package",
@@ -938,12 +953,12 @@
       "path": "runtime.win-x86.runtime.native.system.data.sqlclient.sni/4.4.0",
       "hashPath": "runtime.win-x86.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512"
     },
-    "StackExchange.Redis/2.2.79": {
+    "StackExchange.Redis/2.7.33": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-cVk+SkWcfbeLHdCbaqzRwihBy/FkahpucmMHD7nr6364WGcy83aSSYEtksYByRY2z2AIBtsP2tj5ZtRAuNIARw==",
-      "path": "stackexchange.redis/2.2.79",
-      "hashPath": "stackexchange.redis.2.2.79.nupkg.sha512"
+      "sha512": "sha512-2kCX5fvhEE824a4Ab5Imyi8DRuGuTxyklXV01kegkRpsWJcPmO6+GAQ+HegKxvXAxlXZ8yaRspvWJ8t3mMClfQ==",
+      "path": "stackexchange.redis/2.7.33",
+      "hashPath": "stackexchange.redis.2.7.33.nupkg.sha512"
     },
     "System.CodeDom/8.0.0": {
       "type": "package",
@@ -1050,12 +1065,12 @@
       "path": "system.io.packaging/8.0.0",
       "hashPath": "system.io.packaging.8.0.0.nupkg.sha512"
     },
-    "System.IO.Pipelines/5.0.0": {
+    "System.IO.Pipelines/5.0.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-irMYm3vhVgRsYvHTU5b2gsT2CwT/SMM6LZFzuJjpIvT5Z4CshxNsaoBC1X/LltwuR3Opp8d6jOS/60WwOb7Q2Q==",
-      "path": "system.io.pipelines/5.0.0",
-      "hashPath": "system.io.pipelines.5.0.0.nupkg.sha512"
+      "sha512": "sha512-qEePWsaq9LoEEIqhbGe6D5J8c9IqQOUuTzzV6wn1POlfdLkJliZY3OlB0j0f17uMWlqZYjH7txj+2YbyrIA8Yg==",
+      "path": "system.io.pipelines/5.0.1",
+      "hashPath": "system.io.pipelines.5.0.1.nupkg.sha512"
     },
     "System.IO.Ports/8.0.0": {
       "type": "package",
