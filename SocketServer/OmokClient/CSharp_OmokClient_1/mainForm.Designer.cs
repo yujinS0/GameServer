@@ -131,7 +131,7 @@
             // textBoxIP
             // 
             this.textBoxIP.Location = new System.Drawing.Point(68, 18);
-            this.textBoxIP.MaxLength = 6;
+            this.textBoxIP.MaxLength = 20;
             this.textBoxIP.Name = "textBoxIP";
             this.textBoxIP.Size = new System.Drawing.Size(87, 21);
             this.textBoxIP.TabIndex = 11;
