@@ -149,7 +149,7 @@ public class Room
 
         if (game == null || !game.IsGameStarted) return;
 
-        if ((cutTime - TurnTime).TotalSeconds > 2.5)
+        if ((cutTime - TurnTime).TotalSeconds > 2.5) // TODO : 이거 범위 맞는지? 그리고 Config로 받아오기
         {
             MainServer.MainLogger.Debug("==시간 초과로 턴 변경");
             // 턴 변경 패킷을 보낼 로직

@@ -39,7 +39,7 @@ namespace OmokClient
             InitializeComponent();
 
             heartBeatTimer = new System.Windows.Forms.Timer();
-            heartBeatTimer.Interval = 10000; // 10초마다
+            heartBeatTimer.Interval = 1000; // 1초마다
             heartBeatTimer.Tick += HeartBeatTimer_Tick;
         }
 
@@ -247,7 +247,7 @@ namespace OmokClient
         {
             if (btnConnect.Enabled == false)
             {
-                btnConnect.Enabled = true;
+                btnConnect.Enabled = true; // TODO 서버 강제 종료 시 ?
                 btnDisconnect.Enabled = false;
             }
 
