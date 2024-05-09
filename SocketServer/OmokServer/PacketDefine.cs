@@ -103,4 +103,9 @@ public enum PACKETID : int
     // DB 8101 ~ 9000
     ReqDbLogin = 8101,
     ResDbLogin = 8102,
+
+    ReqInRedis = 8200,
+
+    ReqInMysql = 8300
+
 }

@@ -246,3 +246,10 @@ public partial class PKTNtfInCheckRoom : PkHeader
 public partial class PKTNtfInCheckTurn : PkHeader
 {
 }
+
+public partial class PKTReqInRedis : PkHeader
+{
+}
+public partial class PKTReqInMysql : PkHeader
+{
+}
