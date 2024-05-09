@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OmokServer;
+using StackExchange.Redis;
 using System.Threading.Tasks;
 
 
@@ -30,6 +32,21 @@ class Program
                 services.AddHostedService<MainServer>(); // 인터페이스를 구현하는 서비스를 애플리케이션의 서비스 컨테이너에 추가
                                                          // StartAsync: 호스트가 시작될 때 호출되며, 여기서 백그라운드 작업이나 다른 초기화 작업을 시작
                                                          // StopAsync: 호스트가 정상적으로 종료되기 전에 호출되며, 여기서 자원을 정리하거나 작업을 마무리
+                                                         // 
+                // Database contexts
+                services.AddDbContext<HiveDbContext>(options =>
+                    options.UseMySQL(hostContext.Configuration.GetConnectionString("MySqlHiveDb")));
+                services.AddDbContext<GameDbContext>(options =>
+                    options.UseMySQL(hostContext.Configuration.GetConnectionString("MySqlGameDb")));
+
+                // Redis configurations
+                services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(
+                    hostContext.Configuration.GetValue<string>("ConnectionStrings:HiveRedis")));
+                services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(
+                    hostContext.Configuration.GetValue<string>("ConnectionStrings:GameRedis")));
+
+                services.Configure<ServerOption>(hostContext.Configuration.GetSection("ServerOption"));
+                services.AddHostedService<MainServer>();
             })
             .Build();
 
