@@ -253,3 +253,10 @@ public partial class PKTReqInRedis : PkHeader
 public partial class PKTReqInMysql : PkHeader
 {
 }
+public partial class PKTReqInMysqlUserInfo : PkHeader
+{
+}
+
+public partial class PKTReqInMysqlUserInfo : PkHeader
+{
+}
