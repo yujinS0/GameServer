@@ -15,6 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="CloudStructures" Version="3.3.0" />
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
 		<PackageReference Include="MemoryPack" Version="1.21.1" />
 		<PackageReference Include="MessagePack" Version="2.5.140" />
