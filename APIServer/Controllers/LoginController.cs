@@ -23,7 +23,7 @@ public class LoginController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<LoginResponse> Login([FromBody] TokenValidationRequest request)
+    public async Task<LoginResponse> Login([FromBody] LoginRequest request)
     {
         var client = _httpClientFactory.CreateClient();
         var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
@@ -51,7 +51,7 @@ public class LoginController : ControllerBase
                 if (userData == null)
                 {
                     _logger.LogInformation("No user data found, creating new data for user ID {UserID}", request.UserID);
-                    userData = await _gameDb.CreateUserGameDataAsync(request.UserID);
+                    userData = await _gameDb.CreateUserGameDataAsync(request.UserID, request.Email);
                 }
 
                 _logger.LogInformation("Successfully authenticated user {UserID} with token", request.UserID);
