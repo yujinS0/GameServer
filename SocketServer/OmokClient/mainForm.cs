@@ -10,6 +10,12 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Net.Http;
+using System.Text.Json;
+using System.Text;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 #pragma warning disable CA1416
 
@@ -35,15 +41,25 @@ namespace OmokClient
         System.Windows.Forms.Timer dispatcherUITimer = new();
 
         private System.Windows.Forms.Timer heartBeatTimer;
+        private HttpClient httpClient = new HttpClient();
 
         public mainForm()
         {
             InitializeComponent();
+            //InitializeHttpClient();
 
             heartBeatTimer = new System.Windows.Forms.Timer();
             heartBeatTimer.Interval = 1000; // 1초마다
             heartBeatTimer.Tick += HeartBeatTimer_Tick;
         }
+
+        //private void InitializeHttpClient()
+        //{
+        //    // HttpClient 기본 설정
+        //    httpClient.BaseAddress = new Uri($"{HiveIPTextBox.Text}:{HivePortTextBox.Text}");
+        //    httpClient.DefaultRequestHeaders.Accept.Clear();
+        //    httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+        //}
 
         private void mainForm_Load(object sender, EventArgs e)
         {
@@ -60,7 +76,7 @@ namespace OmokClient
             dispatcherUITimer.Interval = 100;
             dispatcherUITimer.Start();
 
-            btnDisconnect.Enabled = false;
+            btnSocketDisconnect.Enabled = false;
 
             SetPacketHandler(); // 패킷 핸들러 설정
 
@@ -79,20 +95,20 @@ namespace OmokClient
 
         private void btnConnect_Click(object sender, EventArgs e) // 타이머 추가
         {
-            string address = textBoxIP.Text;
+            string address = socketIPTextBox.Text;
 
-            if (checkBoxLocalHostIP.Checked)
+            if (checkBoxLocalHostIPSocket.Checked) // LocalHost 체크 상태 확인
             {
                 address = "127.0.0.1";
             }
 
-            int port = Convert.ToInt32(textBoxPort.Text);
+            int port = Convert.ToInt32(socketPortTextBox.Text);
 
             if (Network.Connect(address, port))
             {
                 labelStatus.Text = string.Format("{0}. 서버에 접속 중", DateTime.Now);
-                btnConnect.Enabled = false;
-                btnDisconnect.Enabled = true;
+                btnSocketConnect.Enabled = false;
+                btnSocketDisconnect.Enabled = true;
 
                 DevLog.Write($"서버에 접속 중", LOG_LEVEL.INFO);
 
@@ -247,10 +263,10 @@ namespace OmokClient
 
         public void SetDisconnectd()
         {
-            if (btnConnect.Enabled == false)
+            if (btnSocketConnect.Enabled == false)
             {
-                btnConnect.Enabled = true; // TODO 서버 강제 종료 시 ?
-                btnDisconnect.Enabled = false;
+                btnSocketConnect.Enabled = true; // TODO 서버 강제 종료 시 ?
+                btnSocketDisconnect.Enabled = false;
             }
 
             //while (true)
@@ -351,19 +367,227 @@ namespace OmokClient
             DevLog.Write("HeartBeat 요청");
         }
 
+        private bool ValidateInputs()
+        {
+            // 이메일 유효성 검사
+            if (!Regex.IsMatch(UserIDTextBox.Text, @"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"))
+            {
+                MessageBox.Show("EMAIL IS NOT IN A VALID FORMAT OR IS TOO LONG.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            // 비밀번호 유효성 검사
+            if (UserPWTextBox.Text.Length < 6)
+            {
+                MessageBox.Show("Password must be at least 6 characters long.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (UserPWTextBox.Text.Length > 30)
+            {
+                MessageBox.Show("PASSWORD IS TOO LONG", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            return true;
+        }
+
+        // 회원가입 요청
+        private async void btnRegister_Click(object sender, EventArgs e)
+        {
+            // 입력 값 검증
+            if (!ValidateInputs())
+            {
+                return; // 검증 실패 시 더 이상 진행하지 않음
+            }
+            string email = UserIDTextBox.Text;
+            string password = UserPWTextBox.Text;
+            var registerResponse = await RegisterAsync(email, password);
+
+            if (registerResponse != null && registerResponse.result == 0)
+            {
+                labelStatus.Text = "회원가입 성공";
+                DevLog.Write("회원가입에 성공했습니다.");
+            }
+            else
+            {
+                labelStatus.Text = "회원가입 실패";
+                MessageBox.Show("회원가입에 실패했습니다.");
+            }
+        }
+        private async Task<RegisterResponse> RegisterAsync(string email, string password)
+        {
+            var loginUrl = "http://localhost:5092/account/register";
+            var loginData = new { Email = email, Password = password };
+            var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
+
+            try
+            {
+                var response = await httpClient.PostAsync(loginUrl, content);
+                Debug.WriteLine($"response : {response}");
+                var responseBody = await response.Content.ReadAsStringAsync();
+
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return JsonSerializer.Deserialize<RegisterResponse>(responseBody);
+                }
+            }
+            catch (Exception ex)
+            {
+                // 회원가입 실패 이유 로그로 보여주기
+
+                Debug.WriteLine($"회원가입 중 오류가 발생했습니다: {ex.Message}");
+            }
+
+            return null;
+        }
 
         // 로그인 요청
-        private void button2_Click(object sender, EventArgs e)
+        private async void button_Login_Click(object sender, EventArgs e)
+        {
+            string email = UserIDTextBox.Text;
+            string password = UserPWTextBox.Text;
+            var loginResponse = await LoginAsync(email, password);
+            DevLog.Write($" loginResponse : {loginResponse} ");
+
+
+            if (loginResponse != null && loginResponse.result == 0)
+            {
+                DevLog.Write($"{loginResponse.userId} , {loginResponse.hiveToken}");
+                labelStatus.Text = "하이브 로그인 성공";
+                DevLog.Write("하이브 로그인에 성공했습니다.");
+
+                // 추가 API Game 로그인 과정
+                var gameLoginResponse = await GameLoginAsync(loginResponse.userId, email, loginResponse.hiveToken);
+                if (gameLoginResponse != null && gameLoginResponse.result == 0)
+                {
+                    DevLog.Write("API Game 서버 로그인 성공");
+                    DataUserId.Text = gameLoginResponse.userGameData.userId.ToString();
+                    DataLevel.Text = gameLoginResponse.userGameData.level.ToString();
+                    DataExp.Text = gameLoginResponse.userGameData.exp.ToString();
+                    DataWin.Text = gameLoginResponse.userGameData.win.ToString();
+                    DataLose.Text = gameLoginResponse.userGameData.lose.ToString();
+                    DataDraw.Text = gameLoginResponse.userGameData.draw.ToString();
+
+                    // 게임 서버에 로그인 정보 전송
+                    var loginReq = new PKTReqLogin();
+                    loginReq.AuthToken = password;
+                    loginReq.UserID = email;
+                    var packet = MemoryPackSerializer.Serialize(loginReq);
+                    PostSendPacket(PACKETID.ReqLogin, packet);
+                    DevLog.Write($"로그인 요청: {email}, {password}");
+                }
+                else
+                {
+                    DevLog.Write("API Game 서버 인증 실패");
+                    if (gameLoginResponse == null)
+                    {
+                        DevLog.Write("gameLoginResponse == null");
+                    }
+                    else if (gameLoginResponse.result != 0)
+                    {
+                        DevLog.Write($"gameLoginResponse.Result: {gameLoginResponse.result}");
+                    }
+                    else
+                    {
+                        DevLog.Write("?????");
+                    }
+                }
+            }
+            else
+            {
+                labelStatus.Text = "로그인 실패";
+                MessageBox.Show("로그인에 실패했습니다.");
+            }
+        }
+
+        private async Task<LoginResponse> LoginAsync(string email, string password)
+        {
+            var loginUrl = "http://localhost:5092/login";
+            var loginData = new { Email = email, Password = password };
+            var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
+
+            try
+            {
+                var response = await httpClient.PostAsync(loginUrl, content);
+                Debug.WriteLine($"response : {response}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    Debug.WriteLine($"responseBody : {responseBody}");
+                    return JsonSerializer.Deserialize<LoginResponse>(responseBody);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"하이브 로그인 중 오류가 발생했습니다: {ex.Message}");
+            }
+
+            return null;
+        }
+
+        private async Task<GameLoginResponse> GameLoginAsync(long userId, string email, string hiveToken)
+        {
+            var loginUrl = "http://localhost:5022/login";
+            var loginData = new { UserID = userId, Email = email, HiveToken = hiveToken };
+            var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
+
+            try
+            {
+                var response = await httpClient.PostAsync(loginUrl, content);
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<GameLoginResponse>(responseBody);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"API Game 서버 로그인 중 오류가 발생했습니다: {ex.Message}");
+            }
+
+            return null;
+        }
+
+        private async Task<VerifyResponse> VerifyTokenAsync(string userId, string hiveToken)
+        {
+            var verifyUrl = "http://localhost:5092/VerifyToken";
+            var verifyData = new { UserID = userId, HiveToken = hiveToken };
+            var content = new StringContent(JsonSerializer.Serialize(verifyData), Encoding.UTF8, "application/json");
+
+            try
+            {
+                var response = await httpClient.PostAsync(verifyUrl, content);
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<VerifyResponse>(responseBody);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Hive 토큰 검증 중 오류가 발생했습니다: {ex.Message}");
+            }
+
+            return null;
+        }
+
+        /*
+         private void button_Login_Click(object sender, EventArgs e)
         {
             var loginReq = new PKTReqLogin();
-            loginReq.AuthToken = textBoxUserPW.Text;
-            loginReq.UserID = textBoxUserID.Text;
+            loginReq.AuthToken = UserPWTextBox.Text;
+            loginReq.UserID = UserIDTextBox.Text;
             var packet = MemoryPackSerializer.Serialize(loginReq);
 
             PostSendPacket(PACKETID.ReqLogin, packet);
-            DevLog.Write($"로그인 요청:  {textBoxUserID.Text}, {textBoxUserPW.Text}");
+            DevLog.Write($"로그인 요청:  {UserIDTextBox.Text}, {UserPWTextBox.Text}");
             DevLog.Write($"로그인 요청: {ToReadableByteArray(packet)}");
         }
+         */
+
 
         private void btn_RoomEnter_Click(object sender, EventArgs e)
         {
@@ -514,5 +738,115 @@ namespace OmokClient
 
             DevLog.Write($"게임 준비 완료 요청");
         }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void socketPortTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void socketIPTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void HivePortTextBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBoxLocalHostIPHive_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxLocalHostIPHive.Checked)
+            {
+                HiveIPTextBox.Text = "127.0.0.1";
+            }
+        }
+
+        private void checkBoxLocalHostIPGame_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxLocalHostIPGame.Checked)
+            {
+                GameIPTextBox.Text = "127.0.0.1";
+            }
+        }
+
+        private void checkBoxLocalHostIPSocket_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxLocalHostIPSocket.Checked)
+            {
+                socketIPTextBox.Text = "127.0.0.1";
+            }
+        }
+
+        private void UserPWText_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnMatching_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxRoomSendMsg_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void GameDataGroup_Enter(object sender, EventArgs e)
+        {
+
+        }
+    }
+
+    internal class RegisterResponse
+    {
+        public int result { get; set; }
+    }
+
+    public class LoginResponse
+    {
+        public int result { get; set; }
+        public long userId { get; set; }
+        public string hiveToken { get; set; }
+    }
+
+    public class VerifyResponse
+    {
+        public int result { get; set; }
+    }
+    public class GameLoginResponse
+    {
+        [Required]
+        public int result { get; set; }
+
+        public string token { get; set; }
+        public long uid { get; set; }
+        public UserGameData userGameData { get; set; }
+    }
+
+    public class UserGameData
+    {
+        public long userId { get; set; }
+        public int level { get; set; }
+        public int exp { get; set; }
+        public int win { get; set; }
+        public int lose { get; set; }
+        public int draw { get; set; }
     }
 }

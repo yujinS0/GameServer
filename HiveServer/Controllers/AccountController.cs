@@ -25,4 +25,26 @@ public class AccountController : ControllerBase
 
         return response;
     }
+
+    [HttpPost("email")]
+    public async Task<ActionResult<UserEmailResponse>> GetEmailByUserId([FromBody] UserIdRequest request)
+    {
+        var (errorCode, email) = await _hiveDb.GetEmailByUserId(request.UserId);
+
+        if (errorCode == ErrorCode.None && email != null)
+        {
+            return Ok(new UserEmailResponse { Email = email, Result = ErrorCode.None });
+        }
+        else if (errorCode == ErrorCode.UserNotFound)
+        {
+            _logger.LogError("User not found for UserId: {UserId}", request.UserId);
+            return NotFound(new UserEmailResponse { Result = ErrorCode.UserNotFound });
+        }
+        else
+        {
+            _logger.LogError("Internal server error while retrieving email for UserId: {UserId}", request.UserId);
+            return StatusCode(500, new UserEmailResponse { Result = ErrorCode.InternalError });
+        }
+    }
+
 }

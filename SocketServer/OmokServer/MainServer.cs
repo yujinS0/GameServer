@@ -112,6 +112,8 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
 
             CreateTimer(serverOpt);
 
+            // TODO : DB 스레드 만들기?
+
             MainLogger.Info("서버 생성 성공");
         }
         catch (Exception ex)
@@ -124,7 +126,7 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
     {
         System.Timers.Timer _timer = new System.Timers.Timer(); ;
 
-        int _checkRoomInterval = 20000; //serverOpt.RoomIntervalMilliseconds;
+        int _checkRoomInterval = 1000; //serverOpt.RoomIntervalMilliseconds;
 
         _timer.Interval = _checkRoomInterval;
         _timer.Elapsed += NotifyEvent;

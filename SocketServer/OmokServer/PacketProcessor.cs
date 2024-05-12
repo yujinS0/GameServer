@@ -75,10 +75,10 @@ class PacketProcessor
         _roomPacketHandler.SetRooomList(_roomMgr.GetRoomsList());
         _roomPacketHandler.RegistPacketHandler(_packetHandlerMap);
 
-        Room.DistributeInnerPacket = InsertPacket; // 룸에서 이너패킷 사용을 위해
+        Room.DistributeInnerPacket = InsertPacket; // 룸에서 이너패킷 사용을 위해 추가한 코드
     }
 
-    void Process() // TODO : DB 추가
+    void Process()
     {
         while (_isThreadRunning)
         {

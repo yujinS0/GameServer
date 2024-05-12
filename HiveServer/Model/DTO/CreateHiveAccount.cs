@@ -22,4 +22,15 @@ namespace HiveServer.Model.DTO
         [Required]
         public ErrorCode Result { get; set; } = ErrorCode.None;
     }
+
+    public class UserIdRequest 
+    {
+        public long UserId { get; set; }
+    }
+
+    public class UserEmailResponse 
+    {
+        public string Email { get; set; }
+        public ErrorCode Result { get; set; } = ErrorCode.None;
+    }
 }

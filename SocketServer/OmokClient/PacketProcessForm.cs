@@ -226,12 +226,12 @@ namespace OmokClient
 
             var notifyPkt = MemoryPackSerializer.Deserialize<PKTNtfStartOmok>(packetData);
 
-            if (notifyPkt.FirstUserID == textBoxUserID.Text)
+            if (notifyPkt.FirstUserID == UserIDTextBox.Text)
             {
                 isMyTurn = true;
             }
 
-            StartGame(isMyTurn, textBoxUserID.Text, GetOtherPlayer(textBoxUserID.Text));
+            StartGame(isMyTurn, UserIDTextBox.Text, GetOtherPlayer(UserIDTextBox.Text));
 
             DevLog.Write($"게임 시작. 흑돌 플레이어: {notifyPkt.FirstUserID}");
         }
@@ -275,7 +275,7 @@ namespace OmokClient
             {
                 MessageBox.Show("무승부.", "게임 종료", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            else if (notifyPkt.WinUserID == textBoxUserID.Text)
+            else if (notifyPkt.WinUserID == UserIDTextBox.Text)
             {
                 MessageBox.Show("승리하였습니다.", "게임 종료", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }

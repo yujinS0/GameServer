@@ -25,15 +25,17 @@ public class GameDb : IGameDb
         _queryFactory = new QueryFactory(_connection, compiler);
     }
 
-    public async Task<UserGameData> CreateUserGameDataAsync(long userId)
+    public async Task<UserGameData> CreateUserGameDataAsync(long userId, string email)
     {
         var newUser = new UserGameData
         {
             UserId = userId,
+            Email = email,
             Level = 1,
             Exp = 0,
             Win = 0,
-            Lose = 0
+            Lose = 0,
+            Draw = 0
         };
         await _queryFactory.Query("UserGameData").InsertAsync(newUser);
         return newUser;

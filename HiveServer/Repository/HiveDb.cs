@@ -87,5 +87,61 @@ namespace HiveServer.Repository
                 return (ErrorCode.InternalError, 0);
             }
         }
+        public async Task<(ErrorCode, long)> GetUserIdByEmail(string email)
+        {
+            try
+            {
+                var userId = await _queryFactory.Query("account")
+                                                .Where("email", email)
+                                                .Select("userid")
+                                                .FirstOrDefaultAsync<long?>();
+
+                if (userId.HasValue)
+                {
+                    _logger.LogInformation("Retrieved UserID {UserId} for Email: {Email}", userId.Value, email);
+                    return (ErrorCode.None, userId.Value);
+                }
+                return (ErrorCode.UserNotFound, 0);
+            }
+            catch (MySqlException ex)
+            {
+                _logger.LogError(ex, "Database error when retrieving UserID for Email: {Email}", email);
+                return (ErrorCode.DatabaseError, 0);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to retrieve UserID for Email: {Email}", email);
+                return (ErrorCode.InternalError, 0);
+            }
+        }
+
+        public async Task<(ErrorCode, string?)> GetEmailByUserId(long userId)
+        {
+            try
+            {
+                var email = await _queryFactory.Query("account")
+                                            .Where("userid", userId)
+                                            .Select("email")
+                                            .FirstOrDefaultAsync<string>();
+
+                if (!string.IsNullOrEmpty(email))
+                {
+                    _logger.LogInformation("Retrieved Email {Email} for UserID: {UserId}", email, userId);
+                    return (ErrorCode.None, email);
+                }
+                return (ErrorCode.UserNotFound, null);
+            }
+            catch (MySqlException ex)
+            {
+                _logger.LogError(ex, "Database error when retrieving Email for UserID: {UserId}", userId);
+                return (ErrorCode.DatabaseError, null);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to retrieve Email for UserID: {UserId}", userId);
+                return (ErrorCode.InternalError, null);
+            }
+        }
+
     }
 }
