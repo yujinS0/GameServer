@@ -260,3 +260,19 @@ public partial class PKTReqInMysqlUserInfo : PkHeader
 public partial class PKTReqInMysqlUserInfo : PkHeader
 {
 }
+
+[MemoryPackable]
+public partial class PKTReqInWin : PkHeader
+{
+    public string WinUserID;
+}
+[MemoryPackable]
+public partial class PKTReqInLose : PkHeader
+{
+    public string LoseUserID;
+}
+[MemoryPackable]
+public partial class PKTReqInDraw : PkHeader
+{
+    public string UserID;
+}

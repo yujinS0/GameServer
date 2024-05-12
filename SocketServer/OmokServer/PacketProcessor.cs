@@ -89,7 +89,7 @@ class PacketProcessor
                 var header = new MemoryPackPacketHeadInfo();
                 header.Read(packet.Data);
 
-                if (_packetHandlerMap.ContainsKey(header.Id))
+                if (_packetHandlerMap.ContainsKey(header.Id)) // 패킷 핸들러 맵에 해당 헤더 아이디가 있으면
                 {
                     _packetHandlerMap[header.Id](packet);
                 }

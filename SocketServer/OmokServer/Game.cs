@@ -16,6 +16,7 @@ public class Game
     private List<RoomUser> players;
     public bool IsGameStarted { get; private set; } = false;
     public static Func<string, byte[], bool> NetSendFunc;
+    public static Action<MemoryPackBinaryRequestInfo> DistributeInnerPacket;
 
     private int turnSkipCount = 0;
     private const int MaxSkipCount = 6;
@@ -130,12 +131,58 @@ public class Game
         {
             WinUserID = winner.UserID
         };
+        RoomUser loser = players.FirstOrDefault(p => p.UserID != winner.UserID);
+
+        // Update in mysql UserGameData
+        UpdateUserGameData(winner.UserID, loser.UserID);
+
         var sendPacket = MemoryPackSerializer.Serialize(endGamePacket);
         MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NTFEndOmok);
 
         // 모든 플레이어에게 게임 종료 통보
         BroadcastToAll(sendPacket);
         MainServer.MainLogger.Debug($"Game ended. Winner: {winner.UserID}");
+    }
+
+    private void UpdateUserGameData(string winnerId, string loserId)
+    {
+        //if(winnerId == 0 || loserId == 0)
+        //{
+            // Draw
+            // PKTReqInDraw 만들기
+            // 무승부 처리
+            //var drawPacket = new PKTReqInDraw { UserID = winnerId }; 
+            //var drawData = MemoryPackSerializer.Serialize(drawPacket);
+            //mysqlWorker.InsertPacket(new MemoryPackBinaryRequestInfo(drawData));
+        //}
+        //else
+        //{
+        // Update Winner
+        // PKTReqInWin 만들기
+        var winPacket = new PKTReqInWin() 
+        { 
+            WinUserID = winnerId 
+        };
+        var winData = MemoryPackSerializer.Serialize(winPacket);
+        MemoryPackPacketHeadInfo.Write(winData, PACKETID.ReqInUserWin);
+        var memoryWinPacket = new MemoryPackBinaryRequestInfo(null);
+        memoryWinPacket.Data = winData;
+        DistributeInnerPacket(memoryWinPacket);
+        MainServer.MainLogger.Info($"PKTReqInWin 보내기{winnerId}");
+
+        // Update Loser
+        // PKTReqInLose 만들기
+        var losePacket = new PKTReqInLose() { LoseUserID = loserId };
+        var loseData = MemoryPackSerializer.Serialize(losePacket);
+        MemoryPackPacketHeadInfo.Write(loseData, PACKETID.ReqInUserLose);
+        var memoryLosePacket = new MemoryPackBinaryRequestInfo(null);
+        memoryLosePacket.Data = loseData;
+        DistributeInnerPacket(memoryLosePacket);
+        MainServer.MainLogger.Info($"PKTReqInLose 보내기{loserId}");
+
+        //}
+
+
     }
 
     private void BroadcastToAll(byte[] packet)

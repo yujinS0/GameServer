@@ -108,7 +108,11 @@ public enum PACKETID : int
 
     ReqInMysql = 8300,
 
-    ReqInMysqlUserInfo = 8301,
-    ResInMysqlUserInfo = 8302
+    ReqInUserWin = 8301,
+    ReqInUserLose = 8302,
+    ReqInUserDraw = 8303,
+
+    ReqInMysqlUserInfo = 8401,
+    ResInMysqlUserInfo = 8402
 
 }

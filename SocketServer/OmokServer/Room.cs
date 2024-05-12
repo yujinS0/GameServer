@@ -24,6 +24,7 @@ public class Room
     public static Action<MemoryPackBinaryRequestInfo> DistributeInnerPacket;
 
     public Game game;
+    private MYSQLWorker mysqlWorker;
     public DateTime TurnTime { get; set; }
     public DateTime StartTime { get; set; }
 
