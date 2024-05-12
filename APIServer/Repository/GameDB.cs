@@ -33,7 +33,8 @@ public class GameDb : IGameDb
             Level = 1,
             Exp = 0,
             Win = 0,
-            Lose = 0
+            Lose = 0,
+            Draw = 0
         };
         await _queryFactory.Query("UserGameData").InsertAsync(newUser);
         return newUser;
