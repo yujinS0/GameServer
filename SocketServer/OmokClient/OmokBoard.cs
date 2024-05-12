@@ -104,6 +104,8 @@ namespace OmokClient
             MyPlayerName = "";
             백돌플레이어Name = "";
             흑돌플레이어Name = "";
+
+            panel1.Invalidate(); // 패널을 새로 고침하여 돌을 모두 지움
         }
 
 
@@ -201,7 +203,11 @@ namespace OmokClient
                     e.Graphics.FillEllipse(검은색, r);
                 }
             }
-
+            // 게임 종료 상태를 확인
+            if (OmokLogic.게임종료)
+            {
+                return; // 게임이 종료된 경우 더 이상 돌을 그리지 않음
+            }
             if (OmokLogic.게임종료 == false)
             {
                 for (int i = 0; i < 바둑판크기; i++)
