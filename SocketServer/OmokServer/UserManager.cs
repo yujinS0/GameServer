@@ -176,7 +176,9 @@ public class User
         {
             MainServer.MainLogger.Debug("==시간 초과로 접속 종료");
             // 로그 아웃 처리
-            _userManager.RemoveUser(SessionID);
+            if(_userManager != null) { _userManager.RemoveUser(SessionID); }
+            // OnClose 호출
+
         }
     }
 }
