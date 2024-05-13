@@ -15,6 +15,8 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
     PacketProcessor _packetProcessor = new PacketProcessor();
     RoomManager _roomMgr = new RoomManager();
 
+    MYSQLWorker _mysqlWorker = new MYSQLWorker();
+
     ServerOption _serverOpt;
     IServerConfig _networkConfig;
 
@@ -175,6 +177,10 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
         _packetProcessor = new PacketProcessor();
         _packetProcessor.NetSendFunc = this.SendData;
         _packetProcessor.CreateAndStart(_roomMgr, serverOpt);
+
+        _mysqlWorker = new MYSQLWorker();
+        _mysqlWorker.NetSendFunc = this.SendData;
+        _mysqlWorker.CreateAndStart();
 
         MainLogger.Info("CreateComponent - Success");
         return ERROR_CODE.NONE;
