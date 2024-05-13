@@ -11,10 +11,7 @@ namespace OmokServer;
 internal class PKHMYSQL : PKHandler
 {
     private QueryFactory _queryFactory;
-    public void InitQueryFactory(QueryFactory queryFactory)
-    {
-        _queryFactory = queryFactory;
-    }
+
     public void RegistPacketHandler(Dictionary<int, Action<MemoryPackBinaryRequestInfo, QueryFactory>> packetHandlerMap)
     {
         // Register all handlers with both MemoryPackBinaryRequestInfo and QueryFactory
@@ -76,7 +73,7 @@ internal class PKHMYSQL : PKHandler
 
         var result = _queryFactory.Query("UserGameData")
             .Where("Email", "=", userId)
-            .Increment("Lose", 1);
+            .Increment("Draw", 1);
 
         // Check the result and log accordingly
         if (result > 0)
