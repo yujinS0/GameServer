@@ -15,16 +15,16 @@ internal class PKHMYSQL : PKHandler
     {
         _queryFactory = queryFactory;
     }
-    public void RegistPacketHandler(Dictionary<int, Action<MemoryPackBinaryRequestInfo>> packetHandlerMap)
+    public void RegistPacketHandler(Dictionary<int, Action<MemoryPackBinaryRequestInfo, QueryFactory>> packetHandlerMap)
     {
-        packetHandlerMap.Add((int)PACKETID.ReqInMysql, RequestInMysql);
-        packetHandlerMap.Add((int)PACKETID.ReqInUserWin, RequestInUserWin);
-        packetHandlerMap.Add((int)PACKETID.ReqInUserLose, RequestInUserLose);
-        packetHandlerMap.Add((int)PACKETID.ReqInUserDraw, RequestInUserDraw);
-
+        // Register all handlers with both MemoryPackBinaryRequestInfo and QueryFactory
+        packetHandlerMap.Add((int)PACKETID.ReqInUserWin, (info, factory) => RequestInUserWin(factory, info));
+        packetHandlerMap.Add((int)PACKETID.ReqInUserLose, (info, factory) => RequestInUserLose(factory, info));
+        packetHandlerMap.Add((int)PACKETID.ReqInUserDraw, (info, factory) => RequestInUserDraw(factory, info));
+        // Add other necessary handlers here
     }
 
-    private void RequestInUserWin(MemoryPackBinaryRequestInfo info)
+    private void RequestInUserWin(QueryFactory _queryFactory, MemoryPackBinaryRequestInfo info)
     {
         var winPacket = MemoryPackSerializer.Deserialize<PKTReqInWin>(info.Data);
         string winnerId = winPacket.WinUserID;
@@ -45,7 +45,7 @@ internal class PKHMYSQL : PKHandler
             MainServer.MainLogger.Error($"Failed to update win count for user ID: {winnerId}");
         }
     }
-    private void RequestInUserLose(MemoryPackBinaryRequestInfo info)
+    private void RequestInUserLose(QueryFactory _queryFactory, MemoryPackBinaryRequestInfo info)
     {
         var losePacket = MemoryPackSerializer.Deserialize<PKTReqInLose>(info.Data);
         string loserId = losePacket.LoseUserID;
@@ -67,7 +67,7 @@ internal class PKHMYSQL : PKHandler
         }
     }
 
-    private void RequestInUserDraw(MemoryPackBinaryRequestInfo info)
+    private void RequestInUserDraw(QueryFactory _queryFactory, MemoryPackBinaryRequestInfo info)
     {
         var Packet = MemoryPackSerializer.Deserialize<PKTReqInDraw>(info.Data);
         string userId = Packet.UserID;
@@ -89,7 +89,7 @@ internal class PKHMYSQL : PKHandler
         }
     }
 
-    private void RequestInMysql(MemoryPackBinaryRequestInfo requestData)
+    private void RequestInMysql(QueryFactory _queryFactory, MemoryPackBinaryRequestInfo requestData)
     {
         MainServer.MainLogger.Debug("RequestInMysql");
     }

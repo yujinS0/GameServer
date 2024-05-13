@@ -21,7 +21,7 @@ public class MYSQLWorker
     public Func<string, byte[], bool> NetSendFunc;
     BufferBlock<MemoryPackBinaryRequestInfo> _msgBuffer = new BufferBlock<MemoryPackBinaryRequestInfo>();
 
-    Dictionary<int, Action<MemoryPackBinaryRequestInfo>> _packetHandlerMap = new Dictionary<int, Action<MemoryPackBinaryRequestInfo>>();
+    Dictionary<int, Action<MemoryPackBinaryRequestInfo, QueryFactory>> _packetHandlerMap = new Dictionary<int, Action<MemoryPackBinaryRequestInfo, QueryFactory>>();
 
     string db_connection;
 
@@ -87,7 +87,7 @@ public class MYSQLWorker
             var compiler = new MySqlCompiler();
             QueryFactory queryFactory = new QueryFactory(connection, compiler);
 
-            _mysqlPacketHandler.InitQueryFactory(queryFactory);
+            //_mysqlPacketHandler.InitQueryFactory(queryFactory); // connection
 
             try
             {
@@ -103,7 +103,7 @@ public class MYSQLWorker
 
                     if (_packetHandlerMap.ContainsKey(header.Id))
                     {
-                        _packetHandlerMap[header.Id](packet);
+                        _packetHandlerMap[header.Id](packet, queryFactory);
                     }
                 }
             }
