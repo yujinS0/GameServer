@@ -417,7 +417,8 @@ namespace OmokClient
         }
         private async Task<RegisterResponse> RegisterAsync(string email, string password)
         {
-            var loginUrl = "http://localhost:5092/account/register";
+            //var loginUrl = "http://localhost:5092/account/register";
+            var loginUrl = "http://34.22.95.236:5092/account/register";
             var loginData = new { Email = email, Password = password };
             var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
 
@@ -459,6 +460,7 @@ namespace OmokClient
                 DevLog.Write("하이브 로그인에 성공했습니다.");
 
                 // 추가 API Game 로그인 과정
+                if(email == null) { return; }
                 var gameLoginResponse = await GameLoginAsync(loginResponse.userId, email, loginResponse.hiveToken);
                 if (gameLoginResponse != null && gameLoginResponse.result == 0)
                 {
@@ -504,7 +506,9 @@ namespace OmokClient
 
         private async Task<LoginResponse> LoginAsync(string email, string password)
         {
-            var loginUrl = "http://localhost:5092/login";
+            //var loginUrl = "http://localhost:5092/login";
+            var loginUrl = "http://34.22.95.236:5092/login";
+            
             var loginData = new { Email = email, Password = password };
             var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
 
@@ -530,7 +534,8 @@ namespace OmokClient
 
         private async Task<GameLoginResponse> GameLoginAsync(long userId, string email, string hiveToken)
         {
-            var loginUrl = "http://localhost:5022/login";
+            //var loginUrl = "http://localhost:5022/login";
+            var loginUrl = "http://34.22.95.236:5022/login";
             var loginData = new { UserID = userId, Email = email, HiveToken = hiveToken };
             var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
 
@@ -553,7 +558,9 @@ namespace OmokClient
 
         private async Task<VerifyResponse> VerifyTokenAsync(string userId, string hiveToken)
         {
-            var verifyUrl = "http://localhost:5092/VerifyToken";
+            //var verifyUrl = "http://localhost:5092/VerifyToken";
+            var verifyUrl = "http://34.22.95.236:5092/VerifyToken";
+
             var verifyData = new { UserID = userId, HiveToken = hiveToken };
             var content = new StringContent(JsonSerializer.Serialize(verifyData), Encoding.UTF8, "application/json");
 
