@@ -90,6 +90,9 @@ public enum ErrorCode : UInt16
     GetRankingFailException = 2302,
     GetUserRankFailException = 2303,
 
+    InvalidRequest = 2401,
+    MatchNotFound = 2402,
+
     // Item 3000 ~
     CharReceiveFailInsert = 3011,
     CharReceiveFailLevelUP = 3012,
