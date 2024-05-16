@@ -1,4 +1,5 @@
 ﻿using MemoryPack;
+using SuperSocket.SocketBase.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,12 @@ namespace OmokServer;
 
 public class PKHRoom : PKHandler
 {
+    private readonly SuperSocket.SocketBase.Logging.ILog _logger;
+
+    public PKHRoom(ILog logger) : base(logger)
+    {
+        this._logger = logger;
+    }
     List<Room> _roomList = null;
     int _startRoomNumber;
     
@@ -38,7 +45,7 @@ public class PKHRoom : PKHandler
 
     private void CheckTimer(MemoryPackBinaryRequestInfo info) // 타이머
     {
-        MainServer.MainLogger.Debug("==NtfInTimer 패킷 처리 함수 : CheckTimer 진입");
+        _logger.Debug("==NtfInTimer 패킷 처리 함수 : CheckTimer 진입");
 
         // 룸매니저 처리
         _roomMgr.CheckRoom();
@@ -88,7 +95,7 @@ public class PKHRoom : PKHandler
     public void RequestRoomEnter(MemoryPackBinaryRequestInfo packetData) 
     {
         var sessionID = packetData.SessionID;
-        MainServer.MainLogger.Debug("RequestRoomEnter");
+        _logger.Debug("RequestRoomEnter");
 
         try
         {
@@ -132,12 +139,12 @@ public class PKHRoom : PKHandler
 
             // 방에 입장했을 때 시각 저장
             room.StartTime = DateTime.Now;
-            MainServer.MainLogger.Debug($"방에 입장한 시각 , StartTime : {room.StartTime}");
-            MainServer.MainLogger.Debug("RequestEnterInternal - Success");
+            _logger.Debug($"방에 입장한 시각 , StartTime : {room.StartTime}");
+            _logger.Debug("RequestEnterInternal - Success");
         }
         catch (Exception ex)
         {
-            MainServer.MainLogger.Error(ex.ToString());
+            _logger.Error(ex.ToString());
         }
     }
 
@@ -157,7 +164,7 @@ public class PKHRoom : PKHandler
     public void RequestLeave(MemoryPackBinaryRequestInfo packetData)
     {
         var sessionID = packetData.SessionID;
-        MainServer.MainLogger.Debug("방나가기 요청 받음");
+        _logger.Debug("방나가기 요청 받음");
 
         try
         {
@@ -176,17 +183,17 @@ public class PKHRoom : PKHandler
 
             ResponseLeaveRoomToClient(sessionID);
 
-            MainServer.MainLogger.Debug("Room RequestLeave - Success");
+            _logger.Debug("Room RequestLeave - Success");
         }
         catch (Exception ex)
         {
-            MainServer.MainLogger.Error(ex.ToString());
+            _logger.Error(ex.ToString());
         }
     }
 
     bool LeaveRoomUser(string sessionID, int roomNumber)
     {
-        MainServer.MainLogger.Debug($"LeaveRoomUser. SessionID:{sessionID}");
+        _logger.Debug($"LeaveRoomUser. SessionID:{sessionID}");
 
         var room = GetRoom(roomNumber);
         if (room == null)
@@ -223,7 +230,7 @@ public class PKHRoom : PKHandler
     public void NotifyLeaveInternal(MemoryPackBinaryRequestInfo packetData) // 방을 나가지 않은 상태에서 접속 끊었을 때
     {
         var sessionID = packetData.SessionID;
-        MainServer.MainLogger.Debug($"NotifyLeaveInternal. SessionID: {sessionID}");
+        _logger.Debug($"NotifyLeaveInternal. SessionID: {sessionID}");
 
         var reqData = MemoryPackSerializer.Deserialize<PKTInternalNtfRoomLeave>(packetData.Data);            
         LeaveRoomUser(sessionID, reqData.RoomNumber);
@@ -232,7 +239,7 @@ public class PKHRoom : PKHandler
     public void RequestChat(MemoryPackBinaryRequestInfo packetData)
     {
         var sessionID = packetData.SessionID;
-        MainServer.MainLogger.Debug("Room RequestChat");
+        _logger.Debug("Room RequestChat");
 
         try
         {
@@ -257,18 +264,18 @@ public class PKHRoom : PKHandler
             
             roomObject.Item2.Broadcast("", sendPacket);
 
-            MainServer.MainLogger.Debug("Room RequestChat - Success");
+            _logger.Debug("Room RequestChat - Success");
         }
         catch (Exception ex)
         {
-            MainServer.MainLogger.Error(ex.ToString());
+            _logger.Error(ex.ToString());
         }
     }
 
     public void ReqReadyOmok(MemoryPackBinaryRequestInfo packetData)
     {
         var sessionID = packetData.SessionID;
-        MainServer.MainLogger.Debug("ReqReadyOmok");
+        _logger.Debug("ReqReadyOmok");
 
         try
         {
@@ -281,7 +288,7 @@ public class PKHRoom : PKHandler
             var room = GetRoom(user.RoomNumber);
             if (room == null)
             {
-                MainServer.MainLogger.Error("Room not found for the user");
+                _logger.Error("Room not found for the user");
                 return;
             }
 
@@ -290,7 +297,7 @@ public class PKHRoom : PKHandler
 
             NotifyReadyOmok(ERROR_CODE.NONE, sessionID); 
 
-            MainServer.MainLogger.Debug("ReqReadyOmok - Success");
+            _logger.Debug("ReqReadyOmok - Success");
 
             // Check if all users are ready
             if (room.AreAllUsersReady())
@@ -300,7 +307,7 @@ public class PKHRoom : PKHandler
         }
         catch (Exception ex)
         {
-            MainServer.MainLogger.Error(ex.ToString());
+            _logger.Error(ex.ToString());
         }
     }
 
@@ -326,14 +333,14 @@ public class PKHRoom : PKHandler
     public void RequestPlaceStone(MemoryPackBinaryRequestInfo packetData)
     {
         var sessionID = packetData.SessionID;
-        MainServer.MainLogger.Debug("RequestPlaceStone");
+        _logger.Debug("RequestPlaceStone");
 
         try
         {
             var roomObject = CheckRoomAndRoomUser(sessionID);
             if (!roomObject.Item1) // 유효하지 않은 요청 처리
             {
-                MainServer.MainLogger.Error("Invalid room or user.");
+                _logger.Error("Invalid room or user.");
                 return;
             }
             int StoneColor = roomObject.Item3.StoneColor;
@@ -345,7 +352,7 @@ public class PKHRoom : PKHandler
             bool result = roomObject.Item2.game.PlaceStone(reqData.PosX, reqData.PosY, StoneColor);
             if (!result)
             {
-                MainServer.MainLogger.Error("Failed to place stone.");
+                _logger.Error("Failed to place stone.");
                 return;
             }
 
@@ -361,15 +368,15 @@ public class PKHRoom : PKHandler
             MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NTFPutMok);
             roomObject.Item2.Broadcast(sessionID, sendPacket); // 해당 방의 모든 유저에게 통보
 
-            MainServer.MainLogger.Debug("Stone placed successfully.");
+            _logger.Debug("Stone placed successfully.");
 
             // 돌 둔 시각 저장
             roomObject.Item2.TurnTime = DateTime.Now;
-            MainServer.MainLogger.Debug($"돌 둔 시각 저장 , TurnTime : {roomObject.Item2.TurnTime}");
+            _logger.Debug($"돌 둔 시각 저장 , TurnTime : {roomObject.Item2.TurnTime}");
         }
         catch (Exception ex)
         {
-            MainServer.MainLogger.Error(ex.ToString());
+            _logger.Error(ex.ToString());
         }
     }
 
@@ -377,13 +384,13 @@ public class PKHRoom : PKHandler
     {
         //var sessionID = packetData.SessionID;
 
-        MainServer.MainLogger.Debug("NotifyPlaceStone");
+        _logger.Debug("NotifyPlaceStone");
     }
 
     public void NotifyGameEnd(MemoryPackBinaryRequestInfo packetData)
     {
         var sessionID = packetData.SessionID;
-        MainServer.MainLogger.Debug("NotifyGameEnd");
+        _logger.Debug("NotifyGameEnd");
     }
 
 }

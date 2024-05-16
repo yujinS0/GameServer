@@ -1,5 +1,6 @@
 ﻿using MemoryPack;
 using MessagePack;
+using SuperSocket.SocketBase.Logging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,27 +13,37 @@ namespace OmokServer;
 
 public class Room
 {
-    public const int InvalidRoomNumber = -1;
+    public const int InvalidRoomNumber = -1; //
 
     public int Index { get; private set; }
     public int Number { get; private set; }
     int _maxUserCount = 0;
+
+    bool isEpmty = true;
 
     List<RoomUser> _userList = new List<RoomUser>();
 
     public static Func<string, byte[], bool> NetSendFunc;
     public static Action<MemoryPackBinaryRequestInfo> DistributeInnerPacket;
 
+    private readonly SuperSocket.SocketBase.Logging.ILog _logger;
+
     public Game game;
     private MYSQLWorker mysqlWorker;
     public DateTime TurnTime { get; set; }
     public DateTime StartTime { get; set; }
+
+    public Room(ILog logger)
+    {
+        _logger = logger;
+    }
 
     public void Init(int index, int number, int maxUserCount)
     {
         Index = index;
         Number = number;
         _maxUserCount = maxUserCount;
+        isEpmty = true;
     }
 
     public bool AddUser(string userID, string netSessionID)
@@ -139,7 +150,7 @@ public class Room
     {
         if (game == null)
         {
-            game = new Game(_userList, NetSendFunc);
+            game = new Game(_userList, NetSendFunc, _logger);
             game.StartGame();
             TurnTime = DateTime.Now;
         }
@@ -147,13 +158,11 @@ public class Room
 
     internal void TurnCheck(DateTime cutTime) // 턴체크
     {
-        //MainServer.MainLogger.Debug("==TurnCheck(DateTime cutTime) 턴체크 진입");
-
         if (game == null || !game.IsGameStarted) return;
 
         if ((cutTime - TurnTime).TotalSeconds > 20) // TODO : 이거 범위 맞는지? 그리고 Config로 받아오기
         {
-            MainServer.MainLogger.Debug("==시간 초과로 턴 변경");
+            _logger.Debug("==시간 초과로 턴 변경");
             // 턴 변경 패킷을 보낼 로직
             foreach (var user in _userList)
             {
@@ -167,18 +176,16 @@ public class Room
             game.IsGameTurnSkip6times();
             // 둔 시각 저장
             TurnTime = DateTime.Now;
-            MainServer.MainLogger.Debug($"턴 넘긴 시각 저장 , TurnTime : {TurnTime}");
+            _logger.Debug($"턴 넘긴 시각 저장 , TurnTime : {TurnTime}");
         }
     }
 
     internal void RoomCheck(DateTime cutTime) // 룸체크
     {
-        //MainServer.MainLogger.Debug("==RoomCheck(DateTime cutTime) 룸체크 진입");
-
         if (!(_userList.Any())) { return; } // 유저가 없으면 체크 X
         if ((cutTime - StartTime).TotalMinutes > 30) // 30분
         {
-            MainServer.MainLogger.Debug("==시간 초과로 접속 종료");
+            _logger.Debug("==시간 초과로 접속 종료");
 
             foreach (var user in _userList)
             {

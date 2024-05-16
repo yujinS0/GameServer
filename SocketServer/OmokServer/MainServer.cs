@@ -11,21 +11,19 @@ namespace OmokServer;
 public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>, IHostedService
 {
     public static ILog MainLogger;
-
-    PacketProcessor _packetProcessor = new PacketProcessor();
-    RoomManager _roomMgr = new RoomManager();
-
-    MYSQLWorker _mysqlWorker = new MYSQLWorker();
-
+    PacketProcessor _packetProcessor;
+    RoomManager _roomMgr;
+    UserManager _userMgr;
+    MYSQLWorker _mysqlWorker;
     ServerOption _serverOpt;
     IServerConfig _networkConfig;
 
     private readonly IHostApplicationLifetime _appLifetime;
     private readonly ILogger<MainServer> _appLogger;
 
-
-
-    public MainServer(IHostApplicationLifetime appLifetime, IOptions<ServerOption> serverConfig, ILogger<MainServer> logger)
+    public MainServer(IHostApplicationLifetime appLifetime, 
+                        IOptions<ServerOption> serverConfig, 
+                        ILogger<MainServer> logger)
         : base(new DefaultReceiveFilterFactory<ReceiveFilter, MemoryPackBinaryRequestInfo>())
     {
         _serverOpt = serverConfig.Value;
@@ -114,8 +112,6 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
 
             CreateTimer(serverOpt);
 
-            // TODO : DB 스레드 만들기?
-
             MainLogger.Info("서버 생성 성공");
         }
         catch (Exception ex)
@@ -172,13 +168,17 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
     public ERROR_CODE CreateComponent(ServerOption serverOpt)
     {
         Room.NetSendFunc = this.SendData;
+
+        _roomMgr = new RoomManager(MainLogger);
         _roomMgr.CreateRooms(serverOpt);
 
-        _packetProcessor = new PacketProcessor();
+        _userMgr = new UserManager(MainLogger);
+
+        _packetProcessor = new PacketProcessor(MainLogger);
         _packetProcessor.NetSendFunc = this.SendData;
         _packetProcessor.CreateAndStart(_roomMgr, serverOpt);
 
-        _mysqlWorker = new MYSQLWorker();
+        _mysqlWorker = new MYSQLWorker(MainLogger);
         _mysqlWorker.NetSendFunc = this.SendData;
         _mysqlWorker.CreateAndStart();
 

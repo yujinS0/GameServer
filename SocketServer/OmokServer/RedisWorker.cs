@@ -10,6 +10,7 @@ using SqlKata.Compilers;
 using SqlKata.Execution;
 using CloudStructures;
 using CloudStructures.Structures;
+using SuperSocket.SocketBase.Logging;
 
 namespace OmokServer;
 
@@ -26,10 +27,19 @@ class RedisWorker
 
     string db_connection;
 
-    PKHRedis _redisPacketHandler = new PKHRedis();
+    PKHRedis _redisPacketHandler;
 
-    UserManager _userMgr = new UserManager();
+    UserManager _userMgr;
     RoomManager _roomMgr;
+    private readonly SuperSocket.SocketBase.Logging.ILog _logger;
+
+    public RedisWorker(ILog logger)
+    {
+        this._logger = logger;
+        _redisPacketHandler = new PKHRedis(_logger);
+        _userMgr = new UserManager(_logger);
+        _roomMgr = new RoomManager(_logger);
+    }
 
     public void CreateAndStart()
     {

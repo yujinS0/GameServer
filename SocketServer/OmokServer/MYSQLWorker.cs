@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SqlKata.Compilers;
 using SqlKata.Execution;
+using SuperSocket.SocketBase.Logging;
 
 namespace OmokServer;
 
@@ -22,13 +24,22 @@ public class MYSQLWorker
     BufferBlock<MemoryPackBinaryRequestInfo> _msgBuffer = new BufferBlock<MemoryPackBinaryRequestInfo>();
 
     Dictionary<int, Action<MemoryPackBinaryRequestInfo, QueryFactory>> _packetHandlerMap = new Dictionary<int, Action<MemoryPackBinaryRequestInfo, QueryFactory>>();
+    private readonly ILog _logger;
 
     string db_connection;
 
-    PKHMYSQL _mysqlPacketHandler = new PKHMYSQL();
+    PKHMYSQL _mysqlPacketHandler;
 
-    UserManager _userMgr = new UserManager();
+    UserManager _userMgr;
     RoomManager _roomMgr;
+
+
+    public MYSQLWorker(ILog logger)
+    {
+        this._logger = logger;
+        _userMgr = new UserManager(_logger);
+        _mysqlPacketHandler = new PKHMYSQL(_logger);
+    }
 
     public void CreateAndStart()
     {
@@ -49,7 +60,7 @@ public class MYSQLWorker
 
     public void Destory()
     {
-        MainServer.MainLogger.Info("MYSQLWorker::Destory - begin");
+        _logger.Info("MYSQLWorker::Destory - begin");
 
         _isThreadRunning = false;
         _msgBuffer.Complete();
@@ -59,7 +70,7 @@ public class MYSQLWorker
             thread.Join();
         }
 
-        MainServer.MainLogger.Info("MYSQLWorker::Destory - end");
+        _logger.Info("MYSQLWorker::Destory - end");
     }
 
     public void InsertPacket(MemoryPackBinaryRequestInfo packet)
@@ -77,7 +88,7 @@ public class MYSQLWorker
         _mysqlPacketHandler.RegistPacketHandler(_packetHandlerMap);
 
         Game.DistributeInnerPacket = InsertPacket;
-        MainServer.MainLogger.Info("DistributeInnerPacket is set in MYSQLWorker");
+        _logger.Info("DistributeInnerPacket is set in MYSQLWorker");
     }
     void Process()
     {
@@ -86,8 +97,6 @@ public class MYSQLWorker
             connection.Open();
             var compiler = new MySqlCompiler();
             QueryFactory queryFactory = new QueryFactory(connection, compiler);
-
-            //_mysqlPacketHandler.InitQueryFactory(queryFactory); // connection
 
             try
             {
@@ -111,88 +120,11 @@ public class MYSQLWorker
             {
                 if (_isThreadRunning)
                 {
-                    MainServer.MainLogger.Error($"Error in MYSQL Worker Process: {ex}");
+                    _logger.Error($"Error in MYSQL Worker Process: {ex}");
                 }
             }
         }
     }
-
-    //void Process()
-    //{
-    //    try
-    //    {
-    //        while (_isThreadRunning)
-    //        {
-    //            var packet = _msgBuffer.Receive();
-    //            if (packet == null) continue;
-
-    //            using (var connection = new MySqlConnection(db_connection))
-    //            {
-    //                connection.Open();
-    //                var compiler = new MySqlCompiler();
-    //                var queryFactory = new QueryFactory(connection, compiler);
-
-    //                _mysqlPacketHandler.InitQueryFactory(queryFactory);
-
-    //                var header = new MemoryPackPacketHeadInfo();
-    //                header.Read(packet.Data);
-
-    //                if (_packetHandlerMap.ContainsKey(header.Id))
-    //                {
-    //                    _packetHandlerMap[header.Id](packet);
-    //                }
-    //            }
-    //        }
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        MainServer.MainLogger.Error($"Error in MYSQL Worker Process: {ex}");
-    //    }
-    //}
-
-
-    //void Process()
-    //{
-    //    // MySqlConnection 인스턴스를 using 스코프 안에서 생성하여 자동으로 자원을 관리하도록 함
-    //    using (MySqlConnection _connection = new MySqlConnection(db_connection))
-    //    {
-    //        _connection.Open();
-    //        var compiler = new MySqlCompiler();
-    //        QueryFactory _queryFactory = new QueryFactory(_connection, compiler);
-
-    //        _mysqlPacketHandler.InitQueryFactory(_queryFactory);
-
-    //        try
-    //        {
-    //            while (_isThreadRunning)
-    //            {
-    //                // 메시지 버퍼에서 패킷을 받아 처리
-    //                var packet = _msgBuffer.Receive();
-    //                if (packet == null)
-    //                {
-    //                    continue;
-    //                }
-
-    //                var header = new MemoryPackPacketHeadInfo();
-    //                header.Read(packet.Data);
-
-    //                if (_packetHandlerMap.ContainsKey(header.Id))
-    //                {
-    //                    _packetHandlerMap[header.Id](packet);
-    //                }
-    //            }
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            // 스레드가 여전히 실행 중일 때 예외가 발생하면 로그에 기록
-    //            if (_isThreadRunning)
-    //            {
-    //                MainServer.MainLogger.Error($"Error in MYSQL Worker Process: {ex}");
-    //            }
-    //        }
-    //    } // using 블록 종료 시점에 _connection은 자동으로 닫히고 해제됨
-    //}
-
 
     /* 이전 프로세스
     void Process()

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using SuperSocket.SocketBase.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,10 +13,15 @@ public class UserManager
     UInt64 _userSequenceNumber = 0;
     int _checkUserIndex = 0;
     int _maxUserGroupCount = 40; // 200/4
+    private readonly SuperSocket.SocketBase.Logging.ILog _logger;
 
     Dictionary<string, User> _userMap = new Dictionary<string, User>();
     List<User> _userList = new List<User>();
 
+    public UserManager(ILog logger)
+    {
+        _logger = logger;
+    }
 
     public void Init(int maxUserCount)
     {
@@ -83,7 +90,7 @@ public class UserManager
         {
             EndIndex = _userList.Count;
         }
-        MainServer.MainLogger.Debug("==CheckUser 정상 진입");
+        _logger.Debug("==CheckUser 정상 진입");
         for (int i = _checkUserIndex; i < EndIndex; i++)
         {
             DateTime cutTime = DateTime.Now;
@@ -124,7 +131,14 @@ public class User
     public DateTime LoginTime;
 
     bool IsReady = false;
-            
+    //private readonly ILogger<User> _logger;
+
+    //public User(ILogger<User> logger)
+    //{
+    //    _logger = logger;
+    //}
+
+
     public void Set(UInt64 sequence, string sessionID, string userID)
     {
         SequenceNumber = sequence;
@@ -174,9 +188,10 @@ public class User
         if(!IsStateLogin()) { return; } // 로그인 상태가 아니면 체크 X
         if ((cutTime - LoginTime).TotalSeconds > 2.5) // 2.5초
         {
+            //_logger.LogDebug("==시간 초과로 접속 종료");
             MainServer.MainLogger.Debug("==시간 초과로 접속 종료");
             // 로그 아웃 처리
-            if(_userManager != null) { _userManager.RemoveUser(SessionID); }
+            if (_userManager != null) { _userManager.RemoveUser(SessionID); }
             // OnClose 호출
 
         }
