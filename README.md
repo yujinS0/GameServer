@@ -9,7 +9,7 @@
 └── SocketServer
     ├── OmokClient 
     ├── OmokServer
-    └── SuperSocketLite : SuperSocketLite 라이브러리
+    └── net8.0 : SuperSocketLite 라이브러리
 ``` 
 
 <br><br>
@@ -24,6 +24,15 @@
 
 ---
 ## 진행상황
+### 매칭 관련
+- [X] [1단계] 매칭 (api game server에 임시로 만들기)
+    + 매칭 요청
+    + 매칭 완료 확인 요청
+    + 매칭 취소 
+- [ ] [2단계] 매칭 서버 분리 및 Redis
+    + 매칭 서버 분리
+    + Redis에서 리스트 받아오기
+
 ### 소켓 프로그래밍
 - [X] 방 입장(최대 2명까지)
 - [X] 방 나가기
@@ -40,8 +49,11 @@
   - 클라이언트는 결과를 표시한다
 - [X] 유저 Heart-Beat 구현
 - [X] 게임 결과 DB 저장
+- [ ] 룸 상태 Redis 업데이트
+
 - [ ] 로그인에 DB 연동
   - Redis에 있는 유저 정보로 로그인 체크
+
 
 
 
@@ -55,6 +67,10 @@
   + API Game 서버 로그인 (api game server)
     * 첫 로그인 시 기본 게임 데이터 생성
   + 인증 토큰 유효 검증 (hive server)
+- [X] 매칭
+    + 매칭 요청 (api game server)
+    + 매칭 완료 확인 요청 (api game server)
+    + 매칭 취소 (api game server)
 - [ ] 우편함
 - [ ] 출석부
 - [ ] 친구
