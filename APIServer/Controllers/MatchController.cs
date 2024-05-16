@@ -31,6 +31,7 @@ public class MatchController : ControllerBase
     [HttpPost("request")]
     public IActionResult Match([FromBody] MatchRequest request)
     {
+        _logger.LogInformation($"POST match/request : {request.Email}", request.Email);
         if (request == null || string.IsNullOrEmpty(request.Email))
         {
             _logger.LogError("Invalid match request data.");
@@ -59,6 +60,8 @@ public class MatchController : ControllerBase
     [HttpPost("ismatched")]
     public IActionResult IsMatched([FromBody] MatchRequest request)
     {
+        _logger.LogInformation($"POST match/ismatched : {request.Email}", request.Email);
+
         if (request == null || string.IsNullOrEmpty(request.Email))
         {
             _logger.LogError("Invalid ismatched request data.");
@@ -93,9 +96,11 @@ public class MatchController : ControllerBase
         });
     }
 
-    [HttpPost("cancelmatch")]
+    [HttpPost("cancel")]
     public IActionResult CancelMatch([FromBody] MatchRequest request)
     {
+        _logger.LogInformation($"POST match/cancel : {request.Email}", request.Email);
+
         if (request == null || string.IsNullOrEmpty(request.Email))
         {
             _logger.LogError("Invalid cancel match request data.");
