@@ -16,6 +16,7 @@ using System.Text;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Net;
 
 #pragma warning disable CA1416
 
@@ -42,6 +43,10 @@ namespace OmokClient
 
         private System.Windows.Forms.Timer heartBeatTimer;
         private HttpClient httpClient = new HttpClient();
+
+        // 매칭
+        private System.Windows.Forms.Timer matchTimer;
+        private bool isMatching = false;
 
         public mainForm()
         {
@@ -364,7 +369,7 @@ namespace OmokClient
             var packetData = MemoryPackSerializer.Serialize(HeartBeatReq);
             PostSendPacket(PACKETID.ReqHeartBeat, packetData);
 
-            DevLog.Write("HeartBeat 요청");
+            //DevLog.Write("HeartBeat 요청");
         }
 
         private bool ValidateInputs()
@@ -417,8 +422,11 @@ namespace OmokClient
         }
         private async Task<RegisterResponse> RegisterAsync(string email, string password)
         {
-            //var loginUrl = "http://localhost:5092/account/register";
             var loginUrl = "http://34.22.95.236:5092/account/register";
+            if (checkBoxLocalHostIPHive.Checked) // LocalHost 체크 상태 확인
+            {
+                loginUrl = "http://localhost:5092/account/register";
+            }
             var loginData = new { Email = email, Password = password };
             var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
 
@@ -460,7 +468,7 @@ namespace OmokClient
                 DevLog.Write("하이브 로그인에 성공했습니다.");
 
                 // 추가 API Game 로그인 과정
-                if(email == null) { return; }
+                if (email == null) { return; }
                 var gameLoginResponse = await GameLoginAsync(loginResponse.userId, email, loginResponse.hiveToken);
                 if (gameLoginResponse != null && gameLoginResponse.result == 0)
                 {
@@ -506,9 +514,12 @@ namespace OmokClient
 
         private async Task<LoginResponse> LoginAsync(string email, string password)
         {
-            //var loginUrl = "http://localhost:5092/login";
             var loginUrl = "http://34.22.95.236:5092/login";
-            
+            if (checkBoxLocalHostIPHive.Checked) // LocalHost 체크 상태 확인
+            {
+                loginUrl = "http://localhost:5092/login";
+            }
+
             var loginData = new { Email = email, Password = password };
             var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
 
@@ -534,8 +545,11 @@ namespace OmokClient
 
         private async Task<GameLoginResponse> GameLoginAsync(long userId, string email, string hiveToken)
         {
-            //var loginUrl = "http://localhost:5022/login";
             var loginUrl = "http://34.22.95.236:5022/login";
+            if (checkBoxLocalHostIPGame.Checked) // LocalHost 체크 상태 확인
+            {
+                loginUrl = "http://localhost:5022/login";
+            }
             var loginData = new { UserID = userId, Email = email, HiveToken = hiveToken };
             var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
 
@@ -560,6 +574,10 @@ namespace OmokClient
         {
             //var verifyUrl = "http://localhost:5092/VerifyToken";
             var verifyUrl = "http://34.22.95.236:5092/VerifyToken";
+            if (checkBoxLocalHostIPHive.Checked) // LocalHost 체크 상태 확인
+            {
+                verifyUrl = "http://localhost:5092/VerifyToken";
+            }
 
             var verifyData = new { UserID = userId, HiveToken = hiveToken };
             var content = new StringContent(JsonSerializer.Serialize(verifyData), Encoding.UTF8, "application/json");
@@ -594,6 +612,176 @@ namespace OmokClient
             DevLog.Write($"로그인 요청: {ToReadableByteArray(packet)}");
         }
          */
+        ///////////////
+        // 매칭요청버튼
+        private async void btnMatching_Click_1(object sender, EventArgs e)
+        {
+            DevLog.Write("btnMatching_Click_1");
+
+            var email = UserIDTextBox.Text;
+
+            var matchUrl = "http://34.22.95.236:5022/match/request";
+            if (checkBoxLocalHostIPGame.Checked) // LocalHost 체크 상태 확인
+            {
+                matchUrl = "http://localhost:5022/match/request";
+            }
+
+            // 매칭 요청
+            var matchRequest = new MatchRequest { Email = email };
+            var content = new StringContent(JsonSerializer.Serialize(matchRequest), Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync(matchUrl, content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                MessageBox.Show("매칭 요청에 실패했습니다.");
+                return;
+            }
+
+            // 매칭 상태 확인 타이머 시작
+            isMatching = true;
+            matchTimer = new System.Windows.Forms.Timer();
+            matchTimer.Interval = 2000; // 2초마다
+            matchTimer.Tick += (s, args) => CheckMatchStatus(email);
+            matchTimer.Start();
+        }
+        private async Task CheckMatchStatus(string email)
+        {
+            DevLog.Write("CheckMatchStatus");
+
+            if (!isMatching)
+                return;
+
+            var matchRequest = new MatchRequest { Email = email };
+
+            var matchUrl = "http://34.22.95.236:5022/match/ismatched";
+            if (checkBoxLocalHostIPGame.Checked) // LocalHost 체크 상태 확인
+            {
+                matchUrl = "http://localhost:5022/match/ismatched";
+            }
+
+            var content = new StringContent(JsonSerializer.Serialize(matchRequest), Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync(matchUrl, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                DevLog.Write(responseBody);
+                var matchCompleteResponse = JsonSerializer.Deserialize<MatchCompleteResponse>(responseBody);
+
+                if (matchCompleteResponse != null && matchCompleteResponse.success == 1)
+                {
+                    DevLog.Write("[매칭 완료]");
+                    textBoxRoomNumber.Text = matchCompleteResponse.roomNum.ToString(); // 방 번호 설정
+                    EnterRoom(matchCompleteResponse.roomNum);
+
+                    // 매칭 완료 시 타이머 중지
+                    matchTimer.Stop();
+                    isMatching = false;
+                }
+            }
+            else
+            {
+                DevLog.Write("매칭 상태 확인에 실패했습니다.");
+            }
+        }
+        //private async Task CheckMatchStatus(string email)
+        //{
+        //    var matchRequest = new MatchRequest { Email = email };
+
+        //    var matchUrl = "http://34.22.95.236:5022/match/ismatched";
+        //    if (checkBoxLocalHostIPGame.Checked) // LocalHost 체크 상태 확인
+        //    {
+        //        matchUrl = "http://localhost:5022/match/ismatched";
+        //    }
+
+        //    while (true)
+        //    {
+        //        await Task.Delay(1000); // 1초 대기
+
+        //        var content = new StringContent(JsonSerializer.Serialize(matchRequest), Encoding.UTF8, "application/json");
+        //        var response = await httpClient.PostAsync(matchUrl, content);
+
+        //        if (response.IsSuccessStatusCode)
+        //        {
+        //            var responseBody = await response.Content.ReadAsStringAsync();
+        //            var matchCompleteResponse = JsonSerializer.Deserialize<MatchCompleteResponse>(responseBody);
+
+        //            if (matchCompleteResponse != null && matchCompleteResponse.Success == 1)
+        //            {
+        //                textBoxRoomNumber.Text = matchCompleteResponse.RoomNum.ToString(); // 방 번호 설정
+        //                EnterRoom(matchCompleteResponse.RoomNum);
+        //                break;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            DevLog.Write("매칭 상태 확인에 실패했습니다.");
+        //        }
+        //    }
+        //}
+        private async void btnCancelMatching_Click(object sender, EventArgs e)
+        {
+            var email = UserIDTextBox.Text;
+
+            var matchUrl = "http://34.22.95.236:5022/match/cancel";
+            if (checkBoxLocalHostIPGame.Checked) // LocalHost 체크 상태 확인
+            {
+                matchUrl = "http://localhost:5022/match/cancel";
+            }
+
+            // 매칭 취소 요청
+            var matchRequest = new MatchRequest { Email = email };
+            var content = new StringContent(JsonSerializer.Serialize(matchRequest), Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync(matchUrl, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var cancelResponse = JsonSerializer.Deserialize<MatchCancelResponse>(responseBody);
+
+                if (cancelResponse != null && cancelResponse.Result == ErrorCode.None)
+                {
+                    // 매칭 취소 완료 시 타이머 중지
+                    matchTimer.Stop();
+                    isMatching = false;
+                    MessageBox.Show("[매칭 취소 완료]");
+                }
+                else if (cancelResponse != null && cancelResponse.Result == ErrorCode.MatchNotFound)
+                {
+                    MessageBox.Show($"매칭 요청을 찾을 수 없습니다. 이유: {cancelResponse.Message}");
+                }
+                else
+                {
+                    MessageBox.Show($"[매칭 취소 실패] 이유: {cancelResponse.Message}");
+                }
+            }
+            else
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var cancelResponse = JsonSerializer.Deserialize<MatchCancelResponse>(responseBody);
+
+                if (cancelResponse != null)
+                {
+                    MessageBox.Show($"[매칭 취소 실패] 이유: {cancelResponse.Message}");
+                }
+                else
+                {
+                    MessageBox.Show("[매칭 취소 실패] 서버와의 통신 오류입니다.");
+                }
+            }
+        }
+
+
+        private void EnterRoom(int roomNum)
+        {
+            var requestPkt = new PKTReqRoomEnter(); // 방 입장 요청
+            requestPkt.RoomNumber = roomNum; // 방 번호
+
+            var sendPacketData = MemoryPackSerializer.Serialize(requestPkt); // 직렬화
+            PostSendPacket(PACKETID.ReqRoomEnter, sendPacketData); // 패킷 전송
+
+            DevLog.Write($"방 입장 요청:  {roomNum} 번");
+        }
 
 
         private void btn_RoomEnter_Click(object sender, EventArgs e)
@@ -805,11 +993,6 @@ namespace OmokClient
 
         }
 
-        private void btnMatching_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void textBoxRoomSendMsg_TextChanged(object sender, EventArgs e)
         {
 
@@ -856,4 +1039,34 @@ namespace OmokClient
         public int lose { get; set; }
         public int draw { get; set; }
     }
+    public class MatchRequest
+    {
+        public string Email { get; set; }
+    }
+
+    public class MatchResponse
+    {
+        public ErrorCode Result { get; set; }
+    }
+
+    public class MatchCompleteResponse
+    {
+        public ErrorCode result { get; set; }
+        public int success { get; set; }
+        public string email { get; set; }
+        public int roomNum { get; set; }
+    }
+    public class MatchCancelResponse
+    {
+        public ErrorCode Result { get; set; }
+        public string Message { get; set; }
+    }
+
+    public enum ErrorCode
+    {
+        None = 0,
+        InvalidRequest = 2401,
+        MatchNotFound = 2402
+    }
+
 }

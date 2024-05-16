@@ -80,6 +80,7 @@
             DataWin = new System.Windows.Forms.Label();
             label1 = new System.Windows.Forms.Label();
             DataLevel = new System.Windows.Forms.Label();
+            btnCancelMatching = new System.Windows.Forms.Button();
             SocketGroup.SuspendLayout();
             Room.SuspendLayout();
             ApiGroup.SuspendLayout();
@@ -262,7 +263,6 @@
             // Room
             // 
             Room.Controls.Add(button3);
-            Room.Controls.Add(btnMatching);
             Room.Controls.Add(btnRoomChat);
             Room.Controls.Add(textBoxRoomSendMsg);
             Room.Controls.Add(listBoxRoomChatMsg);
@@ -283,10 +283,10 @@
             // button3
             // 
             button3.Font = new System.Drawing.Font("맑은 고딕", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 129);
-            button3.Location = new System.Drawing.Point(507, 28);
+            button3.Location = new System.Drawing.Point(419, 28);
             button3.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             button3.Name = "button3";
-            button3.Size = new System.Drawing.Size(117, 47);
+            button3.Size = new System.Drawing.Size(166, 47);
             button3.TabIndex = 57;
             button3.Text = "Game Ready";
             button3.UseVisualStyleBackColor = true;
@@ -295,13 +295,14 @@
             // btnMatching
             // 
             btnMatching.Font = new System.Drawing.Font("맑은 고딕", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 129);
-            btnMatching.Location = new System.Drawing.Point(385, 28);
+            btnMatching.Location = new System.Drawing.Point(520, 322);
             btnMatching.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             btnMatching.Name = "btnMatching";
-            btnMatching.Size = new System.Drawing.Size(100, 47);
+            btnMatching.Size = new System.Drawing.Size(124, 34);
             btnMatching.TabIndex = 54;
             btnMatching.Text = "Matching";
             btnMatching.UseVisualStyleBackColor = true;
+            btnMatching.Click += btnMatching_Click_1;
             // 
             // btnRoomChat
             // 
@@ -590,7 +591,7 @@
             GameDataGroup.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             GameDataGroup.Name = "GameDataGroup";
             GameDataGroup.Padding = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            GameDataGroup.Size = new System.Drawing.Size(639, 86);
+            GameDataGroup.Size = new System.Drawing.Size(483, 86);
             GameDataGroup.TabIndex = 30;
             GameDataGroup.TabStop = false;
             GameDataGroup.Text = "게임 정보";
@@ -698,12 +699,26 @@
             DataLevel.Text = "level";
             DataLevel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // btnCancelMatching
+            // 
+            btnCancelMatching.Font = new System.Drawing.Font("맑은 고딕", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 129);
+            btnCancelMatching.Location = new System.Drawing.Point(520, 363);
+            btnCancelMatching.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            btnCancelMatching.Name = "btnCancelMatching";
+            btnCancelMatching.Size = new System.Drawing.Size(124, 34);
+            btnCancelMatching.TabIndex = 59;
+            btnCancelMatching.Text = "Cancel Match";
+            btnCancelMatching.UseVisualStyleBackColor = true;
+            btnCancelMatching.Click += btnCancelMatching_Click;
+            // 
             // mainForm
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(1509, 1132);
+            ClientSize = new System.Drawing.Size(1476, 1132);
+            Controls.Add(btnCancelMatching);
             Controls.Add(GameDataGroup);
+            Controls.Add(btnMatching);
             Controls.Add(btnRegister);
             Controls.Add(ApiGroup);
             Controls.Add(panel1);
@@ -788,6 +803,7 @@
         private System.Windows.Forms.Label DataDraw;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label DataExp;
+        private System.Windows.Forms.Button btnCancelMatching;
     }
 }
 
