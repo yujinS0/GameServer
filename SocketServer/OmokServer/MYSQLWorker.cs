@@ -38,14 +38,6 @@ public class MYSQLWorker
         _userMgr = new UserManager(_logger);
         _mysqlPacketHandler = new PKHMYSQL(_logger);
     }
-    //public MYSQLWorker(ILog logger, IOptions<ConnectionStrings> options, IOptions<ServerOption> serverOptions)
-    //{
-    //    _logger = logger;
-    //    _dbConnection = options.Value.MySqlGameDb; // appsettings.json에서 가져온 연결 문자열 사용
-    //    _serverOption = serverOptions.Value; // appsettings.json에서 가져온 서버 옵션 사용
-    //    _userMgr = new UserManager(_logger);
-    //    _mysqlPacketHandler = new PKHMYSQL(_logger);
-    //}
 
     public void CreateAndStart()
     {

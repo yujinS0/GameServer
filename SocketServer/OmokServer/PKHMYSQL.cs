@@ -21,11 +21,9 @@ internal class PKHMYSQL : PKHandler
 
     public void RegistPacketHandler(Dictionary<int, Action<MemoryPackBinaryRequestInfo, QueryFactory>> packetHandlerMap)
     {
-        // Register all handlers with both MemoryPackBinaryRequestInfo and QueryFactory
         packetHandlerMap.Add((int)PACKETID.ReqInUserWin, (info, factory) => RequestInUserWin(factory, info));
         packetHandlerMap.Add((int)PACKETID.ReqInUserLose, (info, factory) => RequestInUserLose(factory, info));
         packetHandlerMap.Add((int)PACKETID.ReqInUserDraw, (info, factory) => RequestInUserDraw(factory, info));
-        // Add other necessary handlers here
     }
 
     private void RequestInUserWin(QueryFactory _queryFactory, MemoryPackBinaryRequestInfo info)
