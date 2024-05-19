@@ -30,7 +30,7 @@ public class RoomManager
         var maxUserCount = serverOpt.RoomMaxUserCount;
 
         var checkRoomInterval = serverOpt.RoomIntervalMilliseconds;
-        _checkRoomInterval = 20000; //serverOpt.RoomIntervalMilliseconds;
+        _checkRoomInterval = 20000; 
         _maxRoomCount = 25; // serverOpt.maxRoomCount;
         _checkRoomIndex = 0;
 

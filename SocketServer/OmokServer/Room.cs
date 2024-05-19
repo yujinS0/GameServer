@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices.Marshalling;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace OmokServer;
@@ -78,11 +79,33 @@ public class Room
     {
         var index = _userList.FindIndex(x => x.NetSessionID == netSessionID);
         _userList.RemoveAt(index);
+
+        // If room is empty, send insert packet to Redis
+        if (_userList.Count == 0)
+        {
+            var roomInfo = new RoomInfo(Number, "localhost:32451");
+            var insertPacket = new PKTReqInRedisInsertRoomInfo { RoomNumber = Number, roomInfo = roomInfo };
+            var sendPacket = MemoryPackSerializer.Serialize(insertPacket);
+            MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.ReqInRedisInsertRoomInfo);
+            DistributeRedisInnerPacket(new MemoryPackBinaryRequestInfo(sendPacket));
+        }
     }
 
     public bool RemoveUser(RoomUser user)
     {
-        return _userList.Remove(user);
+        bool removed = _userList.Remove(user);
+
+        // If room is empty, send insert packet to Redis
+        if (_userList.Count == 0)
+        {
+            var roomInfo = new RoomInfo(Number, "localhost:32451");
+            var insertPacket = new PKTReqInRedisInsertRoomInfo { RoomNumber = Number, roomInfo = roomInfo };
+            var sendPacket = MemoryPackSerializer.Serialize(insertPacket);
+            MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.ReqInRedisInsertRoomInfo);
+            DistributeRedisInnerPacket(new MemoryPackBinaryRequestInfo(sendPacket));
+        }
+
+        return removed;
     }
 
     public RoomUser GetUser(string userID)
@@ -108,7 +131,6 @@ public class Room
             packet.UserIDList.Add(user.UserID);
         }
 
-        // use MemoryPack
         var sendPacket = MemoryPackSerializer.Serialize(packet); // 직렬화
         MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NtfRoomUserList);
         
@@ -207,6 +229,9 @@ public class Room
                 // 접속 종료 이너 패킷 보내기 
                 var internalPacket = InnerPakcetMaker.MakeNTFInnerRoomLeavePacket(sessionID, this.Number, user.UserID);
                 DistributeInnerPacket(internalPacket);
+
+                // Remove user from room and check if the room is empty
+                RemoveUser(sessionID);
             }
         }
     }

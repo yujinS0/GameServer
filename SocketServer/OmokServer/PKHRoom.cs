@@ -279,7 +279,9 @@ public class PKHRoom : PKHandler
 
         try
         {
-            var user = _userMgr.GetUser(sessionID); // 유저 정보 가져오기
+            var user = _userMgr.GetUser(sessionID); 
+            
+            유저 정보 가져오기
             if (user == null || user.IsConfirm(sessionID) == false) // 유저 정보가 없거나 세션 아이디가 일치하지 않으면
             {
                 ResponseEnterRoomToClient(ERROR_CODE.ROOM_ENTER_INVALID_USER, sessionID);
