@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SuperSocket.SocketBase.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,19 +14,29 @@ class PacketProcessor
     System.Threading.Thread _processThread = null;
 
     public Func<string, byte[], bool> NetSendFunc;
-    
+    private readonly SuperSocket.SocketBase.Logging.ILog _logger;
+
+
     //receive쪽에서 처리하지 않아도 Post에서 블럭킹 되지 않는다. 
     //BufferBlock<T>(DataflowBlockOptions) 에서 DataflowBlockOptions의 BoundedCapacity로 버퍼 가능 수 지정. BoundedCapacity 보다 크게 쌓이면 블럭킹 된다
     BufferBlock<MemoryPackBinaryRequestInfo> _msgBuffer = new BufferBlock<MemoryPackBinaryRequestInfo>();
 
-    UserManager _userMgr = new UserManager();
+    UserManager _userMgr;
 
     RoomManager _roomMgr;
 
     Dictionary<int, Action<MemoryPackBinaryRequestInfo>> _packetHandlerMap = new Dictionary<int, Action<MemoryPackBinaryRequestInfo>>();
-    PKHCommon _commonPacketHandler = new PKHCommon();
-    PKHRoom _roomPacketHandler = new PKHRoom();
-            
+    PKHCommon _commonPacketHandler;
+    PKHRoom _roomPacketHandler;
+
+    public PacketProcessor(ILog logger)
+    {
+        _logger = logger;
+        _userMgr = new UserManager(_logger);
+        _commonPacketHandler = new PKHCommon(_logger);
+        _roomPacketHandler = new PKHRoom(_logger);
+    }
+
     public void CreateAndStart(RoomManager roomManager, ServerOption serverOpt) // 서버 옵션을 받아서 초기화
     {
         _roomMgr = roomManager;
@@ -48,14 +59,14 @@ class PacketProcessor
     
     public void Destory()
     {
-        MainServer.MainLogger.Info("PacketProcessor::Destory - begin");
+        _logger.Info("PacketProcessor::Destory - begin");
 
         _isThreadRunning = false;
         _msgBuffer.Complete();
 
         _processThread.Join();
 
-        MainServer.MainLogger.Info("PacketProcessor::Destory - end");
+        _logger.Info("PacketProcessor::Destory - end");
     }
           
     public void InsertPacket(MemoryPackBinaryRequestInfo data)
@@ -98,7 +109,7 @@ class PacketProcessor
             {
                 if (_isThreadRunning)
                 {
-                    MainServer.MainLogger.Error(ex.ToString());
+                    _logger.Error(ex.ToString());
                 }
             }
         }

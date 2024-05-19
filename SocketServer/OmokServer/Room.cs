@@ -1,11 +1,13 @@
 ﻿using MemoryPack;
 using MessagePack;
+using SuperSocket.SocketBase.Logging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices.Marshalling;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace OmokServer;
@@ -14,25 +16,43 @@ public class Room
 {
     public const int InvalidRoomNumber = -1;
 
-    public int Index { get; private set; }
-    public int Number { get; private set; }
+    public int Index { get; private set; } 
+    public int Number { get; private set; } 
     int _maxUserCount = 0;
+
+    bool isEpmty = true;
 
     List<RoomUser> _userList = new List<RoomUser>();
 
     public static Func<string, byte[], bool> NetSendFunc;
     public static Action<MemoryPackBinaryRequestInfo> DistributeInnerPacket;
+    public static Action<MemoryPackBinaryRequestInfo> DistributeRedisInnerPacket;
+
+    private readonly SuperSocket.SocketBase.Logging.ILog _logger;
 
     public Game game;
     private MYSQLWorker mysqlWorker;
     public DateTime TurnTime { get; set; }
     public DateTime StartTime { get; set; }
 
+    public Room(ILog logger)
+    {
+        _logger = logger;
+    }
+
     public void Init(int index, int number, int maxUserCount)
     {
         Index = index;
         Number = number;
         _maxUserCount = maxUserCount;
+        isEpmty = true;
+
+        // Create RoomInfo and send insert packet to Redis
+        var roomInfo = new RoomInfo(number, "localhost:32451");
+        var insertPacket = new PKTReqInRedisInsertRoomInfo { RoomNumber = number, roomInfo = roomInfo };
+        var sendPacket = MemoryPackSerializer.Serialize(insertPacket);
+        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.ReqInRedisInsertRoomInfo);
+        DistributeRedisInnerPacket(new MemoryPackBinaryRequestInfo(sendPacket));
     }
 
     public bool AddUser(string userID, string netSessionID)
@@ -46,6 +66,12 @@ public class Room
         roomUser.Set(userID, netSessionID);
         _userList.Add(roomUser);
 
+        // Send delete packet to Redis when user joins
+        var deletePacket = new PKTReqInRedisDeleteRoomInfo { RoomNumber = this.Number };
+        var sendPacket = MemoryPackSerializer.Serialize(deletePacket);
+        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.ReqInRedisDeleteRoomInfo);
+        DistributeRedisInnerPacket(new MemoryPackBinaryRequestInfo(sendPacket));
+
         return true;
     }
 
@@ -53,11 +79,33 @@ public class Room
     {
         var index = _userList.FindIndex(x => x.NetSessionID == netSessionID);
         _userList.RemoveAt(index);
+
+        // If room is empty, send insert packet to Redis
+        if (_userList.Count == 0)
+        {
+            var roomInfo = new RoomInfo(Number, "localhost:32451");
+            var insertPacket = new PKTReqInRedisInsertRoomInfo { RoomNumber = Number, roomInfo = roomInfo };
+            var sendPacket = MemoryPackSerializer.Serialize(insertPacket);
+            MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.ReqInRedisInsertRoomInfo);
+            DistributeRedisInnerPacket(new MemoryPackBinaryRequestInfo(sendPacket));
+        }
     }
 
     public bool RemoveUser(RoomUser user)
     {
-        return _userList.Remove(user);
+        bool removed = _userList.Remove(user);
+
+        // If room is empty, send insert packet to Redis
+        if (_userList.Count == 0)
+        {
+            var roomInfo = new RoomInfo(Number, "localhost:32451");
+            var insertPacket = new PKTReqInRedisInsertRoomInfo { RoomNumber = Number, roomInfo = roomInfo };
+            var sendPacket = MemoryPackSerializer.Serialize(insertPacket);
+            MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.ReqInRedisInsertRoomInfo);
+            DistributeRedisInnerPacket(new MemoryPackBinaryRequestInfo(sendPacket));
+        }
+
+        return removed;
     }
 
     public RoomUser GetUser(string userID)
@@ -83,7 +131,6 @@ public class Room
             packet.UserIDList.Add(user.UserID);
         }
 
-        // use MemoryPack
         var sendPacket = MemoryPackSerializer.Serialize(packet); // 직렬화
         MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NtfRoomUserList);
         
@@ -139,7 +186,7 @@ public class Room
     {
         if (game == null)
         {
-            game = new Game(_userList, NetSendFunc);
+            game = new Game(_userList, NetSendFunc, _logger);
             game.StartGame();
             TurnTime = DateTime.Now;
         }
@@ -147,13 +194,11 @@ public class Room
 
     internal void TurnCheck(DateTime cutTime) // 턴체크
     {
-        //MainServer.MainLogger.Debug("==TurnCheck(DateTime cutTime) 턴체크 진입");
-
         if (game == null || !game.IsGameStarted) return;
 
         if ((cutTime - TurnTime).TotalSeconds > 20) // TODO : 이거 범위 맞는지? 그리고 Config로 받아오기
         {
-            MainServer.MainLogger.Debug("==시간 초과로 턴 변경");
+            _logger.Debug("==시간 초과로 턴 변경");
             // 턴 변경 패킷을 보낼 로직
             foreach (var user in _userList)
             {
@@ -167,18 +212,16 @@ public class Room
             game.IsGameTurnSkip6times();
             // 둔 시각 저장
             TurnTime = DateTime.Now;
-            MainServer.MainLogger.Debug($"턴 넘긴 시각 저장 , TurnTime : {TurnTime}");
+            _logger.Debug($"턴 넘긴 시각 저장 , TurnTime : {TurnTime}");
         }
     }
 
     internal void RoomCheck(DateTime cutTime) // 룸체크
     {
-        //MainServer.MainLogger.Debug("==RoomCheck(DateTime cutTime) 룸체크 진입");
-
         if (!(_userList.Any())) { return; } // 유저가 없으면 체크 X
         if ((cutTime - StartTime).TotalMinutes > 30) // 30분
         {
-            MainServer.MainLogger.Debug("==시간 초과로 접속 종료");
+            _logger.Debug("==시간 초과로 접속 종료");
 
             foreach (var user in _userList)
             {
@@ -186,10 +229,27 @@ public class Room
                 // 접속 종료 이너 패킷 보내기 
                 var internalPacket = InnerPakcetMaker.MakeNTFInnerRoomLeavePacket(sessionID, this.Number, user.UserID);
                 DistributeInnerPacket(internalPacket);
+
+                // Remove user from room and check if the room is empty
+                RemoveUser(sessionID);
             }
         }
     }
 }
+
+[MemoryPackable]
+public partial class RoomInfo
+{
+    public int RoomNumber { get; set; }
+    public string ServerAddress { get; set; }
+
+    public RoomInfo(int roomNumber, string serverAddress)
+    {
+        RoomNumber = roomNumber;
+        ServerAddress = serverAddress; // "localhost:32451"
+    }
+}
+
 
 public class RoomUser
 {

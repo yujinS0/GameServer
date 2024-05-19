@@ -7,6 +7,9 @@ using MemoryPack;
 using System.Collections.Generic;
 using System.Timers;
 using System.Reflection;
+using Microsoft.Extensions.Logging;
+using System.Numerics;
+using SuperSocket.SocketBase.Logging;
 
 namespace OmokServer;
 public class Game
@@ -21,11 +24,14 @@ public class Game
     private int turnSkipCount = 0;
     private const int MaxSkipCount = 6;
 
-    public Game(List<RoomUser> players, Func<string, byte[], bool> netSendFunction)
+    private readonly SuperSocket.SocketBase.Logging.ILog _logger;
+
+    public Game(List<RoomUser> players, Func<string, byte[], bool> netSendFunction, ILog logger)
     {
         this.players = players ?? throw new ArgumentNullException(nameof(players));
         NetSendFunc = netSendFunction ?? throw new ArgumentNullException(nameof(netSendFunction));
         InitializeBoard();
+        this._logger = logger;
     }
 
     private void InitializeBoard()
@@ -37,14 +43,14 @@ public class Game
     {
         IsGameStarted = true;
         NotifyGameStart();
-        MainServer.MainLogger.Debug("Game has started.");
+        _logger.Debug("Game has started.");
         turnSkipCount = 0;
     }
 
     public void SetTurnSkipCount1()
     {
         turnSkipCount++;
-        MainServer.MainLogger.Debug($"턴 스킵 + 1 , 현재 turnSkipCount : {turnSkipCount}");
+        _logger.Debug($"턴 스킵 + 1 , 현재 turnSkipCount : {turnSkipCount}");
     }
 
     public void IsGameTurnSkip6times()
@@ -52,6 +58,7 @@ public class Game
         if (turnSkipCount >= MaxSkipCount)
         {
             EndGameDueToTurnSkips();  // 연속 턴 스킵으로 게임 종료
+
         }
     }
 
@@ -64,10 +71,29 @@ public class Game
             MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.NTFEndOmok);
             // 모든 플레이어에게 게임 종료 통보
             BroadcastToAll(sendPacket);
-            MainServer.MainLogger.Debug($"Game ended. Winner: None = 턴넘김 6회로 무승부");
+
+            _logger.Debug($"Game ended. Winner: None = 턴넘김 6회로 무승부");
+            
+            // 무승부 결과 Mysql 업데이트
+            UpdateDueGameData(player.UserID);
         }
         IsGameStarted = false;
         InitializeBoard(); // Reset the board
+    }
+
+    private void UpdateDueGameData(string userId)
+    {
+        var drawPacket = new PKTReqInDraw()
+        {
+            UserID = userId
+        };
+        var drawData = MemoryPackSerializer.Serialize(drawPacket);
+        MemoryPackPacketHeadInfo.Write(drawData, PACKETID.ReqInUserWin);
+        var memoryDrawPacket = new MemoryPackBinaryRequestInfo(null);
+        memoryDrawPacket.Data = drawData;
+        DistributeInnerPacket(memoryDrawPacket);
+
+        _logger.Info($"PKTReqInDraw 보내기{userId}");
     }
 
     private void NotifyGameStart()
@@ -98,7 +124,7 @@ public class Game
         foreach (var player in players)
         {
             NetSendFunc(player.NetSessionID, sendPacket);
-            MainServer.MainLogger.Debug($"Notified {player.UserID} about game start.");
+            _logger.Debug($"Notified {player.UserID} about game start.");
         }
     }
 
@@ -106,12 +132,12 @@ public class Game
     {
         if (!IsGameStarted || x < 0 || y < 0 || x >= BoardSize || y >= BoardSize || board[x, y] != (int)StoneType.None)
         {
-            MainServer.MainLogger.Error("Invalid move or game not started.");
+            _logger.Error("Invalid move or game not started.");
             return false;
         }
-
         board[x, y] = stoneType;
-        MainServer.MainLogger.Debug($"Stone placed at ({x}, {y}) with type {stoneType}.");
+        _logger.Debug($"Stone placed at ({x}, {y}) with type {stoneType}.");
+
 
         if (CheckWin(x, y))
         {
@@ -141,24 +167,14 @@ public class Game
 
         // 모든 플레이어에게 게임 종료 통보
         BroadcastToAll(sendPacket);
-        MainServer.MainLogger.Debug($"Game ended. Winner: {winner.UserID}");
+        _logger.Debug($"Game ended. Winner: {winner.UserID}");
     }
+
+   
 
     private void UpdateUserGameData(string winnerId, string loserId)
     {
-        //if(winnerId == 0 || loserId == 0)
-        //{
-            // Draw
-            // PKTReqInDraw 만들기
-            // 무승부 처리
-            //var drawPacket = new PKTReqInDraw { UserID = winnerId }; 
-            //var drawData = MemoryPackSerializer.Serialize(drawPacket);
-            //mysqlWorker.InsertPacket(new MemoryPackBinaryRequestInfo(drawData));
-        //}
-        //else
-        //{
-        // Update Winner
-        // PKTReqInWin 만들기
+        // Update Winner - PKTReqInWin 만들기
         var winPacket = new PKTReqInWin() 
         { 
             WinUserID = winnerId 
@@ -168,21 +184,17 @@ public class Game
         var memoryWinPacket = new MemoryPackBinaryRequestInfo(null);
         memoryWinPacket.Data = winData;
         DistributeInnerPacket(memoryWinPacket);
-        MainServer.MainLogger.Info($"PKTReqInWin 보내기{winnerId}");
+        _logger.Info($"PKTReqInWin 보내기{loserId}");
 
-        // Update Loser
-        // PKTReqInLose 만들기
+        // Update Loser - PKTReqInLose 만들기
         var losePacket = new PKTReqInLose() { LoseUserID = loserId };
         var loseData = MemoryPackSerializer.Serialize(losePacket);
         MemoryPackPacketHeadInfo.Write(loseData, PACKETID.ReqInUserLose);
         var memoryLosePacket = new MemoryPackBinaryRequestInfo(null);
         memoryLosePacket.Data = loseData;
         DistributeInnerPacket(memoryLosePacket);
-        MainServer.MainLogger.Info($"PKTReqInLose 보내기{loserId}");
-
+        _logger.Info($"PKTReqInLose 보내기{loserId}");
         //}
-
-
     }
 
     private void BroadcastToAll(byte[] packet)

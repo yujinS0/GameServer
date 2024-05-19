@@ -620,10 +620,10 @@ namespace OmokClient
 
             var email = UserIDTextBox.Text;
 
-            var matchUrl = "http://34.22.95.236:5022/match/request";
+            var matchUrl = "http://34.22.95.236:5167/match/request";
             if (checkBoxLocalHostIPGame.Checked) // LocalHost 체크 상태 확인
             {
-                matchUrl = "http://localhost:5022/match/request";
+                matchUrl = "http://localhost:5167/match/request";
             }
 
             // 매칭 요청
@@ -653,10 +653,10 @@ namespace OmokClient
 
             var matchRequest = new MatchRequest { Email = email };
 
-            var matchUrl = "http://34.22.95.236:5022/match/ismatched";
+            var matchUrl = "http://34.22.95.236:5167/match/ismatched";
             if (checkBoxLocalHostIPGame.Checked) // LocalHost 체크 상태 확인
             {
-                matchUrl = "http://localhost:5022/match/ismatched";
+                matchUrl = "http://localhost:5167/match/ismatched";
             }
 
             var content = new StringContent(JsonSerializer.Serialize(matchRequest), Encoding.UTF8, "application/json");
@@ -688,10 +688,10 @@ namespace OmokClient
         //{
         //    var matchRequest = new MatchRequest { Email = email };
 
-        //    var matchUrl = "http://34.22.95.236:5022/match/ismatched";
+        //    var matchUrl = "http://34.22.95.236:5167/match/ismatched";
         //    if (checkBoxLocalHostIPGame.Checked) // LocalHost 체크 상태 확인
         //    {
-        //        matchUrl = "http://localhost:5022/match/ismatched";
+        //        matchUrl = "http://localhost:5167/match/ismatched";
         //    }
 
         //    while (true)
@@ -723,10 +723,10 @@ namespace OmokClient
         {
             var email = UserIDTextBox.Text;
 
-            var matchUrl = "http://34.22.95.236:5022/match/cancel";
+            var matchUrl = "http://34.22.95.236:5167/match/cancel";
             if (checkBoxLocalHostIPGame.Checked) // LocalHost 체크 상태 확인
             {
-                matchUrl = "http://localhost:5022/match/cancel";
+                matchUrl = "http://localhost:5167/match/cancel";
             }
 
             // 매칭 취소 요청

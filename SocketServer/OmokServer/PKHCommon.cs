@@ -1,4 +1,5 @@
 ﻿using MemoryPack;
+using SuperSocket.SocketBase.Logging;
 using System;
 using System.Collections.Generic;
 using System.Timers;
@@ -7,6 +8,13 @@ namespace OmokServer;
 
 public class PKHCommon : PKHandler
 {
+    private readonly SuperSocket.SocketBase.Logging.ILog _logger;
+
+    public PKHCommon(ILog logger) : base(logger)
+    {
+        this._logger = logger;
+    }
+
     public void RegistPacketHandler(Dictionary<int, Action<MemoryPackBinaryRequestInfo>> packetHandlerMap)
     {
         packetHandlerMap.Add((int)PACKETID.NtfInConnectClient, NotifyInConnectClient);
@@ -35,7 +43,6 @@ public class PKHCommon : PKHandler
                 var internalPacket = InnerPakcetMaker.MakeNTFInnerRoomLeavePacket(sessionID, roomNum, user.ID());                
                 DistributeInnerPacket(internalPacket);
             }
-
             _userMgr.RemoveUser(sessionID);
         }
     }
@@ -43,7 +50,7 @@ public class PKHCommon : PKHandler
     public void RequestLogin(MemoryPackBinaryRequestInfo packetData)
     {
         var sessionID = packetData.SessionID;
-        MainServer.MainLogger.Debug("로그인 요청 받음");
+        _logger.Debug("로그인 요청 받음");
 
         try
         {
@@ -64,19 +71,16 @@ public class PKHCommon : PKHandler
                 {
                     NotifyMustCloseToClient(ERROR_CODE.LOGIN_FULL_USER_COUNT, packetData.SessionID);
                 }
-                
                 return;
             }
-
             ResponseLoginToClient(errorCode, packetData.SessionID);
-
-            MainServer.MainLogger.Debug($"로그인 결과. UserID:{reqData.UserID}, {errorCode}");
+            _logger.Debug($"로그인 결과. UserID:{reqData.UserID}, {errorCode}");
 
         }
         catch(Exception ex)
         {
             // 패킷 해제에 의해서 로그가 남지 않도록 로그 수준을 Debug로 한다.
-            MainServer.MainLogger.Error(ex.ToString());
+            _logger.Error(ex.ToString());
         }
     }
             

@@ -41,5 +41,21 @@ namespace OmokServer
 
         [Option("roomStartNumber", Required = true, HelpText = "RoomStartNumber")]
         public int RoomStartNumber { get; set; } = 0; // (서버 별) 방의 시작번호
+
+        [Option("roomIntervalMilliseconds", Required = true, HelpText = "RoomIntervalMilliseconds")]
+        public int RoomIntervalMilliseconds { get; set; } = 0; // 방을 체크하는 주기
+
+        // Connection String
+        [Option("MySqlHiveDb", Required = true, HelpText = "MySqlHiveDb")]
+        public string MySqlHiveDb { get; set; }
+
+        [Option("MySqlGameDb", Required = true, HelpText = "MySqlGameDb")]
+        public string MySqlGameDb { get; set; }
+
+        [Option("HiveRedis", Required = true, HelpText = "HiveRedis")]
+        public string HiveRedis { get; set; }
+
+        [Option("GameRedis", Required = true, HelpText = "GameRedis")]
+        public string GameRedis { get; set; }
     }
 }
