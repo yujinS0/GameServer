@@ -4,6 +4,7 @@
 
 ## 파일 구조
 ```bash
+├── MatchServer : Match API Server (게임 매칭 관련 처리)
 ├── APIServer : API Game Server (게임 관련 처리)
 ├── HiveServer : Hive Server (Hive 로그인 관련 처리)
 └── SocketServer
