@@ -15,11 +15,14 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
     RoomManager _roomMgr;
     UserManager _userMgr;
     MYSQLWorker _mysqlWorker;
+    RedisWorker _redisWorker;
     ServerOption _serverOpt;
     IServerConfig _networkConfig;
 
     private readonly IHostApplicationLifetime _appLifetime;
     private readonly ILogger<MainServer> _appLogger;
+    private readonly IOptions<ConnectionStrings> _connectionStrings;
+    private readonly IOptions<ServerOption> _serverOptions;
 
     public MainServer(IHostApplicationLifetime appLifetime, 
                         IOptions<ServerOption> serverConfig, 
@@ -167,6 +170,10 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
 
     public ERROR_CODE CreateComponent(ServerOption serverOpt)
     {
+        _redisWorker = new RedisWorker(MainLogger, serverOpt);
+        _redisWorker.NetSendFunc = this.SendData;
+        _redisWorker.CreateAndStart();
+
         Room.NetSendFunc = this.SendData;
 
         _roomMgr = new RoomManager(MainLogger);
@@ -178,7 +185,7 @@ public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>
         _packetProcessor.NetSendFunc = this.SendData;
         _packetProcessor.CreateAndStart(_roomMgr, serverOpt);
 
-        _mysqlWorker = new MYSQLWorker(MainLogger);
+        _mysqlWorker = new MYSQLWorker(MainLogger, serverOpt);
         _mysqlWorker.NetSendFunc = this.SendData;
         _mysqlWorker.CreateAndStart();
 

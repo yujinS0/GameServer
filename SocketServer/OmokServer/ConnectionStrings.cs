@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OmokServer;
-internal class ConnectionStrings
+public class ConnectionStrings
 {
     [Option("MySqlHiveDb", Required = true, HelpText = "MySqlHiveDb")]
     public string MySqlHiveDb { get; set; }

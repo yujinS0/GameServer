@@ -16,10 +16,7 @@ namespace OmokServer;
 public class MYSQLWorker
 {
     bool _isThreadRunning = false;
-    // 스레드 리스트
     List<System.Threading.Thread> _processThreadList = new List<System.Threading.Thread>();
-
-    //public Func<string, byte[], bool> SendInnerPacketFunc;
     public Func<string, byte[], bool> NetSendFunc;
     BufferBlock<MemoryPackBinaryRequestInfo> _msgBuffer = new BufferBlock<MemoryPackBinaryRequestInfo>();
 
@@ -34,17 +31,26 @@ public class MYSQLWorker
     RoomManager _roomMgr;
 
 
-    public MYSQLWorker(ILog logger)
+    public MYSQLWorker(ILog logger, ServerOption serverOpt)
     {
         this._logger = logger;
+        db_connection = serverOpt.MySqlGameDb; // appsettings.json에서 가져온 연결 문자열 사용
         _userMgr = new UserManager(_logger);
         _mysqlPacketHandler = new PKHMYSQL(_logger);
     }
+    //public MYSQLWorker(ILog logger, IOptions<ConnectionStrings> options, IOptions<ServerOption> serverOptions)
+    //{
+    //    _logger = logger;
+    //    _dbConnection = options.Value.MySqlGameDb; // appsettings.json에서 가져온 연결 문자열 사용
+    //    _serverOption = serverOptions.Value; // appsettings.json에서 가져온 서버 옵션 사용
+    //    _userMgr = new UserManager(_logger);
+    //    _mysqlPacketHandler = new PKHMYSQL(_logger);
+    //}
 
     public void CreateAndStart()
     {
         //IOptions<ConnectionStrings> connectionStrings; // TODO : Config에서 가져오기
-        db_connection = "server=localhost;port=3306;user=root;password=000930;database=gamedb;Max Pool Size=100;";
+        //db_connection = "server=localhost;port=3306;user=root;password=000930;database=gamedb;Max Pool Size=100;";
 
         RegistPacketHandler();
 
@@ -125,44 +131,4 @@ public class MYSQLWorker
             }
         }
     }
-
-    /* 이전 프로세스
-    void Process()
-    {
-        MySqlConnection _connection = new MySqlConnection(db_connection);
-        _connection.Open();
-
-        var compiler = new MySqlCompiler();
-        QueryFactory _queryFactory = new QueryFactory(_connection, new MySqlCompiler());
-
-        _mysqlPacketHandler.InitQueryFactory(_queryFactory);
-
-        try
-        {
-            while (_isThreadRunning)
-            {
-                var packet = _msgBuffer.Receive();
-                if (packet == null)
-                {
-                    continue;
-                }
-                var header = new MemoryPackPacketHeadInfo();
-                header.Read(packet.Data);
-
-                if (_packetHandlerMap.ContainsKey(header.Id))
-                {
-                    _packetHandlerMap[header.Id](packet);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            if (_isThreadRunning)
-            {
-                MainServer.MainLogger.Error(ex.ToString());
-            }
-        }
-
-    }*/
-
 }
