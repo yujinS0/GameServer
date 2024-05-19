@@ -16,6 +16,12 @@ namespace OmokServer
         {
             _logger = logger;
         }
+        public void ClearRoomInfoList(RedisConnection redisConn)
+        {
+            var redisList = new RedisList<RoomInfo>(redisConn, "RoomInfoList", null);
+            redisList.DeleteAsync().Wait();
+            _logger.Info("Cleared existing RoomInfoList in Redis.");
+        }
 
         public void RegistPacketHandler(Dictionary<int, Action<MemoryPackBinaryRequestInfo, RedisConnection>> packetHandlerMap)
         {

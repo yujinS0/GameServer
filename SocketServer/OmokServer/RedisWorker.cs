@@ -48,6 +48,11 @@ class RedisWorker
     {
         //IOptions<ConnectionStrings> connectionStrings; // TODO : Config에서 가져오기
         db_connection = "localhost:6389";
+        RedisConfig config = new RedisConfig("default", db_connection);
+        _redisConn = new RedisConnection(config);
+
+        // Clear existing RoomInfoList
+        _redisPacketHandler.ClearRoomInfoList(_redisConn);
 
         RegistPacketHandler();
 
