@@ -1,6 +1,7 @@
 ﻿using MemoryPack;
 using System;
 using System.Collections.Generic;
+using OmokServer;
 
 namespace OmokServer;
 
@@ -275,4 +276,17 @@ public partial class PKTReqInLose : PkHeader
 public partial class PKTReqInDraw : PkHeader
 {
     public string UserID;
+}
+
+[MemoryPackable]
+public partial class PKTReqInRedisInsertRoomInfo : PkHeader
+{
+    public int RoomNumber { get; set; }
+    public RoomInfo roomInfo { get; set; }
+}
+
+[MemoryPackable]
+public partial class PKTReqInRedisDeleteRoomInfo : PkHeader
+{
+    public int RoomNumber { get; set; }
 }

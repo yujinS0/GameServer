@@ -13,10 +13,10 @@ namespace OmokServer;
 
 public class Room
 {
-    public const int InvalidRoomNumber = -1; //
+    public const int InvalidRoomNumber = -1;
 
-    public int Index { get; private set; }
-    public int Number { get; private set; }
+    public int Index { get; private set; } 
+    public int Number { get; private set; } 
     int _maxUserCount = 0;
 
     bool isEpmty = true;
@@ -25,6 +25,7 @@ public class Room
 
     public static Func<string, byte[], bool> NetSendFunc;
     public static Action<MemoryPackBinaryRequestInfo> DistributeInnerPacket;
+    public static Action<MemoryPackBinaryRequestInfo> DistributeRedisInnerPacket;
 
     private readonly SuperSocket.SocketBase.Logging.ILog _logger;
 
@@ -44,6 +45,13 @@ public class Room
         Number = number;
         _maxUserCount = maxUserCount;
         isEpmty = true;
+
+        // Create RoomInfo and send insert packet to Redis
+        var roomInfo = new RoomInfo(number, "localhost:32451");
+        var insertPacket = new PKTReqInRedisInsertRoomInfo { RoomNumber = number, roomInfo = roomInfo };
+        var sendPacket = MemoryPackSerializer.Serialize(insertPacket);
+        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.ReqInRedisInsertRoomInfo);
+        DistributeRedisInnerPacket(new MemoryPackBinaryRequestInfo(sendPacket));
     }
 
     public bool AddUser(string userID, string netSessionID)
@@ -56,6 +64,12 @@ public class Room
         var roomUser = new RoomUser();
         roomUser.Set(userID, netSessionID);
         _userList.Add(roomUser);
+
+        // Send delete packet to Redis when user joins
+        var deletePacket = new PKTReqInRedisDeleteRoomInfo { RoomNumber = this.Number };
+        var sendPacket = MemoryPackSerializer.Serialize(deletePacket);
+        MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.ReqInRedisDeleteRoomInfo);
+        DistributeRedisInnerPacket(new MemoryPackBinaryRequestInfo(sendPacket));
 
         return true;
     }
@@ -197,6 +211,20 @@ public class Room
         }
     }
 }
+
+[MemoryPackable]
+public partial class RoomInfo
+{
+    public int RoomNumber { get; set; }
+    public string ServerAddress { get; set; }
+
+    public RoomInfo(int roomNumber, string serverAddress)
+    {
+        RoomNumber = roomNumber;
+        ServerAddress = serverAddress; // "localhost:32451"
+    }
+}
+
 
 public class RoomUser
 {

@@ -23,9 +23,9 @@ class Program
             })
             .ConfigureServices((hostContext, services) =>
             {
-                services.Configure<ServerOption>(hostContext.Configuration.GetSection("ServerOption"));
                 services.AddHostedService<MainServer>(); // 인터페이스를 구현하는 서비스를 애플리케이션의 서비스 컨테이너에 추가
                                                          // StartAsync: 호스트가 시작될 때 호출되며, 여기서 백그라운드 작업이나 다른 초기화 작업을 시작
+                services.Configure<ServerOption>(hostContext.Configuration.GetSection("ServerOption"));
                 services.Configure<ConnectionStrings>(hostContext.Configuration.GetSection("ConnectionStrings"));
             })
             .Build();

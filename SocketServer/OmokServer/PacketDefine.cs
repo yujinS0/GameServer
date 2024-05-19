@@ -113,6 +113,8 @@ public enum PACKETID : int
     ReqInUserDraw = 8303,
 
     ReqInMysqlUserInfo = 8401,
-    ResInMysqlUserInfo = 8402
+    ResInMysqlUserInfo = 8402,
 
+    ReqInRedisInsertRoomInfo = 8501,
+    ReqInRedisDeleteRoomInfo = 8502
 }
