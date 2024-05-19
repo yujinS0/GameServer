@@ -23,9 +23,8 @@ class RedisWorker
     public Func<string, byte[], bool> NetSendFunc;
     BufferBlock<MemoryPackBinaryRequestInfo> _msgBuffer = new BufferBlock<MemoryPackBinaryRequestInfo>();
 
-    Dictionary<int, Action<MemoryPackBinaryRequestInfo>> _packetHandlerMap = new Dictionary<int, Action<MemoryPackBinaryRequestInfo>>();
-
-    string db_connection;
+    //Dictionary<int, Action<MemoryPackBinaryRequestInfo>> _packetHandlerMap = new Dictionary<int, Action<MemoryPackBinaryRequestInfo>>();
+    Dictionary<int, Action<MemoryPackBinaryRequestInfo, RedisConnection>> _packetHandlerMap = new Dictionary<int, Action<MemoryPackBinaryRequestInfo, RedisConnection>>();
 
     PKHRedis _redisPacketHandler;
 
@@ -33,12 +32,16 @@ class RedisWorker
     RoomManager _roomMgr;
     private readonly SuperSocket.SocketBase.Logging.ILog _logger;
 
-    public RedisWorker(ILog logger)
+    string db_connection;
+    private RedisConnection _redisConn;
+
+    public RedisWorker(ILog logger, ServerOption serverOpt)
     {
         this._logger = logger;
         _redisPacketHandler = new PKHRedis(_logger);
         _userMgr = new UserManager(_logger);
         _roomMgr = new RoomManager(_logger);
+        db_connection = serverOpt.GameRedis;
     }
 
     public void CreateAndStart()
@@ -78,6 +81,9 @@ class RedisWorker
 
         _redisPacketHandler.Init(_userMgr, _roomMgr);
         _redisPacketHandler.RegistPacketHandler(_packetHandlerMap);
+
+        Room.DistributeRedisInnerPacket = InsertPacket;
+        _logger.Info("DistributeInnerPacket is set in MYSQLWorker");
     }
 
     void Process()
@@ -99,7 +105,7 @@ class RedisWorker
 
                 if (_packetHandlerMap.ContainsKey(header.Id))
                 {
-                    _packetHandlerMap[header.Id](packet);
+                    _packetHandlerMap[header.Id](packet, _redisConn);
                 }
             }
         }
@@ -110,7 +116,6 @@ class RedisWorker
                 MainServer.MainLogger.Error(ex.ToString());
             }
         }
-
     }
 
 }
