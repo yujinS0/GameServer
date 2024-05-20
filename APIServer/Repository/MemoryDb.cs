@@ -31,6 +31,17 @@ namespace APIServer.Repository
                 throw new Exception("Failed to set the user token in Redis.");
             }
         }
+        public async Task<bool> ValidateTokenAsync(string token, string userId)
+        {
+            var redisString = new RedisString<string>(_redisConn, $"user:token:{userId}", null);
+            var tokenValue = await redisString.GetAsync();
+
+            if(token == tokenValue.Value)
+            {
+                return true;
+            }
+            return false;
+        }
 
         public void Dispose()
         {

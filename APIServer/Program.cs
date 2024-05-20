@@ -9,6 +9,7 @@ using APIServer.Repository;
 using APIServer.Services;
 using CloudStructures;
 using StackExchange.Redis;
+using APIServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,9 @@ builder.Services.AddControllers();
 var app = builder.Build(); 
 
 app.UseRouting();
+
+// 사용자 토큰 검증용 미들웨어 추가
+app.UseMiddleware<TokenValidationMiddleware>();
 
 app.MapControllers(); 
 
