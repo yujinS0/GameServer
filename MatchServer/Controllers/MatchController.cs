@@ -67,7 +67,8 @@ public class MatchController : ControllerBase
                 Result = ErrorCode.InvalidRequest,
                 Success = 0,
                 Email = request.Email,
-                RoomNum = -1
+                RoomNum = -1,
+                ServerAddress = ""
             });
         }
 
@@ -80,7 +81,8 @@ public class MatchController : ControllerBase
                 Result = ErrorCode.None,
                 Success = 1,
                 Email = request.Email,
-                RoomNum = roomInfo.RoomNumber
+                RoomNum = roomInfo.RoomNumber,
+                ServerAddress = roomInfo.ServerAddress
             });
         }
 
@@ -89,7 +91,8 @@ public class MatchController : ControllerBase
             Result = ErrorCode.None,
             Success = 0,
             Email = request.Email,
-            RoomNum = -1
+            RoomNum = -1,
+            ServerAddress = ""
         });
     }
 
