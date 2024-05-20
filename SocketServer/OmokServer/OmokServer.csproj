@@ -32,6 +32,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\ServerClientCommon\ServerClientCommon.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Reference Include="SuperSocketLite">
 	    <HintPath>..\SuperSocketLite\SuperSocketLite.dll</HintPath>
 	  </Reference>
