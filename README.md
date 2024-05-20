@@ -4,11 +4,13 @@
 
 ## 파일 구조
 ```bash
+├── MatchServer : Match API Server (게임 매칭 관련 처리)
 ├── APIServer : API Game Server (게임 관련 처리)
 ├── HiveServer : Hive Server (Hive 로그인 관련 처리)
 └── SocketServer
     ├── OmokClient 
     ├── OmokServer
+    ├── ServerClientCommon
     └── net8.0 : SuperSocketLite 라이브러리
 ``` 
 
@@ -29,7 +31,7 @@
     + 매칭 요청
     + 매칭 완료 확인 요청
     + 매칭 취소 
-- [ ] [2단계] 매칭 서버 분리 및 Redis
+- [X] [2단계] 매칭 서버 분리 및 Redis
     + 매칭 서버 분리
     + Redis에서 리스트 받아오기
 
@@ -49,10 +51,8 @@
   - 클라이언트는 결과를 표시한다
 - [X] 유저 Heart-Beat 구현
 - [X] 게임 결과 DB 저장
-- [ ] 룸 상태 Redis 업데이트
-
-- [ ] 로그인에 DB 연동
-  - Redis에 있는 유저 정보로 로그인 체크
+- [X] 룸 상태 Redis 업데이트
+- [X] Redis DB 연동
 
 
 
