@@ -41,6 +41,7 @@ public class GameDataController : ControllerBase
             return Ok(new UserGameDataResponse
             {
                 UserId = userGameData.UserId,
+                Email = userGameData.Email,
                 Level = userGameData.Level,
                 Exp = userGameData.Exp,
                 Win = userGameData.Win,
