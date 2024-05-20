@@ -10,6 +10,7 @@ using MySqlConnector;
 using SqlKata.Compilers;
 using SqlKata.Execution;
 using SuperSocket.SocketBase.Logging;
+using ServerClientCommon;
 
 namespace OmokServer;
 

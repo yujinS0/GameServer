@@ -6,6 +6,7 @@ using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Config;
+using ServerClientCommon;
 
 namespace OmokServer;
 public class MainServer : AppServer<NetworkSession, MemoryPackBinaryRequestInfo>, IHostedService

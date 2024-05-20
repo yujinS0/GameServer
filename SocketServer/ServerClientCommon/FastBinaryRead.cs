@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OmokServer
+namespace ServerClientCommon
 {
     public class FastBinaryRead
     {
