@@ -5,6 +5,7 @@ using CloudStructures;
 using CloudStructures.Structures;
 using MemoryPack;
 using SuperSocket.SocketBase.Logging;
+using ServerClientCommon;
 
 namespace OmokServer
 {

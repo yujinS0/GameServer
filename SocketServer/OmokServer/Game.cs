@@ -10,6 +10,7 @@ using System.Reflection;
 using Microsoft.Extensions.Logging;
 using System.Numerics;
 using SuperSocket.SocketBase.Logging;
+using ServerClientCommon;
 
 namespace OmokServer;
 public class Game

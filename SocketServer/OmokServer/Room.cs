@@ -8,7 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices.Marshalling;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-
+using ServerClientCommon;
 
 namespace OmokServer;
 
@@ -237,18 +237,18 @@ public class Room
     }
 }
 
-[MemoryPackable]
-public partial class RoomInfo
-{
-    public int RoomNumber { get; set; }
-    public string ServerAddress { get; set; }
+//[MemoryPackable]
+//public partial class RoomInfo
+//{
+//    public int RoomNumber { get; set; }
+//    public string ServerAddress { get; set; }
 
-    public RoomInfo(int roomNumber, string serverAddress)
-    {
-        RoomNumber = roomNumber;
-        ServerAddress = serverAddress; // "localhost:32451"
-    }
-}
+//    public RoomInfo(int roomNumber, string serverAddress)
+//    {
+//        RoomNumber = roomNumber;
+//        ServerAddress = serverAddress; // "localhost:32451"
+//    }
+//}
 
 
 public class RoomUser

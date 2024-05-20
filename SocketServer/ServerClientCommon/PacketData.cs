@@ -290,3 +290,15 @@ public partial class PKTReqInRedisDeleteRoomInfo : PkHeader
 {
     public int RoomNumber { get; set; }
 }
+
+[MemoryPackable]
+public partial class RoomInfo
+{
+    public int RoomNumber { get; set; }
+    public string ServerAddress { get; set; }
+    public RoomInfo(int roomNumber, string serverAddress)
+    {
+        RoomNumber = roomNumber;
+        ServerAddress = serverAddress; // "localhost:32451"
+    }
+}
