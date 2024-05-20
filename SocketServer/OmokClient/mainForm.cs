@@ -101,7 +101,7 @@ namespace OmokClient
             Network.Close();
         }
 
-        private void btnConnect_Click(object sender, EventArgs e) // 타이머 추가
+        private void btnConnect_Click(object sender, EventArgs e) // [오목 대전 서버 접속]
         {
             string address = socketIPTextBox.Text;
 
@@ -483,13 +483,13 @@ namespace OmokClient
                     DataLose.Text = gameLoginResponse.userGameData.lose.ToString();
                     DataDraw.Text = gameLoginResponse.userGameData.draw.ToString();
 
-                    // 게임 서버에 로그인 정보 전송
-                    var loginReq = new PKTReqLogin();
-                    loginReq.AuthToken = password;
-                    loginReq.UserID = email;
-                    var packet = MemoryPackSerializer.Serialize(loginReq);
-                    PostSendPacket(PACKETID.ReqLogin, packet);
-                    DevLog.Write($"로그인 요청: {email}, {password}");
+                    // 대전 서버에 로그인 정보 전송 [패킷 전송] - 로그인
+                    //var loginReq = new PKTReqLogin();
+                    //loginReq.AuthToken = password;
+                    //loginReq.UserID = email;
+                    //var packet = MemoryPackSerializer.Serialize(loginReq);
+                    //PostSendPacket(PACKETID.ReqLogin, packet);
+                    //DevLog.Write($"로그인 요청: {email}, {password}");
                 }
                 else
                 {
@@ -645,6 +645,7 @@ namespace OmokClient
             httpClient.DefaultRequestHeaders.Add("GameToken", HeaderGameToken);
 
             var response = await httpClient.PostAsync(matchUrl, content);
+            DevLog.Write("매칭 요청 완료 : 기다리는 중 ...");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -691,12 +692,50 @@ namespace OmokClient
                 if (matchCompleteResponse != null && matchCompleteResponse.success == 1)
                 {
                     DevLog.Write("[매칭 완료]");
-                    textBoxRoomNumber.Text = matchCompleteResponse.roomNum.ToString(); // 방 번호 설정
-                    EnterRoom(matchCompleteResponse.roomNum);
-
                     // 매칭 완료 시 타이머 중지
                     matchTimer.Stop();
                     isMatching = false;
+
+                    textBoxRoomNumber.Text = matchCompleteResponse.roomNum.ToString(); // 방 번호 설정
+
+                    var userId = matchCompleteResponse.email;
+                    var serverAddress = matchCompleteResponse.serverAddress;
+
+                    // 소켓 서버와 연결
+                    var addressParts = serverAddress.Split(':');
+                    var socketIp = addressParts[0];
+                    var socketPort = int.Parse(addressParts[1]);
+
+                    // socketIp가 localhost라면 127.0.0.1로 변경
+                    if (socketIp == "localhost")
+                    {
+                        socketIp = "127.0.0.1";
+                    }
+
+                    if (Network.Connect(socketIp, socketPort))
+                    {
+                        DevLog.Write($"소켓 서버에 접속 성공: {serverAddress}", LOG_LEVEL.INFO);
+
+                        // 유저 로그인 처리
+                        var loginReq = new PKTReqLogin();
+                        loginReq.AuthToken = HeaderGameToken;
+                        loginReq.UserID = email;
+                        var loginPacket = MemoryPackSerializer.Serialize(loginReq);
+                        PostSendPacket(PACKETID.ReqLogin, loginPacket);
+
+                        DevLog.Write($"유저 로그인 요청: {email}, {HeaderGameToken}");
+
+                        // 방 입장 패킷 전송
+                        EnterRoom(matchCompleteResponse.roomNum); // 방 입장 요청
+
+                        //// 매칭 완료 시 타이머 중지
+                        //matchTimer.Stop();
+                        //isMatching = false;
+                    }
+                    else
+                    {
+                        DevLog.Write("소켓 서버에 접속 실패", LOG_LEVEL.ERROR);
+                    }
                 }
             }
             else
@@ -791,7 +830,7 @@ namespace OmokClient
             }
         }
 
-
+        // 대전 서버에 방 입장 정보 전송 [패킷 전송] - 방입장
         private void EnterRoom(int roomNum)
         {
             var requestPkt = new PKTReqRoomEnter(); // 방 입장 요청
@@ -1075,6 +1114,7 @@ namespace OmokClient
         public int success { get; set; }
         public string email { get; set; }
         public int roomNum { get; set; }
+        public string serverAddress { get; set; }
     }
     public class MatchCancelResponse
     {
