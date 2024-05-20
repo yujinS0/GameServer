@@ -18,7 +18,7 @@ public class TokenValidationMiddleware
     public async Task InvokeAsync(HttpContext context)
     {
         var path = context.Request.Path;
-        if (path.StartsWithSegments("/login"))
+        if (path.StartsWithSegments("/login")) //|| path.StartsWithSegments("/register")
         {
             await _next(context);
             return;

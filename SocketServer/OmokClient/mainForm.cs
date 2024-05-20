@@ -48,6 +48,9 @@ namespace OmokClient
         private System.Windows.Forms.Timer matchTimer;
         private bool isMatching = false;
 
+        private string HeaderGameToken;
+        private long HeaderUserId;
+
         public mainForm()
         {
             InitializeComponent();
@@ -553,13 +556,19 @@ namespace OmokClient
             var loginData = new { UserID = userId, Email = email, HiveToken = hiveToken };
             var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
 
+            HeaderUserId = userId;
+
             try
             {
                 var response = await httpClient.PostAsync(loginUrl, content);
                 if (response.IsSuccessStatusCode)
                 {
                     var responseBody = await response.Content.ReadAsStringAsync();
-                    return JsonSerializer.Deserialize<GameLoginResponse>(responseBody);
+
+                    var LoginResponse = JsonSerializer.Deserialize<GameLoginResponse>(responseBody);
+                    HeaderGameToken = LoginResponse.token;
+
+                    return LoginResponse;
                 }
             }
             catch (Exception ex)
@@ -620,15 +629,21 @@ namespace OmokClient
 
             var email = UserIDTextBox.Text;
 
-            var matchUrl = "http://34.22.95.236:5167/match/request";
+            var matchUrl = "http://34.22.95.236:5022/match/request";
             if (checkBoxLocalHostIPGame.Checked) // LocalHost 체크 상태 확인
             {
-                matchUrl = "http://localhost:5167/match/request";
+                matchUrl = "http://localhost:5022/match/request";
             }
 
             // 매칭 요청
             var matchRequest = new MatchRequest { Email = email };
             var content = new StringContent(JsonSerializer.Serialize(matchRequest), Encoding.UTF8, "application/json");
+
+            HttpClient httpClient = new HttpClient();
+
+            httpClient.DefaultRequestHeaders.Add("UserId", HeaderUserId.ToString());
+            httpClient.DefaultRequestHeaders.Add("GameToken", HeaderGameToken);
+
             var response = await httpClient.PostAsync(matchUrl, content);
 
             if (!response.IsSuccessStatusCode)
@@ -653,11 +668,16 @@ namespace OmokClient
 
             var matchRequest = new MatchRequest { Email = email };
 
-            var matchUrl = "http://34.22.95.236:5167/match/ismatched";
+            var matchUrl = "http://34.22.95.236:5022/match/ismatched";
             if (checkBoxLocalHostIPGame.Checked) // LocalHost 체크 상태 확인
             {
-                matchUrl = "http://localhost:5167/match/ismatched";
+                matchUrl = "http://localhost:5022/match/ismatched";
             }
+
+            HttpClient httpClient = new HttpClient();
+
+            httpClient.DefaultRequestHeaders.Add("UserId", HeaderUserId.ToString());
+            httpClient.DefaultRequestHeaders.Add("GameToken", HeaderGameToken);
 
             var content = new StringContent(JsonSerializer.Serialize(matchRequest), Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync(matchUrl, content);
@@ -723,10 +743,10 @@ namespace OmokClient
         {
             var email = UserIDTextBox.Text;
 
-            var matchUrl = "http://34.22.95.236:5167/match/cancel";
+            var matchUrl = "http://34.22.95.236:5022/match/cancel";
             if (checkBoxLocalHostIPGame.Checked) // LocalHost 체크 상태 확인
             {
-                matchUrl = "http://localhost:5167/match/cancel";
+                matchUrl = "http://localhost:5022/match/cancel";
             }
 
             // 매칭 취소 요청
