@@ -9,8 +9,8 @@ namespace APIServer.DTO;
 public class LoginRequest
 {
     [Required]
-    public long UserID { get; set; }
-    public required string Email { get; set; }
+    public long UserNum { get; set; }
+    public required string UserId { get; set; }
     public required string HiveToken { get; set; }
 }
 
@@ -24,7 +24,7 @@ public class LoginResponse
 
 public class TokenValidationRequest
 {
-    [Required] public long UserID { get; set; }
+    [Required] public long UserNum { get; set; }
     public required string HiveToken { get; set; }
 }
 

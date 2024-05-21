@@ -16,9 +16,9 @@ namespace HiveServer.Repository
             _redisConn = new RedisConnection(config);
         }
 
-        public async Task<bool> SetTokenAsync(long userId, string token, TimeSpan expiration)
+        public async Task<bool> SetTokenAsync(long userNum, string token, TimeSpan expiration)
         {
-            var key = $"user:token:{userId}";
+            var key = $"user:token:{userNum}";
             try
             {
                 var redisString = new RedisString<string>(_redisConn, key, TimeSpan.FromHours(1));
@@ -26,7 +26,7 @@ namespace HiveServer.Repository
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to set token for player ID: {userId}", userId);
+                _logger.LogError(ex, "Failed to set token for player ID: {userNum}", userNum);
                 return false;
             }
         }
@@ -55,9 +55,9 @@ namespace HiveServer.Repository
         ///     return result.HasValue ? result.Value : string.Empty;
         /// -> 둘 중에 어떤 게 더 보편적인 방법인지 궁금합니다!
 
-        public async Task<bool> ValidateTokenAsync(long userId, string token)
+        public async Task<bool> ValidateTokenAsync(long userNum, string token)
         {
-            var key = $"user:token:{userId}";
+            var key = $"user:token:{userNum}";
             try
             {
                 var redisString = new RedisString<string>(_redisConn, key, TimeSpan.FromHours(1));
@@ -66,7 +66,7 @@ namespace HiveServer.Repository
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to validate token for player ID: {userId}", userId);
+                _logger.LogError(ex, "Failed to validate token for player ID: {userNum}", userNum);
                 return false;
             }
         }

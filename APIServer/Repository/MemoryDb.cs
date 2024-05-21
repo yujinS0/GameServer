@@ -15,9 +15,9 @@ namespace APIServer.Repository
             RedisConfig config = new RedisConfig("default", dbConfig.Value.RedisGameConnection);
             _redisConn = new RedisConnection(config);
         }
-        public async Task<string> SetUserTokenAsync(long userId)
+        public async Task<string> SetUserTokenAsync(long UserNum)
         {           
-            var key = $"user:token:{userId}";
+            var key = $"user:token:{UserNum}";
             var token = Guid.NewGuid().ToString(); // 새 토큰 생성
             var redisString = new RedisString<string>(_redisConn, key, TimeSpan.FromHours(1)); // RedisString 인스턴스 생성
             

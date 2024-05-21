@@ -22,7 +22,7 @@ public class GameDataController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<UserGameDataResponse>> GetGameData([FromBody] UserGameDataRequest request)
     {
-        if (request == null || request.UserId <= 0)
+        if (request == null || request.UserNum <= 0)
         {
             _logger.LogError("Invalid request data.");
             return BadRequest("Invalid request data.");
@@ -30,18 +30,18 @@ public class GameDataController : ControllerBase
 
         try
         {
-            var userGameData = await _gameDb.GetUserGameDataAsync(request.UserId);
+            var userGameData = await _gameDb.GetUserGameDataAsync(request.UserNum);
             if (userGameData == null)
             {
-                _logger.LogInformation("No user game data found for user ID {UserId}.", request.UserId);
-                return NotFound($"No game data found for user ID {request.UserId}.");
+                _logger.LogInformation("No user game data found for user ID {UserNum}.", request.UserNum);
+                return NotFound($"No game data found for user ID {request.UserNum}.");
             }
 
-            _logger.LogInformation("Retrieved game data for user ID {UserId}.", request.UserId);
+            _logger.LogInformation("Retrieved game data for user ID {UserNum}.", request.UserNum);
             return Ok(new UserGameDataResponse
             {
+                UserNum = userGameData.UserNum,
                 UserId = userGameData.UserId,
-                Email = userGameData.Email,
                 Level = userGameData.Level,
                 Exp = userGameData.Exp,
                 Win = userGameData.Win,
@@ -51,7 +51,7 @@ public class GameDataController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while retrieving game data for user ID {UserId}.", request.UserId);
+            _logger.LogError(ex, "An error occurred while retrieving game data for user ID {UserNum}.", request.UserNum);
             return StatusCode(500, "An error occurred while processing your request.");
         }
     }

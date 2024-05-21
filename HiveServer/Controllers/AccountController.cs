@@ -21,29 +21,29 @@ public class AccountController : ControllerBase
     {
         AccountResponse response = new();
 
-        response.Result = await _hiveDb.RegisterAccount(request.Email, request.Password);
+        response.Result = await _hiveDb.RegisterAccount(request.UserId, request.Password);
 
         return response;
     }
 
-    [HttpPost("email")]
-    public async Task<ActionResult<UserEmailResponse>> GetEmailByUserId([FromBody] UserIdRequest request)
+    [HttpPost("userId")]
+    public async Task<ActionResult<UserIdResponse>> GetUserIdByUserNum([FromBody] UserNumRequest request)
     {
-        var (errorCode, email) = await _hiveDb.GetEmailByUserId(request.UserId);
+        var (errorCode, userId) = await _hiveDb.GetUserIdByUserNum(request.UserNum);
 
-        if (errorCode == ErrorCode.None && email != null)
+        if (errorCode == ErrorCode.None && userId != null)
         {
-            return Ok(new UserEmailResponse { Email = email, Result = ErrorCode.None });
+            return Ok(new UserIdResponse { UserId = userId, Result = ErrorCode.None });
         }
         else if (errorCode == ErrorCode.UserNotFound)
         {
-            _logger.LogError("User not found for UserId: {UserId}", request.UserId);
-            return NotFound(new UserEmailResponse { Result = ErrorCode.UserNotFound });
+            _logger.LogError("User not found for UserNum: {UserNum}", request.UserNum);
+            return NotFound(new UserIdResponse { Result = ErrorCode.UserNotFound });
         }
         else
         {
-            _logger.LogError("Internal server error while retrieving email for UserId: {UserId}", request.UserId);
-            return StatusCode(500, new UserEmailResponse { Result = ErrorCode.InternalError });
+            _logger.LogError("Internal server error while retrieving userId for UserNum: {UserNum}", request.UserNum);
+            return StatusCode(500, new UserIdResponse { Result = ErrorCode.InternalError });
         }
     }
 

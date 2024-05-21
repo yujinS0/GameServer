@@ -8,7 +8,7 @@ namespace HiveServer.Model.DTO
         [EmailAddress]
         [MinLength(1, ErrorMessage = "EMAIL CANNOT BE EMPTY")]
         [StringLength(50, ErrorMessage = "EMAIL IS TOO LONG")]
-        public required string Email { get; set; }
+        public required string UserId { get; set; }
 
         [Required]
         [MinLength(6, ErrorMessage = "Password must be at least 6 characters long.")]
@@ -23,7 +23,7 @@ namespace HiveServer.Model.DTO
         public ErrorCode Result { get; set; } = ErrorCode.None;
 
         [Required]
-        public long UserId { get; set; }
+        public long UserNum { get; set; }
         public string HiveToken { get; set; }
     }
 

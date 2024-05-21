@@ -27,26 +27,26 @@ public class MatchController : ControllerBase
     [HttpPost("request")]
     public async Task<IActionResult> Match([FromBody] MatchRequest request)
     {
-        _logger.LogInformation($"POST match/request : {request.Email}", request.Email);
-        if (request == null || string.IsNullOrEmpty(request.Email))
+        _logger.LogInformation($"POST match/request : {request.UserId}", request.UserId);
+        if (request == null || string.IsNullOrEmpty(request.UserId))
         {
             _logger.LogError("Invalid match request data.");
             return BadRequest(new MatchResponse { Result = ErrorCode.InvalidRequest });
         }
 
-        _reqQueue.Enqueue(request.Email);
-        _logger.LogInformation("Added {Email} to match request queue.", request.Email);
+        _reqQueue.Enqueue(request.UserId);
+        _logger.LogInformation("Added {UserId} to match request queue.", request.UserId);
 
         if (_reqQueue.Count >= 2)
         {
             var roomInfo = await _memoryDb.PopRoomInfoAsync();
             if (roomInfo != null)
             {
-                if (_reqQueue.TryDequeue(out string email1) && _reqQueue.TryDequeue(out string email2))
+                if (_reqQueue.TryDequeue(out string UserId1) && _reqQueue.TryDequeue(out string UserId2))
                 {
-                    _completeDic[email1] = roomInfo;
-                    _completeDic[email2] = roomInfo;
-                    _logger.LogInformation("Matched {Email1} and {Email2} in room {RoomNum}.", email1, email2, roomInfo.RoomNumber);
+                    _completeDic[UserId1] = roomInfo;
+                    _completeDic[UserId2] = roomInfo;
+                    _logger.LogInformation("Matched {UserId1} and {UserId2} in room {RoomNum}.", UserId1, UserId2, roomInfo.RoomNumber);
                 }
             }
         }
@@ -57,30 +57,30 @@ public class MatchController : ControllerBase
     [HttpPost("ismatched")]
     public IActionResult IsMatched([FromBody] MatchRequest request)
     {
-        _logger.LogInformation($"POST match/ismatched : {request.Email}", request.Email);
+        _logger.LogInformation($"POST match/ismatched : {request.UserId}", request.UserId);
 
-        if (request == null || string.IsNullOrEmpty(request.Email))
+        if (request == null || string.IsNullOrEmpty(request.UserId))
         {
             _logger.LogError("Invalid ismatched request data.");
             return BadRequest(new MatchCompleteResponse
             {
                 Result = ErrorCode.InvalidRequest,
                 Success = 0,
-                Email = request.Email,
+                UserId = request.UserId,
                 RoomNum = -1,
                 ServerAddress = ""
             });
         }
 
-        if (_completeDic.TryGetValue(request.Email, out RoomInfo roomInfo))
+        if (_completeDic.TryGetValue(request.UserId, out RoomInfo roomInfo))
         {
             // 매칭된 이메일과 룸 번호 쌍을 딕셔너리에서 제거
-            _completeDic.TryRemove(request.Email, out _);
+            _completeDic.TryRemove(request.UserId, out _);
             return Ok(new MatchCompleteResponse
             {
                 Result = ErrorCode.None,
                 Success = 1,
-                Email = request.Email,
+                UserId = request.UserId,
                 RoomNum = roomInfo.RoomNumber,
                 ServerAddress = roomInfo.ServerAddress
             });
@@ -90,7 +90,7 @@ public class MatchController : ControllerBase
         {
             Result = ErrorCode.None,
             Success = 0,
-            Email = request.Email,
+            UserId = request.UserId,
             RoomNum = -1,
             ServerAddress = ""
         });
@@ -99,9 +99,9 @@ public class MatchController : ControllerBase
     [HttpPost("cancel")]
     public IActionResult CancelMatch([FromBody] MatchRequest request)
     {
-        _logger.LogInformation($"POST match/cancel : {request.Email}", request.Email);
+        _logger.LogInformation($"POST match/cancel : {request.UserId}", request.UserId);
 
-        if (request == null || string.IsNullOrEmpty(request.Email))
+        if (request == null || string.IsNullOrEmpty(request.UserId))
         {
             _logger.LogError("Invalid cancel match request data.");
             return BadRequest(new MatchCancelResponse
@@ -111,9 +111,9 @@ public class MatchController : ControllerBase
             });
         }
 
-        if (_completeDic.ContainsKey(request.Email))
+        if (_completeDic.ContainsKey(request.UserId))
         {
-            _logger.LogError("Cannot cancel match for {Email} as it is already completed.", request.Email);
+            _logger.LogError("Cannot cancel match for {UserId} as it is already completed.", request.UserId);
             return BadRequest(new MatchCancelResponse
             {
                 Result = ErrorCode.MatchNotFound,
@@ -124,16 +124,16 @@ public class MatchController : ControllerBase
         var tempQueue = new ConcurrentQueue<string>();
         bool removed = false; // 매칭 요청 큐에서 요청 제거 여부
 
-        while (_reqQueue.TryDequeue(out string email))
+        while (_reqQueue.TryDequeue(out string userId))
         {
-            if (email == request.Email && !removed)
+            if (userId == request.UserId && !removed)
             {
                 removed = true;
-                _logger.LogInformation("Removed {Email} from match request queue.", request.Email);
+                _logger.LogInformation("Removed {UserId} from match request queue.", request.UserId);
             }
             else
             {
-                tempQueue.Enqueue(email);
+                tempQueue.Enqueue(userId);
             }
         }
 
@@ -155,153 +155,3 @@ public class MatchController : ControllerBase
         });
     }
 }
-
-//[ApiController]
-//[Route("[controller]")]
-//public class MatchController : ControllerBase
-//{
-//    private static ConcurrentQueue<string> _reqQueue = new();
-//    private static ConcurrentQueue<int> _room = new();
-//    private static ConcurrentDictionary<string, int> _completeDic = new();
-
-//    private readonly ILogger<MatchController> _logger;
-
-//    public MatchController(ILogger<MatchController> logger)
-//    {
-//        _logger = logger;
-
-//        // 초기화된 방 번호 큐 (_room)에 예시로 방 번호 추가
-//        for (int i = 99; i > 0; i--)
-//        {
-//            _room.Enqueue(i);
-//        }
-//    }
-
-//    [HttpPost("request")]
-//    public IActionResult Match([FromBody] MatchRequest request)
-//    {
-//        _logger.LogInformation($"POST match/request : {request.Email}", request.Email);
-//        if (request == null || string.IsNullOrEmpty(request.Email))
-//        {
-//            _logger.LogError("Invalid match request data.");
-//            return BadRequest(new MatchResponse { Result = ErrorCode.InvalidRequest });
-//        }
-
-//        _reqQueue.Enqueue(request.Email);   
-//        _logger.LogInformation("Added {Email} to match request queue.", request.Email);
-
-//        if (_reqQueue.Count >= 2)
-//        {
-//            if (_room.TryDequeue(out int roomNum))
-//            {
-//                if (_reqQueue.TryDequeue(out string email1) && _reqQueue.TryDequeue(out string email2))
-//                {
-//                    _completeDic[email1] = roomNum;
-//                    _completeDic[email2] = roomNum;
-//                    _logger.LogInformation("Matched {Email1} and {Email2} in room {RoomNum}.", email1, email2, roomNum);
-//                }
-//            }
-//        }
-
-//        return Ok(new MatchResponse { Result = ErrorCode.None });
-//    }
-
-//    [HttpPost("ismatched")]
-//    public IActionResult IsMatched([FromBody] MatchRequest request)
-//    {
-//        _logger.LogInformation($"POST match/ismatched : {request.Email}", request.Email);
-
-//        if (request == null || string.IsNullOrEmpty(request.Email))
-//        {
-//            _logger.LogError("Invalid ismatched request data.");
-//            return BadRequest(new MatchCompleteResponse
-//            {
-//                Result = ErrorCode.InvalidRequest,
-//                Success = 0,
-//                Email = request.Email,
-//                RoomNum = -1
-//            });
-//        }
-
-//        if (_completeDic.TryGetValue(request.Email, out int roomNum))
-//        {
-//            // 매칭된 이메일과 룸 번호 쌍을 딕셔너리에서 제거
-//            _completeDic.TryRemove(request.Email, out _); 
-//            return Ok(new MatchCompleteResponse
-//            {
-//                Result = ErrorCode.None,
-//                Success = 1,
-//                Email = request.Email,
-//                RoomNum = roomNum
-//            });
-//        }
-
-//        return Ok(new MatchCompleteResponse
-//        {
-//            Result = ErrorCode.None,
-//            Success = 0,
-//            Email = request.Email,
-//            RoomNum = -1
-//        });
-//    }
-
-//    [HttpPost("cancel")]
-//    public IActionResult CancelMatch([FromBody] MatchRequest request)
-//    {
-//        _logger.LogInformation($"POST match/cancel : {request.Email}", request.Email);
-
-//        if (request == null || string.IsNullOrEmpty(request.Email))
-//        {
-//            _logger.LogError("Invalid cancel match request data.");
-//            return BadRequest(new MatchCancelResponse
-//            {
-//                Result = ErrorCode.InvalidRequest,
-//                Message = "Invalid request data."
-//            });
-//        }
-
-//        if (_completeDic.ContainsKey(request.Email))
-//        {
-//            _logger.LogError("Cannot cancel match for {Email} as it is already completed.", request.Email);
-//            return BadRequest(new MatchCancelResponse
-//            {
-//                Result = ErrorCode.MatchNotFound,
-//                Message = "Match already completed. Cannot cancel."
-//            });
-//        }
-
-//        var tempQueue = new ConcurrentQueue<string>();
-//        bool removed = false; // 매칭 요청 큐에서 요청 제거 여부
-
-//        while (_reqQueue.TryDequeue(out string email))
-//        {
-//            if (email == request.Email && !removed)
-//            {
-//                removed = true;
-//                _logger.LogInformation("Removed {Email} from match request queue.", request.Email);
-//            }
-//            else
-//            {
-//                tempQueue.Enqueue(email);
-//            }
-//        }
-
-//        _reqQueue = tempQueue;
-
-//        if (!removed)
-//        {
-//            return Ok(new MatchCancelResponse
-//            {
-//                Result = ErrorCode.MatchNotFound,
-//                Message = "No matching request found to cancel."
-//            });
-//        }
-
-//        return Ok(new MatchCancelResponse
-//        {
-//            Result = ErrorCode.None,
-//            Message = "Match request cancelled successfully."
-//        });
-//    }
-
-//}

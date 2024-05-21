@@ -35,7 +35,7 @@ internal class PKHMYSQL : PKHandler
         _logger.Debug($"Processing win for user ID: {winnerId}");
 
         var result = _queryFactory.Query("UserGameData")
-            .Where("Email", "=", winnerId)
+            .Where("UserId", "=", winnerId)
             .Increment("Win", 1);
 
         // Check the result and log accordingly
@@ -57,7 +57,7 @@ internal class PKHMYSQL : PKHandler
         _logger.Debug($"Processing win for user ID: {loserId}");
 
         var result = _queryFactory.Query("UserGameData")
-            .Where("Email", "=", loserId)
+            .Where("UserId", "=", loserId)
             .Increment("Lose", 1);
 
         // Check the result and log accordingly
@@ -79,7 +79,7 @@ internal class PKHMYSQL : PKHandler
         _logger.Debug($"Processing win for user ID: {userId}");
 
         var result = _queryFactory.Query("UserGameData")
-            .Where("Email", "=", userId)
+            .Where("UserId", "=", userId)
             .Increment("Draw", 1);
 
         // Check the result and log accordingly
