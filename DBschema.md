@@ -2,11 +2,11 @@
 
 ```sql
   use hivedb;
-
+  
   CREATE TABLE account (
-      userid INT AUTO_INCREMENT PRIMARY KEY,
-      email VARCHAR(255) NOT NULL UNIQUE,
-      password CHAR(64) NOT NULL,
+      userNum INT AUTO_INCREMENT PRIMARY KEY,
+      userId VARCHAR(255) NOT NULL UNIQUE,
+      password CHAR(64) NOT NULL,  -- SHA-256 해시 결과는 항상 64 길이의 문자열
       salt CHAR(64) NOT NULL
   );
 ```
@@ -15,13 +15,15 @@
 
 ```sql
   use gamedb;
-
+  
   CREATE TABLE UserGameData (
-      UserId VARCHAR(255) NOT NULL,
+      UserNum INT NOT NULL,
+      UserId VARCHAR(255) NOT NULL UNIQUE,
       Level INT NOT NULL DEFAULT 1,
       Exp INT NOT NULL DEFAULT 0,
       Win INT NOT NULL DEFAULT 0,
       Lose INT NOT NULL DEFAULT 0,
+      Draw INT NOT NULL DEFAULT 0,
       PRIMARY KEY (UserId)
   );
 ```
@@ -30,7 +32,7 @@
 ```sql
   CREATE TABLE Attendance (
     AttendanceId INT AUTO_INCREMENT PRIMARY KEY,
-    UserId INT NOT NULL,
+    UserId VARCHAR(255) NOT NULL,
     Date DATE NOT NULL,
     UNIQUE (UserId, Date)
 );
@@ -39,7 +41,7 @@
 ### 인벤토리
 ```sql
   CREATE TABLE Inventory (
-    UserId INT NOT NULL,
+    UserId VARCHAR(255) NOT NULL,
     ItemId INT NOT NULL,
     PRIMARY KEY (UserId, ItemId)
 );
@@ -49,7 +51,7 @@
 ```sql
 CREATE TABLE Mailbox (
     MailId INT AUTO_INCREMENT PRIMARY KEY,
-    UserId INT NOT NULL,
+    UserId VARCHAR(255) NOT NULL,
     Title VARCHAR(255) NOT NULL,
     Content TEXT NOT NULL,
     SentDate DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -59,8 +61,8 @@ CREATE TABLE Mailbox (
 ### 친구
 ```sql
   CREATE TABLE Friends (
-    UserId1 INT NOT NULL,
-    UserId2 INT NOT NULL,
+    UserId1 VARCHAR(255) NOT NULL,
+    UserId2 VARCHAR(255) NOT NULL,
     PRIMARY KEY (UserId1, UserId2)
 );
 ```
