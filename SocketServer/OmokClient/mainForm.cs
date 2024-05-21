@@ -430,7 +430,7 @@ namespace OmokClient
             {
                 loginUrl = "http://localhost:5092/account/register";
             }
-            var loginData = new { Email = email, Password = password };
+            var loginData = new { UserId = email, Password = password };
             var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
 
             try
@@ -466,17 +466,17 @@ namespace OmokClient
 
             if (loginResponse != null && loginResponse.result == 0)
             {
-                DevLog.Write($"{loginResponse.userId} , {loginResponse.hiveToken}");
+                DevLog.Write($"{loginResponse.userNum} , {loginResponse.hiveToken}");
                 labelStatus.Text = "하이브 로그인 성공";
                 DevLog.Write("하이브 로그인에 성공했습니다.");
 
                 // 추가 API Game 로그인 과정
                 if (email == null) { return; }
-                var gameLoginResponse = await GameLoginAsync(loginResponse.userId, email, loginResponse.hiveToken);
+                var gameLoginResponse = await GameLoginAsync(loginResponse.userNum, email, loginResponse.hiveToken);
                 if (gameLoginResponse != null && gameLoginResponse.result == 0)
                 {
                     DevLog.Write("API Game 서버 로그인 성공");
-                    DataUserId.Text = gameLoginResponse.userGameData.userId.ToString();
+                    DataUserId.Text = gameLoginResponse.userGameData.userNum.ToString();
                     DataLevel.Text = gameLoginResponse.userGameData.level.ToString();
                     DataExp.Text = gameLoginResponse.userGameData.exp.ToString();
                     DataWin.Text = gameLoginResponse.userGameData.win.ToString();
@@ -523,7 +523,7 @@ namespace OmokClient
                 loginUrl = "http://localhost:5092/login";
             }
 
-            var loginData = new { Email = email, Password = password };
+            var loginData = new { UserId = email, Password = password };
             var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
 
             try
@@ -553,7 +553,7 @@ namespace OmokClient
             {
                 loginUrl = "http://localhost:5022/login";
             }
-            var loginData = new { UserID = userId, Email = email, HiveToken = hiveToken };
+            var loginData = new { UserNum = userId, UserId = email, HiveToken = hiveToken };
             var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
 
             HeaderUserId = userId;
@@ -588,7 +588,7 @@ namespace OmokClient
                 verifyUrl = "http://localhost:5092/VerifyToken";
             }
 
-            var verifyData = new { UserID = userId, HiveToken = hiveToken };
+            var verifyData = new { UserID = userId, HiveToken = hiveToken }; // Email
             var content = new StringContent(JsonSerializer.Serialize(verifyData), Encoding.UTF8, "application/json");
 
             try
@@ -636,7 +636,7 @@ namespace OmokClient
             }
 
             // 매칭 요청
-            var matchRequest = new MatchRequest { Email = email };
+            var matchRequest = new MatchRequest { UserId = email };
             var content = new StringContent(JsonSerializer.Serialize(matchRequest), Encoding.UTF8, "application/json");
 
             HttpClient httpClient = new HttpClient();
@@ -667,7 +667,7 @@ namespace OmokClient
             if (!isMatching)
                 return;
 
-            var matchRequest = new MatchRequest { Email = email };
+            var matchRequest = new MatchRequest { UserId = email };
 
             var matchUrl = "http://34.22.95.236:5022/match/ismatched";
             if (checkBoxLocalHostIPGame.Checked) // LocalHost 체크 상태 확인
@@ -698,7 +698,7 @@ namespace OmokClient
 
                     textBoxRoomNumber.Text = matchCompleteResponse.roomNum.ToString(); // 방 번호 설정
 
-                    var userId = matchCompleteResponse.email;
+                    var userId = matchCompleteResponse.userId;
                     var serverAddress = matchCompleteResponse.serverAddress;
 
                     // 소켓 서버와 연결
@@ -789,7 +789,7 @@ namespace OmokClient
             }
 
             // 매칭 취소 요청
-            var matchRequest = new MatchRequest { Email = email };
+            var matchRequest = new MatchRequest { UserId = email };
             var content = new StringContent(JsonSerializer.Serialize(matchRequest), Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync(matchUrl, content);
 
@@ -1071,7 +1071,7 @@ namespace OmokClient
     public class LoginResponse
     {
         public int result { get; set; }
-        public long userId { get; set; }
+        public long userNum { get; set; }
         public string hiveToken { get; set; }
     }
 
@@ -1091,7 +1091,7 @@ namespace OmokClient
 
     public class UserGameData
     {
-        public long userId { get; set; }
+        public long userNum { get; set; }
         public int level { get; set; }
         public int exp { get; set; }
         public int win { get; set; }
@@ -1100,7 +1100,7 @@ namespace OmokClient
     }
     public class MatchRequest
     {
-        public string Email { get; set; }
+        public string UserId { get; set; }
     }
 
     public class MatchResponse
@@ -1112,7 +1112,7 @@ namespace OmokClient
     {
         public ErrorCode result { get; set; }
         public int success { get; set; }
-        public string email { get; set; }
+        public string userId { get; set; }
         public int roomNum { get; set; }
         public string serverAddress { get; set; }
     }

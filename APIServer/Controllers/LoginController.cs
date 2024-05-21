@@ -45,21 +45,21 @@ public class LoginController : ControllerBase
 
             if (validationResult.Result == ErrorCode.None)
             {
-                var gameToken = await _gameRedis.SetUserTokenAsync(request.UserID);
-                var userData = await _gameDb.GetUserGameDataAsync(request.UserID);
+                var gameToken = await _gameRedis.SetUserTokenAsync(request.UserNum);
+                var userData = await _gameDb.GetUserGameDataAsync(request.UserNum);
 
                 if (userData == null)
                 {
-                    _logger.LogInformation("No user data found, creating new data for user ID {UserID}", request.UserID);
-                    userData = await _gameDb.CreateUserGameDataAsync(request.UserID, request.Email);
+                    _logger.LogInformation("No user data found, creating new data for user ID {UserNum}", request.UserNum);
+                    userData = await _gameDb.CreateUserGameDataAsync(request.UserNum, request.UserId);
                 }
 
-                _logger.LogInformation("Successfully authenticated user {UserID} with token", request.UserID);
+                _logger.LogInformation("Successfully authenticated user {UserNum} with token", request.UserNum);
                 return new LoginResponse
                 {
                     Result = ErrorCode.None,
                     Token = gameToken,
-                    Uid = request.UserID,
+                    Uid = request.UserNum,
                     UserGameData = userData
                 };
             }

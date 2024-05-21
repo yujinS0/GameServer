@@ -29,7 +29,7 @@ public class MatchController : ControllerBase
     [HttpPost("request")]
     public async Task<IActionResult> Match([FromBody] MatchRequest request)
     {
-        _logger.LogInformation($"POST match/request : {request.Email}");
+        _logger.LogInformation($"POST match/request : {request.UserId}");
 
         var client = _httpClientFactory.CreateClient();
         var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
@@ -79,7 +79,7 @@ public class MatchController : ControllerBase
     [HttpPost("ismatched")]
     public async Task<IActionResult> IsMatched([FromBody] MatchRequest request)
     {
-        _logger.LogInformation($"POST match/ismatched : {request.Email}");
+        _logger.LogInformation($"POST match/ismatched : {request.UserId}");
 
         var client = _httpClientFactory.CreateClient();
         var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
@@ -129,7 +129,7 @@ public class MatchController : ControllerBase
     [HttpPost("cancel")]
     public async Task<IActionResult> CancelMatch([FromBody] MatchRequest request)
     {
-        _logger.LogInformation($"POST match/cancel : {request.Email}");
+        _logger.LogInformation($"POST match/cancel : {request.UserId}");
 
         var client = _httpClientFactory.CreateClient();
         var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");

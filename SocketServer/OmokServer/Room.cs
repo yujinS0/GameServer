@@ -48,7 +48,7 @@ public class Room
         isEpmty = true;
 
         // Create RoomInfo and send insert packet to Redis
-        var roomInfo = new RoomInfo(number, "localhost:32451");
+        var roomInfo = new RoomInfo(number, "localhost:32451"); //[TODO] Config로 받아오기?
         var insertPacket = new PKTReqInRedisInsertRoomInfo { RoomNumber = number, roomInfo = roomInfo };
         var sendPacket = MemoryPackSerializer.Serialize(insertPacket);
         MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.ReqInRedisInsertRoomInfo);

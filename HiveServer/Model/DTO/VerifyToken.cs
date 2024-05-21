@@ -7,7 +7,7 @@ namespace HiveServer.Model.DTO
         [Required]
         public required string HiveToken { get; set; }
         [Required]
-        public long UserId { get; set; }
+        public long UserNum { get; set; }
     }
 
     public class VerifyTokenResponse

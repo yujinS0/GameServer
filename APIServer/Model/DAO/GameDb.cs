@@ -2,8 +2,8 @@ namespace APIServer.Models.GameDB
 {
     public class UserGameData
     {
-        public long UserId { get; set; }
-        public string Email { get; set; }
+        public long UserNum { get; set; }
+        public string UserId { get; set; }
         public int Level { get; set; }
         public int Exp { get; set; }
         public int Win { get; set; }

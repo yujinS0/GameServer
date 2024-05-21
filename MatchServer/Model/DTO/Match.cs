@@ -4,7 +4,7 @@ namespace MatchServer.Model.DTO
 {
     public class MatchRequest
     {
-        [Required] public string Email { get; set; }
+        [Required] public string UserId { get; set; }
     }
 
     public class MatchResponse
@@ -16,7 +16,7 @@ namespace MatchServer.Model.DTO
     {
         [Required] public ErrorCode Result { get; set; } = ErrorCode.None;
         [Required] public int Success { get; set; } // 매칭 성공하면 1
-        [Required] public string Email { get; set; }
+        [Required] public string UserId { get; set; }
         [Required] public int RoomNum { get; set; }
         [Required] public string ServerAddress { get; set; }
     }

@@ -24,7 +24,7 @@ public class VerifyTokenController : ControllerBase
     [HttpPost]
 public async Task<VerifyTokenResponse> Verify([FromBody] VerifyTokenRequest request)
 {
-    bool isValid = await _hiveRedis.ValidateTokenAsync(request.UserId, request.HiveToken);
+    bool isValid = await _hiveRedis.ValidateTokenAsync(request.UserNum, request.HiveToken);
 
     if (!isValid)
     {
