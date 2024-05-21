@@ -1,5 +1,4 @@
-﻿using APIServer.Models.GameDB;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace APIServer.Model.DTO
 {

@@ -8,8 +8,6 @@ using System.Linq;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text;

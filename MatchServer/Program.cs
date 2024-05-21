@@ -1,13 +1,4 @@
-using System;
-using System.IO;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
 using MatchServer.Repository;
-using CloudStructures;
-using StackExchange.Redis;
 using MatchServer;
 
 var builder = WebApplication.CreateBuilder(args);

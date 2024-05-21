@@ -1,9 +1,6 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using APIServer.DTO;
 using APIServer.Repository;
-using Microsoft.Extensions.Logging;
 
 namespace APIServer.Controllers;
 [ApiController]

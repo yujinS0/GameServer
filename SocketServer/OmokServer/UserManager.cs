@@ -1,12 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using SuperSocket.SocketBase.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using SuperSocket.SocketBase.Logging;
 using ServerClientCommon;
 
 namespace OmokServer;
-
 public class UserManager
 {
     int _maxUserCount; // 200
@@ -129,15 +124,7 @@ public class User
     public int RoomNumber { get; private set; } = -1;
     string UserID;
     public DateTime LoginTime;
-
     bool IsReady = false;
-    //private readonly ILogger<User> _logger;
-
-    //public User(ILogger<User> logger)
-    //{
-    //    _logger = logger;
-    //}
-
 
     public void Set(UInt64 sequence, string sessionID, string userID)
     {
