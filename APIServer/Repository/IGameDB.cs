@@ -1,10 +1,9 @@
 using APIServer.Models.GameDB;
 
-namespace APIServer.Repository
+namespace APIServer.Repository;
+
+public interface IGameDb : IDisposable
 {
-    public interface IGameDb : IDisposable
-    {
-        Task<UserGameData> CreateUserGameDataAsync(long userNum, string UserId);
-        Task<UserGameData> GetUserGameDataAsync(long userNum);
-    }
+    Task<UserGameData> CreateUserGameDataAsync(long userNum, string UserId);
+    Task<UserGameData> GetUserGameDataAsync(long userNum);
 }

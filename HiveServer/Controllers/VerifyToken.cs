@@ -1,9 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using HiveServer.Model.DTO;
-using StackExchange.Redis;
-using System.Threading.Tasks;
-using HiveServer.Services;
 using HiveServer.Repository;
 
 namespace HiveServer.Controllers;

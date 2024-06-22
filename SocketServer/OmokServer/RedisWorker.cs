@@ -1,30 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
-using Microsoft.Extensions.Options;
-using MySqlConnector;
-using SqlKata.Compilers;
-using SqlKata.Execution;
+﻿using System.Threading.Tasks.Dataflow;
 using CloudStructures;
 using CloudStructures.Structures;
 using SuperSocket.SocketBase.Logging;
 using ServerClientCommon;
 
 namespace OmokServer;
-
 class RedisWorker
 {
     bool _isThreadRunning = false;
     System.Threading.Thread _processThread = null;
-
-    //public Func<string, byte[], bool> SendInnerPacketFunc;
     public Func<string, byte[], bool> NetSendFunc;
     BufferBlock<MemoryPackBinaryRequestInfo> _msgBuffer = new BufferBlock<MemoryPackBinaryRequestInfo>();
 
-    //Dictionary<int, Action<MemoryPackBinaryRequestInfo>> _packetHandlerMap = new Dictionary<int, Action<MemoryPackBinaryRequestInfo>>();
     Dictionary<int, Action<MemoryPackBinaryRequestInfo, RedisConnection>> _packetHandlerMap = new Dictionary<int, Action<MemoryPackBinaryRequestInfo, RedisConnection>>();
 
     PKHRedis _redisPacketHandler;

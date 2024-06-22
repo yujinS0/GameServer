@@ -1,13 +1,5 @@
 ﻿using MemoryPack;
-using MessagePack;
 using SuperSocket.SocketBase.Logging;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.InteropServices.Marshalling;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using ServerClientCommon;
 
 namespace OmokServer;
@@ -15,11 +7,9 @@ namespace OmokServer;
 public class Room
 {
     public const int InvalidRoomNumber = -1;
-
     public int Index { get; private set; } 
     public int Number { get; private set; } 
     int _maxUserCount = 0;
-
     bool isEpmty = true;
 
     List<RoomUser> _userList = new List<RoomUser>();
@@ -48,7 +38,7 @@ public class Room
         isEpmty = true;
 
         // Create RoomInfo and send insert packet to Redis
-        var roomInfo = new RoomInfo(number, "localhost:32451"); //[TODO] Config로 받아오기?
+        var roomInfo = new RoomInfo(number, "localhost:32451"); //[TODO] 자신의 외부 IP로 설정
         var insertPacket = new PKTReqInRedisInsertRoomInfo { RoomNumber = number, roomInfo = roomInfo };
         var sendPacket = MemoryPackSerializer.Serialize(insertPacket);
         MemoryPackPacketHeadInfo.Write(sendPacket, PACKETID.ReqInRedisInsertRoomInfo);
@@ -236,20 +226,6 @@ public class Room
         }
     }
 }
-
-//[MemoryPackable]
-//public partial class RoomInfo
-//{
-//    public int RoomNumber { get; set; }
-//    public string ServerAddress { get; set; }
-
-//    public RoomInfo(int roomNumber, string serverAddress)
-//    {
-//        RoomNumber = roomNumber;
-//        ServerAddress = serverAddress; // "localhost:32451"
-//    }
-//}
-
 
 public class RoomUser
 {

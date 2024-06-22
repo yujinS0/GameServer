@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Protocol;

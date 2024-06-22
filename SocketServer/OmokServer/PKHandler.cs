@@ -1,10 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-using SuperSocket.SocketBase.Logging;
-using System;
-
+﻿using SuperSocket.SocketBase.Logging;
 
 namespace OmokServer;
-
 public class PKHandler
 {
     public static Func<string, byte[], bool> NetSendFunc;

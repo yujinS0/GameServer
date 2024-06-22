@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using SuperSocket.Common;
+﻿using SuperSocket.Common;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine.Protocol;
 
 namespace OmokServer;
-
-// 이 코드에서 
 public class MemoryPackBinaryRequestInfo : BinaryRequestInfo
 {
     public string SessionID;

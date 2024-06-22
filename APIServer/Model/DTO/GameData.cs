@@ -1,8 +1,3 @@
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
-using APIServer.Models.GameDB;
-
 namespace APIServer.DTO;
 
 public class UserGameDataRequest
