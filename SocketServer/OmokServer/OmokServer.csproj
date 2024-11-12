@@ -18,7 +18,7 @@
 		<PackageReference Include="CloudStructures" Version="3.3.0" />
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
 		<PackageReference Include="MemoryPack" Version="1.21.1" />
-		<PackageReference Include="MessagePack" Version="2.5.140" />
+		<PackageReference Include="MessagePack" Version="2.5.187" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
 		<PackageReference Include="MySql.EntityFrameworkCore" Version="8.0.2" />
 		<PackageReference Include="MySqlConnector" Version="2.3.7" />
